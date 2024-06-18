@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Custom ###
+*.env
+*.DS_Store
+/src/main/generated
