@@ -27,11 +27,7 @@ jobs:
         with:
           arguments: check
           cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
-  ## slack
-  action-slack:
-    needs: CI-CD
-    runs-on: ubuntu-latest
-    steps:
+      ## slack 알람
       - name: Slack Alarm
         uses: 8398a7/action-slack@v3
         with:
