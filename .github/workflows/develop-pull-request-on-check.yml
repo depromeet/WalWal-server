@@ -26,7 +26,7 @@ jobs:
         uses: gradle/gradle-build-action@v3
         with:
           arguments: check
-          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+          cache-read-only: false
       ## slack 알람
       - name: Slack Alarm
         uses: 8398a7/action-slack@v3
