@@ -27,3 +27,14 @@ jobs:
         with:
           arguments: check
           cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
+      # 슬랙으로 빌드 스캔 결과 전송
+      - name: Send to slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "Gradle Build Scan Report of ${{ github.workflow }}: ${{ steps.gradle.outputs.build-scan-url }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
