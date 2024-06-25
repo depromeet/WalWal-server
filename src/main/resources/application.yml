@@ -30,3 +30,6 @@ springdoc:
     doc-expansion: none
   cache:
     disabled: true
+
+api:
+  version: "0.0.1"
