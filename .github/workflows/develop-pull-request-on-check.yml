@@ -37,3 +37,19 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: always() # Pick up events even if the job fails or is canceled.
+
+  style-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3.0.2
+      - name: JDK install
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Checkstyle
+        run: |
+          ./gradlew spotlessCheck
