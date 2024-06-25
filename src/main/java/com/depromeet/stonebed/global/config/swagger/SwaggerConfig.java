@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.global.config;
+package com.depromeet.stonebed.global.config.swagger;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
