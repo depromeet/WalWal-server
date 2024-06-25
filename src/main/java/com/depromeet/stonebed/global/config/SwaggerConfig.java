@@ -10,7 +10,7 @@ import io.swagger.v3.oas.models.info.Info;
 
 @Configuration
 public class SwaggerConfig {
-	private static final String packagesToScan = "com.depromeet.stonebed";
+	private static final String PACKAGES_TO_SCAN = "com.depromeet.stonebed";
 
 	@Value("${api.version}")
 	private String apiVersion;
@@ -29,7 +29,7 @@ public class SwaggerConfig {
 	@Bean
 	public GroupedOpenApi groupedOpenApi() {
 		return GroupedOpenApi.builder().group("WalWal API")
-			.packagesToScan(packagesToScan)
+			.packagesToScan(PACKAGES_TO_SCAN)
 			.build();
 	}
 }
