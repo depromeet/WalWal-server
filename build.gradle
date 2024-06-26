@@ -54,23 +54,36 @@ jacoco {
     toolVersion = "0.8.12"
 }
 
+def QDomains = []
+
+for (qPattern in '*/QA'..'*/QZ') {
+    QDomains.add(qPattern + '*')
+}
+
 def jacocoExcludePatterns = [
         '**/*Application*',
-        '**/test/**'
+        '**/*Config/*',
+        '**/resources/**',
+        '**/test/**',
 ]
+
+def jacocoDir = layout.buildDirectory.dir("reports/")
 
 jacocoTestReport {
     dependsOn test
     reports {
-        xml.required.set(true)
         html.required.set(true)
+        xml.required.set(true)
         csv.required.set(true)
+        html.destination jacocoDir.get().file("jacoco/html").asFile
+        xml.destination jacocoDir.get().file("jacoco/index.xml").asFile
+        csv.destination jacocoDir.get().file("jacoco/index.csv").asFile
     }
 
     afterEvaluate {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
-                    fileTree(dir: it, excludes: jacocoExcludePatterns)
+                    fileTree(dir: it, excludes: jacocoExcludePatterns + QDomains)
                 })
         )
     }
@@ -83,7 +96,7 @@ jacocoTestCoverageVerification {
         rule {
             enabled = true
             element = 'CLASS'
-            excludes = jacocoExcludePatterns
+            excludes = jacocoExcludePatterns + QDomains
         }
     }
 }
