@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.6'
 	id 'io.spring.dependency-management' version '1.1.5'
+    id 'com.diffplug.spotless' version '6.21.0'
 }
 
 group = 'com.depromeet'
@@ -46,3 +47,26 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+spotless {
+    java {
+        target("**/*.java")
+        importOrder()
+        // 사용하지 않은 import문 제거
+        removeUnusedImports()
+        // 2개 이상 있거나 이제 앞뒤로 불필요한 공백이 있을 때 제거해주는 옵션
+        trimTrailingWhitespace()
+        // 줄은 공백으로 남아있을 수 있도록 항상 옵션을 걸어준다.
+        endWithNewline()
+        // google java format
+        googleJavaFormat().aosp()
+    }
+}
+
+// git pre-commit hook task 설정
+tasks.register("addGitPreCommitHook", Copy) {
+    from 'scripts/pre-commit'
+    into '.git/hooks'
+}
+
+compileJava.dependsOn addGitPreCommitHook
