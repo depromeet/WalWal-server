@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.2.6'
 	id 'io.spring.dependency-management' version '1.1.5'
     id 'com.diffplug.spotless' version '6.21.0'
+    id 'jacoco'
 }
 
 group = 'com.depromeet'
@@ -46,6 +47,58 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+def QDomains = []
+
+for (qPattern in '*/QA'..'*/QZ') {
+    QDomains.add(qPattern + '*')
+}
+
+def jacocoExcludePatterns = [
+        '**/*Application*',
+        '**/*Config/*',
+        '**/resources/**',
+        '**/test/**',
+]
+
+def jacocoDir = layout.buildDirectory.dir("reports/")
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(true)
+        html.destination jacocoDir.get().file("jacoco/html").asFile
+        xml.destination jacocoDir.get().file("jacoco/index.xml").asFile
+        csv.destination jacocoDir.get().file("jacoco/index.csv").asFile
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, excludes: jacocoExcludePatterns + QDomains)
+                })
+        )
+    }
+
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+            excludes = jacocoExcludePatterns + QDomains
+        }
+    }
 }
 
 spotless {
