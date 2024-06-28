@@ -36,17 +36,25 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 	compileOnly 'org.projectlombok:lombok'
 
+    // Database
     runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // Lombok
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Test Lombok
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    // FixtureMonkey
+    testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:1.0.20")
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+    jvmArgs '-Xshare:off' // JVM 아규먼트 설정
     finalizedBy jacocoTestReport
 }
 
