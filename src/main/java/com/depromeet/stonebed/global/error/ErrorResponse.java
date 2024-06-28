@@ -4,8 +4,4 @@ public record ErrorResponse(String message, Integer code, Object data) {
 	public static ErrorResponse of(String message, Integer code, Object data) {
 		return new ErrorResponse(message, code, data);
 	}
-
-	public static ErrorResponse of(String message, Integer code) {
-		return new ErrorResponse(message, code, null);
-	}
 }

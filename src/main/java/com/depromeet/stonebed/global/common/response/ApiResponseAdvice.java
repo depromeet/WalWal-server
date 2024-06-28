@@ -1,16 +1,23 @@
 package com.depromeet.stonebed.global.common.response;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestControllerAdvice(basePackages = "com.depromeet")
 public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
@@ -34,19 +41,27 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 		ApiResponse apiResponse;
 		if (body instanceof ApiResponse) {
 			apiResponse = (ApiResponse) body;
+		} else if (body instanceof String) {
+			apiResponse = ApiResponse.success(HttpStatus.OK.value(), body);
 		} else {
-			apiResponse = ApiResponse.success(body);
+			apiResponse = ApiResponse.success(HttpStatus.OK.value(), body);
 		}
 
+		HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
 		if (MappingJackson2HttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
+			servletResponse.setStatus(apiResponse.status());
 			return apiResponse;
+		} else if (StringHttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
+			try {
+				response.getHeaders().set("Content-Type", "application/json");
+				String json = objectMapper.writeValueAsString(apiResponse);
+				servletResponse.setStatus(apiResponse.status());
+				return json;
+			} catch (JsonProcessingException e) {
+				throw new CustomException(ErrorCode.JSON_PROCESSING_ERROR);
+			}
 		}
 
-		try {
-			response.getHeaders().set("Content-Type", "application/json");
-			return objectMapper.writeValueAsString(apiResponse);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
+		return apiResponse;
 	}
 }
