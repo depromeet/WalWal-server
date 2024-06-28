@@ -2,9 +2,6 @@ package com.depromeet.stonebed.global.common.response;
 
 import com.depromeet.stonebed.global.error.ErrorResponse;
 
-import lombok.Getter;
-
-@Getter
 public record ApiResponse(boolean success, int status, Object data) {
 
 	public static ApiResponse success(int status, Object data) {
