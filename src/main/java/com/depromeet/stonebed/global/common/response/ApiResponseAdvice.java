@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.ErrorResponse;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,16 +39,16 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 		Class<? extends HttpMessageConverter<?>> selectedConverterType,
 		ServerHttpRequest request, ServerHttpResponse response) {
 
+		HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
+		HttpStatus status = HttpStatus.valueOf(servletResponse.getStatus());
+
 		ApiResponse apiResponse;
-		if (body instanceof ApiResponse) {
-			apiResponse = (ApiResponse) body;
-		} else if (body instanceof String) {
-			apiResponse = ApiResponse.success(HttpStatus.OK.value(), body);
+		if (status.is2xxSuccessful()) {
+			apiResponse = ApiResponse.success(status.value(), body);
 		} else {
-			apiResponse = ApiResponse.success(HttpStatus.OK.value(), body);
+			apiResponse = ApiResponse.fail(status.value(), (ErrorResponse) body);
 		}
 
-		HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
 		if (MappingJackson2HttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
 			servletResponse.setStatus(apiResponse.status());
 			return apiResponse;
