@@ -39,6 +39,13 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // Querydsl
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:6.0"
+    implementation "io.github.openfeign.querydsl:querydsl-core:6.0"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:6.0:jpa"
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

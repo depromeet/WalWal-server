@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.global.config;
+package com.depromeet.stonebed.global.config.swagger;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
