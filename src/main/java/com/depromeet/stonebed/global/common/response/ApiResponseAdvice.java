@@ -6,6 +6,7 @@ import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,14 +19,11 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+@RequiredArgsConstructor
 @RestControllerAdvice(basePackages = "com.depromeet")
 public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
     private final ObjectMapper objectMapper;
-
-    public ApiResponseAdvice(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public boolean supports(
