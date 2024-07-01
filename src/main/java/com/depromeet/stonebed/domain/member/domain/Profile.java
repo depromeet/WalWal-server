@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.domain.member.domain;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,8 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Profile {
 
+    @Schema(description = "닉네임", example = "왈왈멍")
     private String nickname;
 
+    @Schema(description = "프로필 이미지 URL", example = "./profile.jpg")
     private String profileImageUrl;
 
     @Builder(access = AccessLevel.PRIVATE)
