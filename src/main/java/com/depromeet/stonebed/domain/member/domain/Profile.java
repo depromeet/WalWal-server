@@ -13,7 +13,7 @@ public class Profile {
 
     private String nickname;
 
-    @Getter private String profileImageUrl;
+    private String profileImageUrl;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Profile(String nickname, String profileImageUrl) {
