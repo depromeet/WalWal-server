@@ -15,7 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -27,12 +26,6 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(
-                csrf ->
-                        csrf.csrfTokenRepository(
-                                CookieCsrfTokenRepository
-                                        .withHttpOnlyFalse())); // Use CSRF token repository
-
         http.authorizeHttpRequests(
                 authorize ->
                         authorize
@@ -65,11 +58,6 @@ public class WebSecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())
-                .csrf(
-                        csrf ->
-                                csrf.csrfTokenRepository(
-                                        CookieCsrfTokenRepository
-                                                .withHttpOnlyFalse())) // Use CSRF token repository
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     }
