@@ -54,7 +54,7 @@ class TestFixtureMonkey {
                                         .ofMaxLength(10)
                                         .list()
                                         .ofMinSize(1)
-                                        .ofMaxSize(3))
+                                        .ofMaxSize(2))
                         .sample();
 
         // then
