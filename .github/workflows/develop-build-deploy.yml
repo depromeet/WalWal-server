@@ -75,8 +75,8 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           existing_bucket_name: "walwal-server-dev-deployment"
-          application_name: "WalWal-server"
-          environment_name: "yvea-core-service-server-dev-env"
+          application_name: "walwal-dev"
+          environment_name: "Walwal-dev-env"
           version_label: "github-action-dev"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
