@@ -40,19 +40,6 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
 
-      - name: Current Time
-        uses: gerred/current-time@v1.0.0
-        id: current-time
-
-      - name: Replace string
-        uses: frabert/replace-string-action@v2.1
-        id: format-time
-        with:
-          pattern: '[:\.]+'
-          string: "${{ steps.current-time.outputs.time }}"
-          replace-with: '-'
-          flags: 'g'
-
       - name: Prepare deployment package
         run: |
           zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yaml .env
