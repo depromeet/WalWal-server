@@ -1,9 +1,9 @@
 package com.depromeet.stonebed.global.config.security;
 
-import static com.depromeet.stonebed.global.common.constants.SwaggerUrlConstants.*;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.security.config.Customizer.*;
 
+import com.depromeet.stonebed.global.common.constants.SwaggerUrlConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +42,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
         defaultFilterChain(http);
 
-        http.securityMatcher(getSwaggerUrls()).httpBasic(withDefaults());
+        http.securityMatcher(SwaggerUrlConstants.getSwaggerUrls()).httpBasic(withDefaults());
 
         http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
 
