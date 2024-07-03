@@ -1,4 +1,9 @@
 spring:
+  profiles:
+    group:
+      test: "test"
+    include:
+      - redis
   application:
     name: stonebed
 
