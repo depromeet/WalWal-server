@@ -26,7 +26,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # Gradle 빌드
       - name: Build with Gradle
         id: gradle
         uses: gradle/gradle-build-action@v3
@@ -38,7 +37,7 @@ jobs:
 
       - name: Docker build
         run: |
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p  ${{ secrets.DOCKERHUB_TOKEN }}
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
 
@@ -55,26 +54,28 @@ jobs:
           replace-with: '-'
           flags: 'g'
 
-      # 슬랙으로 빌드 스캔 결과 전송
-      - name: Send to slack
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          payload: |
-            {
-              "text": "Gradle Build Scan Report of ${{ github.workflow }}: ${{ steps.gradle.outputs.build-scan-url }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Prepare deployment package
+        run: |
+          zip -r deployment-package.zip Dockerrun.aws.json
 
-      # Beanstalk 플러그인을 사용
-      # 미리 생성해둔 IAM 인증키를 사용
+      ## slack 알람
+      - name: Slack Alarm
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: GitHub-Actions CI/CD
+          fields: repo,message,commit,author,ref,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
+
       - name: Beanstalk Deploy
-        uses: einaregilsson/beanstalk-deploy@v20
+        uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: "walwal-server"
-          environment_name: "walwal-server-env"
+          environment_name: "walwal-server-dev-env"
           version_label: "github-action-${{ steps.format-time.outputs.replaced }}"
           region: ap-northeast-2
-          deployment_package: Dockerrun.aws.json
+          deployment_package: deployment-package.zip
