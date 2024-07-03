@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Record extends BaseTimeEntity {
+public class MissionRecord extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +46,7 @@ public class Record extends BaseTimeEntity {
     private MissionStatus status;
 
     @Builder
-    public Record(Member member, Mission mission, String imageUrl, MissionStatus status) {
+    public MissionRecord(Member member, Mission mission, String imageUrl, MissionStatus status) {
         this.member = member;
         this.mission = mission;
         this.imageUrl = imageUrl;
