@@ -8,7 +8,7 @@ env:
   DOCKERHUB_IMAGE_NAME: walwal-server
 
 jobs:
-  test:
+  build-deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -74,8 +74,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          existing_bucket_name: "walwal-server-dev-deployment"
           application_name: "walwal-server"
           environment_name: "walwal-server-dev-env"
-          version_label: "github-action-${{ steps.format-time.outputs.replaced }}"
+          version_label: "github-action-dev"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
