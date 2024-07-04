@@ -31,9 +31,6 @@ public class MissionRecord extends BaseTimeEntity {
     @JoinColumn(name = "mission_id", nullable = false)
     private Mission mission;
 
-    @Column(name = "mission_title", nullable = false)
-    private String missionTitle;
-
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
@@ -51,6 +48,9 @@ public class MissionRecord extends BaseTimeEntity {
         this.mission = mission;
         this.imageUrl = imageUrl;
         this.status = status;
-        this.missionTitle = mission.getTitle();
+    }
+
+    public String getMissionTitle() {
+        return mission.getTitle();
     }
 }
