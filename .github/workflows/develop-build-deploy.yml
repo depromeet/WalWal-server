@@ -43,7 +43,7 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yaml .env
+          zip -r deployment-package.zip Dockerrun.aws.json
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
