@@ -41,6 +41,19 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
 
+      - name: Current Time
+        uses: gerred/current-time@v1.0.0
+        id: current-time
+
+      - name: Replace string
+        uses: frabert/replace-string-action@v2.1
+        id: format-time
+        with:
+          pattern: '[:\.]+'
+          string: "${{ steps.current-time.outputs.time }}"
+          replace-with: '-'
+          flags: 'g'
+
       - name: Prepare deployment package
         run: |
           zip -r deployment-package.zip Dockerrun.aws.json
@@ -53,7 +66,7 @@ jobs:
           existing_bucket_name: "walwal-server-dev-deployment"
           application_name: "walwal-dev"
           environment_name: "Walwal-dev-env"
-          version_label: "github-action-dev"
+          version_label: "github-action-dev-${{ steps.format-time.outputs.replaced }}"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
 
