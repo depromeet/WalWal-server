@@ -1,0 +1,82 @@
+name: Pull Request on Check
+on:
+  push:
+    branches: [ "develop" ]
+
+env:
+  DOCKERHUB_IMAGE_NAME: walwal-server
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ 17 ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'zulu'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        id: gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: |
+            build
+            --scan
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
+      # Docker 이미지 빌드 및 도커 허브 푸시
+      - name: Docker build & push
+        run: |
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
+
+      - name: Current Time
+        uses: gerred/current-time@v1.0.0
+        id: current-time
+
+      - name: Replace string
+        uses: frabert/replace-string-action@v2.1
+        id: format-time
+        with:
+          pattern: '[:\.]+'
+          string: "${{ steps.current-time.outputs.time }}"
+          replace-with: '-'
+          flags: 'g'
+
+      - name: Prepare deployment package
+        run: |
+          zip -r deployment-package.zip Dockerrun.aws.json
+
+      - name: Beanstalk Deploy
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          existing_bucket_name: "walwal-server-dev-deployment"
+          application_name: "walwal-dev"
+          environment_name: "Walwal-dev-env"
+          version_label: "github-action-dev-${{ steps.format-time.outputs.replaced }}"
+          region: ap-northeast-2
+          deployment_package: deployment-package.zip
+
+      ## slack 알람
+      - name: Slack Alarm
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: GitHub-Actions CI/CD
+          fields: repo,message,commit,author,ref,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
