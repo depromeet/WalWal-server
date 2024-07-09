@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @EnableConfigurationProperties({
     RedisProperties.class,
+    S3Properties.class,
 })
 @Configuration
 public class PropertiesConfig {}

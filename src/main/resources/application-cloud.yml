@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: "cloud"
+storage:
+  accessKey: ${AWS_ACCESS_KEY:}
+  secretKey: ${AWS_SECRET_KEY:}
+  bucket: ${S3_IMAGE_BUCKET:}
+  region: ${AWS_REGION:}
+  endpoint: ${S3_ENDPOINT:https://s3.ap-northeast-2.amazonaws.com}
