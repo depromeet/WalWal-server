@@ -6,7 +6,7 @@ public record TokenPairResponse(
         @Schema(description = "액세스 토큰", defaultValue = "accessToken") String accessToken,
         @Schema(description = "리프레시 토큰", defaultValue = "refreshToken") String refreshToken) {
 
-    public static TokenPairResponse of(String accessToken, String refreshToken) {
+    public static TokenPairResponse from(String accessToken, String refreshToken) {
         return new TokenPairResponse(accessToken, refreshToken);
     }
 }

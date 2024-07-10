@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.domain.auth.domain;
 
+import java.security.InvalidParameterException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,4 +11,12 @@ public enum OAuthProvider {
     APPLE("APPLE"),
     ;
     private final String value;
+
+    public static OAuthProvider fromString(String provider) {
+        return switch (provider.toUpperCase()) {
+            case "APPLE" -> APPLE;
+            case "KAKAO" -> KAKAO;
+            default -> throw new InvalidParameterException();
+        };
+    }
 }

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @EnableConfigurationProperties({
     RedisProperties.class,
+    JwtProperties.class,
 })
 @Configuration
 public class PropertiesConfig {}

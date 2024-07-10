@@ -35,4 +35,8 @@ public class Member extends BaseTimeEntity {
     private MemberRole role;
 
     private LocalDateTime lastLoginAt;
+
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.now();
+    }
 }
