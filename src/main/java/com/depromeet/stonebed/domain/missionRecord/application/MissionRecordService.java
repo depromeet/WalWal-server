@@ -42,4 +42,16 @@ public class MissionRecordService {
         return MissionRecordCreateResponse.from(
                 createRecord.getId(), createRecord.getMissionTitle());
     }
+
+    public void deleteMissionRecord(Long recordId) {
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findById(recordId)
+                        .orElseThrow(
+                                () -> {
+                                    return new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND);
+                                });
+
+        missionRecordRepository.delete(missionRecord);
+    }
 }
