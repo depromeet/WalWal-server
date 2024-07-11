@@ -6,8 +6,8 @@ import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordSaveResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -23,7 +23,7 @@ public class MissionRecordService {
     private final MissionRecordRepository missionRecordRepository;
     private final MemberUtil memberUtil;
 
-    public MissionRecordSaveResponse completeMission(MissionRecordSaveRequest request) {
+    public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
         final Mission mission =
                 missionRepository
                         .findById(request.missionId())
@@ -38,7 +38,8 @@ public class MissionRecordService {
                         .status(MissionStatus.COMPLETED)
                         .build();
 
-        MissionRecord savedRecord = missionRecordRepository.save(missionRecord);
-        return MissionRecordSaveResponse.from(savedRecord.getId());
+        MissionRecord createRecord = missionRecordRepository.save(missionRecord);
+        return MissionRecordCreateResponse.from(
+                createRecord.getId(), createRecord.getMissionTitle());
     }
 }
