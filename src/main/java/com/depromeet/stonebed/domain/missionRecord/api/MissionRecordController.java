@@ -3,11 +3,11 @@ package com.depromeet.stonebed.domain.missionRecord.api;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
+import com.depromeet.stonebed.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,18 +23,16 @@ public class MissionRecordController {
     private final MissionRecordService missionRecordService;
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
-    @PostMapping("/complete")
-    public ResponseEntity<MissionRecordCreateResponse> completeMission(
-            @Valid @RequestBody MissionRecordCreateRequest request) {
-
+    @PostMapping
+    public ApiResponse completeMission(@Valid @RequestBody MissionRecordCreateRequest request) {
         MissionRecordCreateResponse response = missionRecordService.completeMission(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ApiResponse.success(HttpStatus.CREATED.value(), response);
     }
 
     @Operation(summary = "미션 기록 삭제", description = "미션 기록을 삭제한다.")
     @DeleteMapping("/{recordId}")
-    public ResponseEntity<Void> deleteMissionRecord(@PathVariable Long recordId) {
+    public ApiResponse deleteMissionRecord(@PathVariable Long recordId) {
         missionRecordService.deleteMissionRecord(recordId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success(HttpStatus.NO_CONTENT.value(), null);
     }
 }

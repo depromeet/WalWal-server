@@ -19,17 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class MissionRecordService {
+
     private final MissionRepository missionRepository;
     private final MissionRecordRepository missionRecordRepository;
     private final MemberUtil memberUtil;
 
     public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
-        final Mission mission =
+        Mission mission =
                 missionRepository
                         .findById(request.missionId())
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
 
-        final Member member = memberUtil.getCurrentMember();
+        Member member = memberUtil.getCurrentMember();
 
         MissionRecord missionRecord =
                 MissionRecord.builder()
@@ -47,10 +48,7 @@ public class MissionRecordService {
         MissionRecord missionRecord =
                 missionRecordRepository
                         .findById(recordId)
-                        .orElseThrow(
-                                () -> {
-                                    return new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND);
-                                });
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
         missionRecordRepository.delete(missionRecord);
     }
