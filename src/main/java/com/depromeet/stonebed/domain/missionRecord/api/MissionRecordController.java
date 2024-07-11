@@ -21,7 +21,7 @@ public class MissionRecordController {
     private final MissionRecordService missionRecordService;
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
-    @PostMapping("/{missionId}/complete")
+    @PostMapping("/complete")
     public ResponseEntity<MissionRecordCreateResponse> completeMission(
             @Valid @RequestBody MissionRecordCreateRequest request) {
 
