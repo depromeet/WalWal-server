@@ -40,6 +40,27 @@ public class AuthService {
         };
     }
 
+    @Transactional(readOnly = true)
+    public AuthTokenResponse handleSocialLogin(OAuthProvider oAuthProvider, String oauthId)
+            throws IOException {
+        Optional<Member> member = memberService.getMemberByOauthId(oAuthProvider, oauthId);
+
+        if (member.isEmpty()) {
+            // 회원가입이 안된 경우 임시 토큰 발행
+            TokenPairResponse temporaryTokenPair =
+                    jwtTokenService.generateTemporaryTokenPair(oAuthProvider, oauthId);
+            return AuthTokenResponse.of(temporaryTokenPair, true);
+        } else {
+            // member가 존재할 시 최근 로그인 시간 변경
+            member.get().updateLastLoginAt();
+
+            // 사용자로 토큰 생성
+            TokenPairResponse tokenPair =
+                    jwtTokenService.generateTokenPair(member.get().getId(), MemberRole.USER);
+            return AuthTokenResponse.of(tokenPair, false);
+        }
+    }
+
     @Transactional
     public AuthTokenResponse socialLogin(
             OAuthProvider oAuthProvider, String identifier, String email) {
@@ -49,13 +70,6 @@ public class AuthService {
         Member member = memberByOauthId.orElseGet(() -> signUp(oAuthProvider, identifier, email));
 
         member.updateLastLoginAt();
-
-        // if (member.isEmpty()) {
-        // 	// 회원가입이 안된 경우 임시 토큰 발행
-        // 	TokenPairResponse temporaryTokenPair = tokenGenerator
-        // 		.generateTemporaryTokenPair(socialLoginProvider, IdentifierResponse.identifier());
-        // 	return SocialLoginResponse.of(temporaryTokenPair, true);
-        // }
 
         // 새 토큰 생성
         TokenPairResponse tokenPair = getLoginResponse(member);

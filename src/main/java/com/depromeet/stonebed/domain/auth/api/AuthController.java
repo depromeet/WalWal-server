@@ -55,21 +55,8 @@ public class AuthController {
         SocialClientResponse socialClientResponse =
                 authService.authenticateFromProvider(oAuthProvider, request.token());
 
-        // 위 결과에서 나온 identifier로 이미 있는 사용자인지 확인
-        Optional<Member> member =
-                memberService.getMemberByOauthId(oAuthProvider, socialClientResponse.oauthId());
-        if (member.isEmpty()) {
-            // 회원가입이 안된 경우 임시 토큰 발행
-            TokenPairResponse temporaryTokenPair =
-                    jwtTokenService.generateTemporaryTokenPair(
-                            oAuthProvider, socialClientResponse.oauthId());
-            return AuthTokenResponse.of(temporaryTokenPair, true);
-        }
-
-        // 사용자로 토큰 생성
-        TokenPairResponse tokenPair =
-                jwtTokenService.generateTokenPair(member.get().getId(), MemberRole.USER);
-        return AuthTokenResponse.of(tokenPair, false);
+        // 위 결과에서 나온 oauthId로 토큰 발급
+        return authService.handleSocialLogin(oAuthProvider, socialClientResponse.oauthId());
     }
 
     @Operation(summary = "회원가입", description = "회원가입을 진행 후 토큰 발급")
