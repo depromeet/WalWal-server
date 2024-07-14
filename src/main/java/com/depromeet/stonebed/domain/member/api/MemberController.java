@@ -18,7 +18,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @Operation(summary = "내 정보 조회", description = "내 정보를 조회하는 API입니다.")
-    @GetMapping("/{memberId}")
+    @GetMapping("/me")
     public Member memberInfo() {
         return memberService.findMemberInfo();
     }
