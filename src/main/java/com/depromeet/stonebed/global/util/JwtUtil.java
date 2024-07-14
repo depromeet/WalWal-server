@@ -1,5 +1,7 @@
 package com.depromeet.stonebed.global.util;
 
+import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
+import com.depromeet.stonebed.domain.auth.domain.TokenType;
 import com.depromeet.stonebed.domain.auth.dto.AccessTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
@@ -11,6 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +22,9 @@ import org.springframework.stereotype.Component;
 public class JwtUtil {
 
     private final JwtProperties jwtProperties;
+    private static final String TOKEN_TYPE_KEY_NAME = "type";
+    private static final String USER_ID_KEY_NAME = "memberId";
+    private static final String PROVIDER_KEY_NAME = "provider";
 
     public String generateAccessToken(Long memberId, MemberRole memberRole) {
         Date issuedAt = new Date();
@@ -99,9 +105,28 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
     }
 
+    private Date generateTemporaryTokenExpiration() {
+        return new Date(Long.MAX_VALUE);
+    }
+
+    public String generateTemporaryToken(OAuthProvider oAuthProvider, String identifier) {
+        return Jwts.builder()
+                .setHeader(createTokenHeader(TokenType.TEMPORARY))
+                .setClaims(
+                        Map.of(
+                                USER_ID_KEY_NAME,
+                                identifier,
+                                PROVIDER_KEY_NAME,
+                                oAuthProvider.getValue()))
+                .setExpiration(generateTemporaryTokenExpiration())
+                .signWith(getAccessTokenKey())
+                .compact();
+    }
+
     private String buildAccessToken(
             Long memberId, MemberRole memberRole, Date issuedAt, Date expiredAt) {
         return Jwts.builder()
+                .setHeader(createTokenHeader(TokenType.ACCESS))
                 .setSubject(memberId.toString())
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiredAt)
@@ -111,10 +136,23 @@ public class JwtUtil {
 
     private String buildRefreshToken(Long memberId, Date issuedAt, Date expiredAt) {
         return Jwts.builder()
+                .setHeader(createTokenHeader(TokenType.REFRESH))
                 .setSubject(memberId.toString())
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiredAt)
                 .signWith(getRefreshTokenKey())
                 .compact();
+    }
+
+    private Map<String, Object> createTokenHeader(TokenType tokenType) {
+        return Map.of(
+                "typ",
+                "JWT",
+                "alg",
+                "HS256",
+                "regDate",
+                System.currentTimeMillis(),
+                TOKEN_TYPE_KEY_NAME,
+                tokenType.getTypeKey());
     }
 }

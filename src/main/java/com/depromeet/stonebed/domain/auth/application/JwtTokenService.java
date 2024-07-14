@@ -1,9 +1,11 @@
 package com.depromeet.stonebed.domain.auth.application;
 
 import com.depromeet.stonebed.domain.auth.dao.RefreshTokenRepository;
+import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.domain.RefreshToken;
 import com.depromeet.stonebed.domain.auth.dto.AccessTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
+import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.global.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -17,6 +19,18 @@ public class JwtTokenService {
 
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    public TokenPairResponse generateTokenPair(Long memberId, MemberRole memberRole) {
+        String accessToken = jwtUtil.generateAccessToken(memberId, memberRole);
+        String refreshToken = jwtUtil.generateRefreshToken(memberId);
+        return TokenPairResponse.of(accessToken, refreshToken);
+    }
+
+    public TokenPairResponse generateTemporaryTokenPair(
+            OAuthProvider oAuthProvider, String oauthId) {
+        String temporaryToken = jwtUtil.generateTemporaryToken(oAuthProvider, oauthId);
+        return TokenPairResponse.of(temporaryToken, null);
+    }
 
     public String createAccessToken(Long memberId, MemberRole memberRole) {
         return jwtUtil.generateAccessToken(memberId, memberRole);

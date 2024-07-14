@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,7 +35,39 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    @Enumerated(EnumType.STRING)
+    private RaisePet raisePet;
+
     private LocalDateTime lastLoginAt;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    public Member(
+            Profile profile,
+            OauthInfo oauthInfo,
+            MemberStatus status,
+            MemberRole role,
+            RaisePet raisePet) {
+        this.profile = profile;
+        this.oauthInfo = oauthInfo;
+        this.status = status;
+        this.role = role;
+        this.raisePet = raisePet;
+    }
+
+    public static Member createMember(
+            Profile profile,
+            OauthInfo oauthInfo,
+            MemberStatus status,
+            MemberRole role,
+            RaisePet raisePet) {
+        return Member.builder()
+                .profile(profile)
+                .oauthInfo(oauthInfo)
+                .status(status)
+                .role(role)
+                .raisePet(raisePet)
+                .build();
+    }
 
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
