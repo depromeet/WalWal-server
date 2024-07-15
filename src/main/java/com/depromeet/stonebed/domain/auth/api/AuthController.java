@@ -13,11 +13,11 @@ import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.member.application.MemberService;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.dto.CreateNewUserDTO;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
+import com.depromeet.stonebed.global.util.MemberUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +41,7 @@ public class AuthController {
     private final AuthService authService;
     private final MemberService memberService;
     private final JwtTokenService jwtTokenService;
+    private final MemberUtil memberUtil;
 
     @Operation(summary = "소셜 로그인", description = "소셜 로그인 후 임시 토큰을 발급합니다.")
     @PostMapping("/social-login/{provider}")
@@ -56,7 +57,8 @@ public class AuthController {
                 authService.authenticateFromProvider(oAuthProvider, request.token());
 
         // 위 결과에서 나온 oauthId로 토큰 발급
-        return authService.handleSocialLogin(oAuthProvider, socialClientResponse.oauthId());
+        return authService.socialLogin(
+                oAuthProvider, socialClientResponse.oauthId(), socialClientResponse.email());
     }
 
     @Operation(summary = "회원가입", description = "회원가입을 진행 후 토큰 발급")
@@ -85,8 +87,7 @@ public class AuthController {
             Member member = memberService.createNewMember(createNewUserDTO);
 
             // 새 토큰 생성
-            TokenPairResponse tokenPair =
-                    jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER);
+            TokenPairResponse tokenPair = authService.getLoginResponse(member);
             return AuthTokenResponse.of(tokenPair, false);
         }
         // 일어날 수 없는 일
@@ -102,8 +103,9 @@ public class AuthController {
         RefreshTokenDto refreshToken =
                 jwtTokenService.createRefreshTokenDto(refreshTokenDto.memberId());
 
-        TokenPairResponse tokenPair =
-                jwtTokenService.generateTokenPair(refreshToken.memberId(), MemberRole.USER);
+        Member member = memberUtil.getMemberByMemberId(refreshToken.memberId());
+
+        TokenPairResponse tokenPair = authService.getLoginResponse(member);
         return AuthTokenResponse.of(tokenPair, false);
     }
 }

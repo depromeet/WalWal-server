@@ -40,45 +40,36 @@ public class AuthService {
         };
     }
 
-    @Transactional(readOnly = true)
-    public AuthTokenResponse handleSocialLogin(OAuthProvider oAuthProvider, String oauthId)
-            throws IOException {
-        Optional<Member> member = memberService.getMemberByOauthId(oAuthProvider, oauthId);
+    @Transactional
+    public AuthTokenResponse socialLogin(
+            OAuthProvider oAuthProvider, String oauthId, String email) {
+        // 위 결과에서 나온 identifier(sub)로 이미 있는 사용자인지 확인
+        Optional<Member> memberOptional = memberService.getMemberByOauthId(oAuthProvider, oauthId);
 
-        if (member.isEmpty()) {
-            // 회원가입이 안된 경우 임시 토큰 발행
+        if (memberOptional.isEmpty()) {
+            // 회원가입이 안된 경우, 회원가입 진행
+            Member newMember = signUp(oAuthProvider, oauthId, email);
+            // 임시 토큰 발행
             TokenPairResponse temporaryTokenPair =
-                    jwtTokenService.generateTemporaryTokenPair(oAuthProvider, oauthId);
+                    jwtTokenService.generateTemporaryTokenPair(
+                            oAuthProvider, newMember.getOauthInfo().getOauthId());
             return AuthTokenResponse.of(temporaryTokenPair, true);
         } else {
+            Member member = memberOptional.get();
             // member가 존재할 시 최근 로그인 시간 변경
-            member.get().updateLastLoginAt();
+            member.updateLastLoginAt();
 
             // 사용자로 토큰 생성
-            TokenPairResponse tokenPair =
-                    jwtTokenService.generateTokenPair(member.get().getId(), MemberRole.USER);
+            TokenPairResponse tokenPair = getLoginResponse(member);
             return AuthTokenResponse.of(tokenPair, false);
         }
     }
 
-    @Transactional
-    public AuthTokenResponse socialLogin(
-            OAuthProvider oAuthProvider, String identifier, String email) {
-        // 위 결과에서 나온 identifier(sub)로 이미 있는 사용자인지 확인
-        Optional<Member> memberByOauthId =
-                memberService.getMemberByOauthId(oAuthProvider, identifier);
-        Member member = memberByOauthId.orElseGet(() -> signUp(oAuthProvider, identifier, email));
-
-        member.updateLastLoginAt();
-
-        // 새 토큰 생성
-        TokenPairResponse tokenPair = getLoginResponse(member);
-        return AuthTokenResponse.of(tokenPair, false);
-    }
-
-    private TokenPairResponse getLoginResponse(Member member) {
+    public TokenPairResponse getLoginResponse(Member member) {
         String accessToken = jwtTokenService.createAccessToken(member.getId(), member.getRole());
         String refreshToken = jwtTokenService.createRefreshToken(member.getId());
+
+        member.updateLastLoginAt();
 
         return TokenPairResponse.of(accessToken, refreshToken);
     }

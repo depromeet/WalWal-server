@@ -128,6 +128,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setHeader(createTokenHeader(TokenType.ACCESS))
                 .setSubject(memberId.toString())
+                .claim("role", memberRole.name())
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiredAt)
                 .signWith(getAccessTokenKey())

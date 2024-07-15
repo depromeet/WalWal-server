@@ -135,6 +135,7 @@ public class AppleClient {
 
             Claims claims =
                     parseIdentifierFromAppleToken(matchedKey, appleTokenResponse.id_token());
+
             String identifier = claims.get("sub", String.class);
             String email = claims.get("email", String.class);
 
