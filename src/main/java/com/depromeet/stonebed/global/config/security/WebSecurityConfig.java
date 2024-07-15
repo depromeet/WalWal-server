@@ -31,8 +31,15 @@ public class WebSecurityConfig {
                         authorize
                                 .requestMatchers("/walwal-actuator/**")
                                 .permitAll() // 액추에이터
+                                .requestMatchers("/auth/**")
+                                .permitAll() // 임시 회원가입 / 로그인 + OAuth2 로그인
                                 .anyRequest()
                                 .authenticated());
+
+        http.exceptionHandling(
+                exception ->
+                        exception.authenticationEntryPoint(
+                                (request, response, authException) -> response.setStatus(401)));
 
         return http.build();
     }
