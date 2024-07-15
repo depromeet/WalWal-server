@@ -6,6 +6,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.depromeet.stonebed.domain.mission.application.MissionService;
 import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
+import com.depromeet.stonebed.global.common.response.ApiResponseAdvice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,17 +26,22 @@ public class MissionControllerTest {
 
     @InjectMocks private MissionController missionController;
 
+    @InjectMocks private ApiResponseAdvice apiResponseAdvice;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(missionController).build();
+        mockMvc =
+                MockMvcBuilders.standaloneSetup(missionController)
+                        .setControllerAdvice(apiResponseAdvice)
+                        .build();
     }
 
     @Test
     public void testCreateMission() throws Exception {
         // Given
-        MissionDTO missionDTO = MissionDTO.builder().id(1L).title("Test Mission").build();
-        when(missionService.createMission(any(MissionDTO.class))).thenReturn(missionDTO);
+        MissionDTO missionDTO = new MissionDTO(1L, "Test Mission");
+        when(missionService.createMission(any(MissionCreateRequest.class))).thenReturn(missionDTO);
 
         // When & Then
         mockMvc.perform(
@@ -47,7 +55,7 @@ public class MissionControllerTest {
     @Test
     public void testGetMission() throws Exception {
         // Given
-        MissionDTO missionDTO = MissionDTO.builder().id(1L).title("Test Mission").build();
+        MissionDTO missionDTO = new MissionDTO(1L, "Test Mission");
         when(missionService.getMission(1L)).thenReturn(missionDTO);
 
         // When & Then
@@ -60,7 +68,7 @@ public class MissionControllerTest {
     public void testUpdateMission() throws Exception {
         // Given
         when(missionService.updateMission(anyLong(), any(MissionUpdateRequest.class)))
-                .thenReturn(MissionDTO.builder().id(1L).title("Updated Mission").build());
+                .thenReturn(new MissionDTO(1L, "Updated Mission"));
 
         // When & Then
         mockMvc.perform(

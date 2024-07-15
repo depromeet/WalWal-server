@@ -2,44 +2,45 @@ package com.depromeet.stonebed.domain.mission.api;
 
 import com.depromeet.stonebed.domain.mission.application.MissionService;
 import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
-import com.depromeet.stonebed.global.common.response.ApiResponse;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/missions")
+@RequiredArgsConstructor
+@Tag(name = "Mission API", description = "미션 API")
 public class MissionController {
     private final MissionService missionService;
 
-    @Autowired
-    public MissionController(MissionService missionService) {
-        this.missionService = missionService;
-    }
-
     @PostMapping
-    public ApiResponse createMission(@RequestBody MissionDTO missionDTO) {
-        MissionDTO mission = missionService.createMission(missionDTO);
-        return ApiResponse.success(HttpStatus.CREATED.value(), mission);
+    public MissionCreateResponse createMission(
+            @RequestBody MissionCreateRequest missionCreateRequest) {
+        MissionDTO mission = missionService.createMission(missionCreateRequest);
+        return new MissionCreateResponse(mission.id(), mission.title());
     }
 
-    @GetMapping("/{id}")
-    public ApiResponse getMission(@PathVariable Long id) {
-        MissionDTO mission = missionService.getMission(id);
-        return ApiResponse.success(HttpStatus.OK.value(), mission);
+    @GetMapping("/{missionId}")
+    public MissionGetResponse getMission(@PathVariable Long missionId) {
+        MissionDTO mission = missionService.getMission(missionId);
+        return new MissionGetResponse(mission.id(), mission.title());
     }
 
     @PatchMapping("/{id}")
-    public ApiResponse updateMission(
+    public MissionUpdateResponse updateMission(
             @PathVariable Long id, @Valid @RequestBody MissionUpdateRequest missionUpdateRequest) {
         MissionDTO mission = missionService.updateMission(id, missionUpdateRequest);
-        return ApiResponse.success(HttpStatus.OK.value(), mission);
+        return new MissionUpdateResponse(mission.id(), mission.title());
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse deleteMission(@PathVariable Long id) {
+    public void deleteMission(@PathVariable Long id) {
         missionService.deleteMission(id);
-        return ApiResponse.success(HttpStatus.NO_CONTENT.value(), null);
     }
 }

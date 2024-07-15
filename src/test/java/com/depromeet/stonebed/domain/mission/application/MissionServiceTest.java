@@ -4,10 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-import com.depromeet.stonebed.domain.mission.api.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,13 +33,13 @@ public class MissionServiceTest {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         when(missionRepository.save(any(Mission.class))).thenReturn(mission);
-        MissionDTO missionDTO = MissionDTO.builder().title("Test Mission").build();
+        MissionCreateRequest missionCreateRequest = new MissionCreateRequest(1L, "Test Mission");
 
         // When
-        MissionDTO createdMission = missionService.createMission(missionDTO);
+        MissionDTO createdMission = missionService.createMission(missionCreateRequest);
 
         // Then
-        assertThat(createdMission.getTitle()).isEqualTo("Test Mission");
+        assertThat(createdMission.title()).isEqualTo("Test Mission");
         verify(missionRepository, times(1)).save(any(Mission.class));
     }
 
@@ -52,7 +53,7 @@ public class MissionServiceTest {
         MissionDTO missionDTO = missionService.getMission(1L);
 
         // Then
-        assertThat(missionDTO.getTitle()).isEqualTo("Test Mission");
+        assertThat(missionDTO.title()).isEqualTo("Test Mission");
         verify(missionRepository, times(1)).findById(anyLong());
     }
 
@@ -60,8 +61,7 @@ public class MissionServiceTest {
     public void testUpdateMissionNotFound() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.empty());
-        MissionUpdateRequest updateRequest =
-                MissionUpdateRequest.builder().title("Test Mission").build();
+        MissionUpdateRequest updateRequest = new MissionUpdateRequest("Test Mission");
 
         // When & Then
         assertThrows(

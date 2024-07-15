@@ -1,33 +1,33 @@
 package com.depromeet.stonebed.domain.mission.application;
 
-import com.depromeet.stonebed.domain.mission.api.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
+import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional // 클래스 레벨에 트랜잭션 적용
+@Transactional
+@RequiredArgsConstructor
 public class MissionService {
     private final MissionRepository missionRepository;
 
-    public MissionService(MissionRepository missionRepository) {
-        this.missionRepository = missionRepository;
-    }
-
-    public MissionDTO createMission(MissionDTO missionDTO) {
-        Mission mission = Mission.builder().title(missionDTO.getTitle()).build();
+    public MissionDTO createMission(MissionCreateRequest missionCreateRequest) {
+        Mission mission = Mission.builder().title(missionCreateRequest.title()).build();
 
         mission = missionRepository.save(mission);
-        return convertToDTO(mission);
+        return MissionDTO.from(mission);
     }
 
+    @Transactional(readOnly = true)
     public MissionDTO getMission(Long id) {
         return missionRepository
                 .findById(id)
-                .map(this::convertToDTO)
+                .map(MissionDTO::from)
                 .orElseThrow(() -> new EntityNotFoundException("Mission not found. Id: " + id));
     }
 
@@ -38,15 +38,13 @@ public class MissionService {
                         .orElseThrow(
                                 () -> new EntityNotFoundException("Mission not found. Id: " + id));
 
-        missionToUpdate.updateTitle(missionUpdateRequest.getTitle());
-        return convertToDTO(missionToUpdate);
+        missionToUpdate.updateTitle(missionUpdateRequest.title());
+        missionRepository.save(missionToUpdate);
+
+        return MissionDTO.from(missionToUpdate);
     }
 
     public void deleteMission(Long id) {
         missionRepository.deleteById(id);
-    }
-
-    private MissionDTO convertToDTO(Mission mission) {
-        return MissionDTO.builder().id(mission.getId()).title(mission.getTitle()).build();
     }
 }
