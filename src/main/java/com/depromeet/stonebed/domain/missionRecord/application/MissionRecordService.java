@@ -25,10 +25,7 @@ public class MissionRecordService {
     private final MemberUtil memberUtil;
 
     public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
-        Mission mission =
-                missionRepository
-                        .findById(request.missionId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+        Mission mission = findMissionById(request.missionId());
 
         Member member = memberUtil.getCurrentMember();
 
@@ -51,5 +48,12 @@ public class MissionRecordService {
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
         missionRecordRepository.delete(missionRecord);
+    }
+
+    // 단일 미션 조회 메서드
+    private Mission findMissionById(Long missionId) {
+        return missionRepository
+                .findById(missionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
     }
 }
