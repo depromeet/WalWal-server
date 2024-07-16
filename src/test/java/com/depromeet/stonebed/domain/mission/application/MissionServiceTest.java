@@ -6,9 +6,11 @@ import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
-import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetOneResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +38,11 @@ public class MissionServiceTest {
         MissionCreateRequest missionCreateRequest = new MissionCreateRequest(1L, "Test Mission");
 
         // When
-        MissionDTO createdMission = missionService.createMission(missionCreateRequest);
+        MissionCreateResponse missionCreateResponse =
+                missionService.createMission(missionCreateRequest);
 
         // Then
-        assertThat(createdMission.title()).isEqualTo("Test Mission");
+        assertThat(missionCreateResponse.title()).isEqualTo("Test Mission");
         verify(missionRepository, times(1)).save(any(Mission.class));
     }
 
@@ -50,10 +53,10 @@ public class MissionServiceTest {
         when(missionRepository.findById(anyLong())).thenReturn(Optional.of(mission));
 
         // When
-        MissionDTO missionDTO = missionService.getMission(1L);
+        MissionGetOneResponse missionGetOneResponse = missionService.getMission(1L);
 
         // Then
-        assertThat(missionDTO.title()).isEqualTo("Test Mission");
+        assertThat(missionGetOneResponse.title()).isEqualTo("Test Mission");
         verify(missionRepository, times(1)).findById(anyLong());
     }
 
@@ -76,11 +79,11 @@ public class MissionServiceTest {
         when(missionRepository.findById(anyLong())).thenReturn(Optional.of(mission));
 
         // When
-        MissionDTO missionDTO =
+        MissionUpdateResponse missionUpdateResponse =
                 missionService.updateMission(1L, new MissionUpdateRequest("Updated Mission"));
 
         // Then
-        assertThat(missionDTO.title()).isEqualTo("Updated Mission");
+        assertThat(missionUpdateResponse.title()).isEqualTo("Updated Mission");
         verify(missionRepository, times(1)).findById(anyLong());
         verify(missionRepository, times(1)).save(any(Mission.class));
     }

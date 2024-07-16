@@ -1,7 +1,6 @@
 package com.depromeet.stonebed.domain.mission.api;
 
 import com.depromeet.stonebed.domain.mission.application.MissionService;
-import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
@@ -22,25 +21,23 @@ public class MissionController {
     @PostMapping
     public MissionCreateResponse createMission(
             @RequestBody MissionCreateRequest missionCreateRequest) {
-        MissionDTO mission = missionService.createMission(missionCreateRequest);
-        return new MissionCreateResponse(mission.id(), mission.title());
+        return missionService.createMission(missionCreateRequest);
     }
 
     @GetMapping("/{missionId}")
     public MissionGetOneResponse getMission(@PathVariable Long missionId) {
-        MissionDTO mission = missionService.getMission(missionId);
-        return new MissionGetOneResponse(mission.id(), mission.title());
+        return missionService.getMission(missionId);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{missionId}")
     public MissionUpdateResponse updateMission(
-            @PathVariable Long id, @Valid @RequestBody MissionUpdateRequest missionUpdateRequest) {
-        MissionDTO mission = missionService.updateMission(id, missionUpdateRequest);
-        return new MissionUpdateResponse(mission.id(), mission.title());
+            @PathVariable Long missionId,
+            @Valid @RequestBody MissionUpdateRequest missionUpdateRequest) {
+        return missionService.updateMission(missionId, missionUpdateRequest);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteMission(@PathVariable Long id) {
-        missionService.deleteMission(id);
+    @DeleteMapping("/{missionId}")
+    public void deleteMission(@PathVariable Long missionId) {
+        missionService.deleteMission(missionId);
     }
 }

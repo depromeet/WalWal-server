@@ -5,9 +5,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.depromeet.stonebed.domain.mission.application.MissionService;
-import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetOneResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.common.response.ApiResponseAdvice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,8 +42,9 @@ public class MissionControllerTest {
     @Test
     public void testCreateMission() throws Exception {
         // Given
-        MissionDTO missionDTO = new MissionDTO(1L, "Test Mission");
-        when(missionService.createMission(any(MissionCreateRequest.class))).thenReturn(missionDTO);
+        MissionCreateResponse missionCreateResponse = new MissionCreateResponse(1L, "Test Mission");
+        when(missionService.createMission(any(MissionCreateRequest.class)))
+                .thenReturn(missionCreateResponse);
 
         // When & Then
         mockMvc.perform(
@@ -55,8 +58,8 @@ public class MissionControllerTest {
     @Test
     public void testGetMission() throws Exception {
         // Given
-        MissionDTO missionDTO = new MissionDTO(1L, "Test Mission");
-        when(missionService.getMission(1L)).thenReturn(missionDTO);
+        MissionGetOneResponse missionGetOneResponse = new MissionGetOneResponse(1L, "Test Mission");
+        when(missionService.getMission(1L)).thenReturn(missionGetOneResponse);
 
         // When & Then
         mockMvc.perform(get("/missions/1"))
@@ -68,7 +71,7 @@ public class MissionControllerTest {
     public void testUpdateMission() throws Exception {
         // Given
         when(missionService.updateMission(anyLong(), any(MissionUpdateRequest.class)))
-                .thenReturn(new MissionDTO(1L, "Updated Mission"));
+                .thenReturn(new MissionUpdateResponse(1L, "Updated Mission"));
 
         // When & Then
         mockMvc.perform(

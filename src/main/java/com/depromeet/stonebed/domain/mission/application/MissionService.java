@@ -2,9 +2,11 @@ package com.depromeet.stonebed.domain.mission.application;
 
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
-import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetOneResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -17,34 +19,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class MissionService {
     private final MissionRepository missionRepository;
 
-    public MissionDTO createMission(MissionCreateRequest missionCreateRequest) {
+    public MissionCreateResponse createMission(MissionCreateRequest missionCreateRequest) {
         Mission mission = Mission.builder().title(missionCreateRequest.title()).build();
 
         mission = missionRepository.save(mission);
-        return MissionDTO.from(mission);
+        return MissionCreateResponse.from(mission);
     }
 
     @Transactional(readOnly = true)
-    public MissionDTO getMission(Long id) {
+    public MissionGetOneResponse getMission(Long missionId) {
         return missionRepository
-                .findById(id)
-                .map(MissionDTO::from)
+                .findById(missionId)
+                .map(MissionGetOneResponse::from)
                 .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
     }
 
-    public MissionDTO updateMission(Long id, MissionUpdateRequest missionUpdateRequest) {
+    public MissionUpdateResponse updateMission(
+            Long missionId, MissionUpdateRequest missionUpdateRequest) {
         Mission missionToUpdate =
                 missionRepository
-                        .findById(id)
+                        .findById(missionId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
 
         missionToUpdate.updateTitle(missionUpdateRequest.title());
         missionRepository.save(missionToUpdate);
 
-        return MissionDTO.from(missionToUpdate);
+        return MissionUpdateResponse.from(missionToUpdate);
     }
 
-    public void deleteMission(Long id) {
-        missionRepository.deleteById(id);
+    public void deleteMission(Long missionId) {
+        missionRepository.deleteById(missionId);
     }
 }
