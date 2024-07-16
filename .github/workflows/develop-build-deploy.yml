@@ -1,7 +1,7 @@
 name: Pull Request on Check
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "chore/#48-eb-docker-compose" ]
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
@@ -56,14 +56,18 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          zip -r deployment-package.zip Dockerrun.aws.json
+          zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yaml
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
+        env:
+          IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
+          DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           existing_bucket_name: "walwal-server-dev-deployment"
+          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME # docker-compose.yml 에서 사용할 환경 변수
           application_name: "walwal-dev"
           environment_name: "Walwal-dev-env"
           version_label: "github-action-dev-${{ steps.format-time.outputs.replaced }}"
