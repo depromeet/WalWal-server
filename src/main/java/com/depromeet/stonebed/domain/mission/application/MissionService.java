@@ -5,7 +5,8 @@ import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
-import jakarta.persistence.EntityNotFoundException;
+import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +29,14 @@ public class MissionService {
         return missionRepository
                 .findById(id)
                 .map(MissionDTO::from)
-                .orElseThrow(() -> new EntityNotFoundException("Mission not found. Id: " + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
     }
 
     public MissionDTO updateMission(Long id, MissionUpdateRequest missionUpdateRequest) {
         Mission missionToUpdate =
                 missionRepository
                         .findById(id)
-                        .orElseThrow(
-                                () -> new EntityNotFoundException("Mission not found. Id: " + id));
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
 
         missionToUpdate.updateTitle(missionUpdateRequest.title());
         missionRepository.save(missionToUpdate);

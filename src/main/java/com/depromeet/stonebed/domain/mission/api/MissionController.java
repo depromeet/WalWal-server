@@ -5,7 +5,7 @@ import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
-import com.depromeet.stonebed.domain.mission.dto.response.MissionGetResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetOneResponse;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,9 +27,9 @@ public class MissionController {
     }
 
     @GetMapping("/{missionId}")
-    public MissionGetResponse getMission(@PathVariable Long missionId) {
+    public MissionGetOneResponse getMission(@PathVariable Long missionId) {
         MissionDTO mission = missionService.getMission(missionId);
-        return new MissionGetResponse(mission.id(), mission.title());
+        return new MissionGetOneResponse(mission.id(), mission.title());
     }
 
     @PatchMapping("/{id}")

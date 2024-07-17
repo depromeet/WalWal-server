@@ -9,7 +9,7 @@ import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.dto.MissionDTO;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
-import jakarta.persistence.EntityNotFoundException;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,15 +58,41 @@ public class MissionServiceTest {
     }
 
     @Test
+    public void testGetMissionNotFound() {
+        // Given
+
+        // When
+        when(missionRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(CustomException.class, () -> missionService.getMission(1L));
+        verify(missionRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    public void testUpdateMission() {
+        // Given
+        Mission mission = Mission.builder().title("Test Mission").build();
+        when(missionRepository.findById(anyLong())).thenReturn(Optional.of(mission));
+
+        // When
+        MissionDTO missionDTO =
+                missionService.updateMission(1L, new MissionUpdateRequest("Updated Mission"));
+
+        // Then
+        assertThat(missionDTO.title()).isEqualTo("Updated Mission");
+        verify(missionRepository, times(1)).findById(anyLong());
+        verify(missionRepository, times(1)).save(any(Mission.class));
+    }
+
+    @Test
     public void testUpdateMissionNotFound() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.empty());
         MissionUpdateRequest updateRequest = new MissionUpdateRequest("Test Mission");
 
         // When & Then
-        assertThrows(
-                EntityNotFoundException.class,
-                () -> missionService.updateMission(1L, updateRequest));
+        assertThrows(CustomException.class, () -> missionService.updateMission(1L, updateRequest));
     }
 
     @Test
