@@ -54,9 +54,9 @@ jobs:
           replace-with: '-'
           flags: 'g'
 
-      - name: Prepare deployment package
-        run: |
-          zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yaml
+#      - name: Prepare deployment package
+#        run: |
+#          zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yaml
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
@@ -71,7 +71,7 @@ jobs:
           environment_name: "Walwal-dev-env"
           version_label: "github-action-dev-${{ github.sha }}"
           region: ap-northeast-2
-          deployment_package: deployment-package.zip
+          deployment_package: stonebed/docker-compose.yaml
 
       ## slack 알람
       - name: Slack Alarm
