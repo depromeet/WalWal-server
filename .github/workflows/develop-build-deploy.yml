@@ -59,7 +59,7 @@ jobs:
           zip -r deployment-package.zip docker-compose.yml
 
       - name: Beanstalk Deploy
-        uses: einaregilsson/beanstalk-deploy@v18
+        uses: einaregilsson/beanstalk-deploy@v22
         env:
           IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
           DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}

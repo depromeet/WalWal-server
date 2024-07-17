@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    image: "walwal-server"
+    image: "olderstonebed/walwal-server:latest"
     container_name: "walwal-server"
     restart: always
     environment:
