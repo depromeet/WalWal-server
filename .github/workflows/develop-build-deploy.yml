@@ -56,7 +56,7 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          zip -r deploy.zip *
+          zip -r deployment-package.zip docker-compose.yml
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v18
@@ -71,7 +71,7 @@ jobs:
           environment_name: "Walwal-dev-env"
           version_label: "github-action-dev-${{ github.sha }}"
           region: ap-northeast-2
-          deployment_package: deploy.zip
+          deployment_package: deployment-package.zip
 
       ## slack 알람
       - name: Slack Alarm
