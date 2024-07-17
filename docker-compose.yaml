@@ -5,6 +5,8 @@ services:
     image: "olderstonebed/walwal-server:latest"
     container_name: "walwal-server"
     restart: always
+    ports:
+      - "5000:8080"
     environment:
       - TZ=Asia/Seoul
     network_mode: host
