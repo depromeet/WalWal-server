@@ -1,13 +1,41 @@
 {
-  "AWSEBDockerrunVersion": "3",
-  "Image": {
-    "Name": "olderstonebed/walwal-server:latest",
-    "Update": "true"
-  },
-  "Ports": [
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
     {
-      "ContainerPort": 8080,
-      "HostPort": 5000
+      "name": "backend",
+      "image": "${DOCKERHUB_IMAGE_NAME}:latest",
+      "essential": true,
+      "memory": 512,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 5000
+        }
+      ],
+      "environment": [
+        {
+          "name": "TZ",
+          "value": "Asia/Seoul"
+        }
+      ]
+    },
+    {
+      "name": "redis",
+      "image": "redis:alpine",
+      "essential": true,
+      "memory": 256,
+      "portMappings": [
+        {
+          "containerPort": 6379,
+          "hostPort": 6379
+        }
+      ],
+      "environment": [
+        {
+          "name": "TZ",
+          "value": "Asia/Seoul"
+        }
+      ]
     }
   ]
 }
