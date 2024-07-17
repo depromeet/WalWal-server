@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.domain.record.domain;
+package com.depromeet.stonebed.domain.missionRecord.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

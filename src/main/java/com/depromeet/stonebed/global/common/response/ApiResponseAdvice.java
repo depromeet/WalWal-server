@@ -1,7 +1,6 @@
 package com.depromeet.stonebed.global.common.response;
 
 import com.depromeet.stonebed.global.error.ErrorCode;
-import com.depromeet.stonebed.global.error.ErrorResponse;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,24 +46,23 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
         ApiResponse apiResponse;
         if (status.is2xxSuccessful()) {
             apiResponse = ApiResponse.success(status.value(), body);
-        } else {
-            apiResponse = ApiResponse.fail(status.value(), (ErrorResponse) body);
-        }
 
-        if (MappingJackson2HttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
-            servletResponse.setStatus(apiResponse.status());
-            return apiResponse;
-        } else if (StringHttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
-            try {
-                response.getHeaders().set("Content-Type", "application/json");
-                String json = objectMapper.writeValueAsString(apiResponse);
+            if (MappingJackson2HttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
                 servletResponse.setStatus(apiResponse.status());
-                return json;
-            } catch (JsonProcessingException e) {
-                throw new CustomException(ErrorCode.JSON_PROCESSING_ERROR);
+                return apiResponse;
+            } else if (StringHttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
+                try {
+                    response.getHeaders().set("Content-Type", "application/json");
+                    String json = objectMapper.writeValueAsString(apiResponse);
+                    servletResponse.setStatus(apiResponse.status());
+                    return json;
+                } catch (JsonProcessingException e) {
+                    throw new CustomException(ErrorCode.JSON_PROCESSING_ERROR);
+                }
             }
         }
 
-        return apiResponse;
+        // 성공 상태가 아닌 경우 원래 body 반환
+        return body;
     }
 }
