@@ -6,7 +6,7 @@ services:
     container_name: "walwal-server"
     restart: always
     ports:
-      - "5000:8080"
+      - "8080:5000"
     environment:
       - TZ=Asia/Seoul
     network_mode: host

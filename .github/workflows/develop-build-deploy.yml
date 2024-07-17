@@ -60,9 +60,6 @@ jobs:
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
-        env:
-          IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
-          DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -78,7 +75,7 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_USERNAME: 왈왈봇
+          SLACK_USERNAME: "왈왈봇"
           SLACK_TITLE: "Deploy Summary - Develop"
           SLACK_MESSAGE: |
             - image tag: `${{ steps.metadata.outputs.tags }}`
