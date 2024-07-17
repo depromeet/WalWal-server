@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "backend",
-      "image": "${DOCKERHUB_IMAGE_NAME}:latest",
+      "image": "${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE_NAME}:latest",
       "essential": true,
       "memory": 512,
       "portMappings": [
