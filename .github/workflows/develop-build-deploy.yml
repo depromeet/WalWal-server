@@ -75,8 +75,11 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_USERNAME: "왈왈봇"
+          SLACK_USERNAME: 왈왈봇
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
           SLACK_TITLE: "Deploy Summary - Develop"
           SLACK_MESSAGE: |
             - image tag: `${{ steps.metadata.outputs.tags }}`
             - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
+            - deploy status: ${{ job.status }}
+            - deploy time: ${{ steps.current-time.outputs.time }}
