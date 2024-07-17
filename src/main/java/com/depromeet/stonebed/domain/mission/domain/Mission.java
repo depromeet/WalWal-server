@@ -8,10 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Entity
@@ -29,6 +26,10 @@ public class Mission extends BaseTimeEntity {
 
     @Builder
     public Mission(String title) {
+        this.title = title;
+    }
+
+    public void updateTitle(String title) {
         this.title = title;
     }
 }
