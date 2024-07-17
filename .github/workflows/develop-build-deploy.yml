@@ -71,7 +71,7 @@ jobs:
           environment_name: "Walwal-dev-env"
           version_label: "github-action-dev-${{ github.sha }}"
           region: ap-northeast-2
-          deployment_package: stonebed/docker-compose.yaml
+          deployment_package: docker-compose.yaml
 
       ## slack 알람
       - name: Slack Alarm
