@@ -2,8 +2,8 @@ version: "3.8"
 
 services:
   backend:
-    image: ${DOCKERHUB_IMAGE_NAME}:latest
-    container_name: ${DOCKERHUB_IMAGE_NAME}
+    image: "walwal-server"
+    container_name: "walwal-server"
     restart: always
     environment:
       - TZ=Asia/Seoul
