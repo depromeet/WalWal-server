@@ -56,7 +56,7 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          zip -r deployment-package.zip docker-compose.yaml
+          zip -r deployment-package.zip docker-compose.yaml nginx/default.conf
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
