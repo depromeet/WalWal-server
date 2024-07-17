@@ -69,7 +69,7 @@ jobs:
           existing_bucket_name: "walwal-server-dev-deployment"
           application_name: "walwal-dev"
           environment_name: "Walwal-dev-env"
-          version_label: ${{ steps.build-number.outputs.BUILD_NUMBER }}
+          version_label: "github-action-dev-${{ github.sha }}"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
 
