@@ -56,7 +56,7 @@ jobs:
 
 #      - name: Prepare deployment package
 #        run: |
-#          zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yaml
+#          zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yml
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v18
