@@ -54,12 +54,12 @@ jobs:
           replace-with: '-'
           flags: 'g'
 
-      - name: Prepare deployment package
-        run: |
-          zip -r deployment-package.zip Dockerrun.aws.json
+#      - name: Prepare deployment package
+#        run: |
+#          zip -r deployment-package.zip Dockerrun.aws.json docker-compose.yaml
 
       - name: Beanstalk Deploy
-        uses: einaregilsson/beanstalk-deploy@v22
+        uses: einaregilsson/beanstalk-deploy@v18
         env:
           IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
           DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
@@ -71,7 +71,7 @@ jobs:
           environment_name: "Walwal-dev-env"
           version_label: "github-action-dev-${{ github.sha }}"
           region: ap-northeast-2
-          deployment_package: deployment-package.zip  # Updated path
+          deployment_package: docker-compose.yml
 
       ## slack 알람
       - name: Slack Alarm

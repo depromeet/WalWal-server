@@ -3,22 +3,18 @@ version: "3.8"
 services:
   backend:
     image: ${DOCKERHUB_IMAGE_NAME}:latest
-    container_name: backend
+    container_name: ${DOCKERHUB_IMAGE_NAME}
     restart: always
     environment:
       - TZ=Asia/Seoul
-    ports:
-      - "5000:8080"
-    network_mode: "host"
+    network_mode: host
     env_file:
       - .env
-
   redis:
     image: "redis:alpine"
     container_name: redis
-    restart: always
-    environment:
-      - TZ=Asia/Seoul
     ports:
       - "6379:6379"
+    environment:
+      - TZ=Asia/Seoul
     network_mode: "host"
