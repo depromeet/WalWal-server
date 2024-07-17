@@ -54,21 +54,23 @@ jobs:
           replace-with: '-'
           flags: 'g'
 
-      - name: Prepare deployment package
+      - name: Generate deployment package
         run: |
-          zip -r deployment-package.zip docker-compose.yaml nginx/default.conf
+            mkdir -p deploy/nginx/conf.d
+            cp Dockerrun.aws.json deploy/Dockerrun.aws.json
+            cp nginx/default.conf deploy/nginx/conf.d/default.conf
+            cd deploy && zip -r deploy.zip .
 
       - name: Beanstalk Deploy
-        uses: einaregilsson/beanstalk-deploy@v22
+        uses: einaregilsson/beanstalk-deploy@v21
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          existing_bucket_name: "walwal-server-dev-deployment"
           application_name: "walwal-dev"
           environment_name: "Walwal-dev-env"
-          version_label: "github-action-dev-${{ github.sha }}"
+          version_label: "walwal-dev-${{ github.sha }}"
           region: ap-northeast-2
-          deployment_package: deployment-package.zip
+          deployment_package: deploy/deploy.zip
 
       # Slack 알림
       - name: Send Deploy Result to Slack

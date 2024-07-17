@@ -1,15 +1,6 @@
 version: "3.8"
 
 services:
-  backend:
-    image: "olderstonebed/walwal-server:latest"
-    container_name: "walwal-server"
-    restart: always
-    environment:
-      - TZ=Asia/Seoul
-    network_mode: host
-    env_file:
-      - .env
   redis:
     image: "redis:alpine"
     container_name: redis
@@ -18,11 +9,3 @@ services:
     environment:
       - TZ=Asia/Seoul
     network_mode: "host"
-  nginx:
-    image: "nginx:alpine"
-    container_name: nginx
-    environment:
-      - TZ=Asia/Seoul
-    network_mode: host
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/elasticbeanstalk-nginx-docker-upstream.conf
