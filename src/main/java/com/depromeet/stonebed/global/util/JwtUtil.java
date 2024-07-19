@@ -1,5 +1,7 @@
 package com.depromeet.stonebed.global.util;
 
+import static com.depromeet.stonebed.global.common.constants.SecurityConstants.*;
+
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.domain.TokenType;
 import com.depromeet.stonebed.domain.auth.dto.AccessTokenDto;
@@ -128,7 +130,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setHeader(createTokenHeader(TokenType.ACCESS))
                 .setSubject(memberId.toString())
-                .claim("role", memberRole.name())
+                .claim(TOKEN_ROLE_NAME, memberRole.name())
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiredAt)
                 .signWith(getAccessTokenKey())

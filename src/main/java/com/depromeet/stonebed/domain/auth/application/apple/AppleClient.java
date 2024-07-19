@@ -1,10 +1,13 @@
 package com.depromeet.stonebed.domain.auth.application.apple;
 
+import static com.depromeet.stonebed.global.common.constants.SecurityConstants.*;
+
 import com.depromeet.stonebed.domain.auth.dto.request.AppleTokenRequest;
 import com.depromeet.stonebed.domain.auth.dto.response.AppleKeyListResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.AppleKeyResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.AppleTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
+import com.depromeet.stonebed.global.common.constants.SecurityConstants;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.infra.properties.AppleProperties;
@@ -17,16 +20,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.security.Key;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Security;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPublicKeySpec;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -51,9 +48,6 @@ public class AppleClient {
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
     private final AppleProperties appleProperties;
-    private static final String APPLE_AUDIENCE = "https://appleid.apple.com";
-    private static final String TOKEN_ENDPOINT = "https://appleid.apple.com/auth/token";
-    private static final String KEY_ENDPOINT = "https://appleid.apple.com/auth/keys";
 
     public AppleTokenResponse getAppleToken(AppleTokenRequest appleTokenRequest) {
         // Prepare form data
@@ -65,7 +59,7 @@ public class AppleClient {
 
         return restClient
                 .post()
-                .uri(TOKEN_ENDPOINT)
+                .uri(APPLE_TOKEN_URL)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .body(formData)
                 .exchange(
@@ -89,7 +83,7 @@ public class AppleClient {
                 .setIssuer(appleProperties.dev().teamId().split("\\.")[0])
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expirationDate)
-                .setAudience(APPLE_AUDIENCE)
+                .setAudience(APPLE_ISSUER)
                 .setSubject(appleProperties.dev().clientId())
                 .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
                 .compact();
@@ -157,7 +151,7 @@ public class AppleClient {
         AppleKeyListResponse keyListResponse =
                 restClient
                         .get()
-                        .uri(KEY_ENDPOINT)
+                        .uri(SecurityConstants.APPLE_JWK_SET_URL)
                         .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
                         .exchange(
                                 (request, response) -> {
@@ -178,22 +172,5 @@ public class AppleClient {
                 Jwts.parserBuilder().setSigningKey(keyData).build().parseClaimsJws(accessToken);
 
         return parsedClaims.getBody();
-    }
-
-    // RSA 공개키 생성
-    private PublicKey generatePublicKey(final AppleKeyResponse applePublicKey) {
-        final byte[] nBytes = Base64.getUrlDecoder().decode(applePublicKey.n());
-        final byte[] eBytes = Base64.getUrlDecoder().decode(applePublicKey.e());
-
-        final BigInteger n = new BigInteger(1, nBytes);
-        final BigInteger e = new BigInteger(1, eBytes);
-        final RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(n, e);
-
-        try {
-            final KeyFactory keyFactory = KeyFactory.getInstance(applePublicKey.kty());
-            return keyFactory.generatePublic(rsaPublicKeySpec);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException exception) {
-            throw new RuntimeException("Invalid Apple Public Key");
-        }
     }
 }

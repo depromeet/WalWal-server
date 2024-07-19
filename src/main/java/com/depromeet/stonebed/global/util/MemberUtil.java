@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.global.util;
 
+import com.depromeet.stonebed.domain.auth.domain.TokenType;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.global.error.ErrorCode;
@@ -24,5 +25,13 @@ public class MemberUtil {
         return memberRepository
                 .findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    public TokenType getMemberTokenType() {
+        return securityUtil.getTokenType();
+    }
+
+    public String getMemberProvider() {
+        return getCurrentMember().getOauthInfo().getOauthProvider();
     }
 }

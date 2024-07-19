@@ -3,28 +3,20 @@ package com.depromeet.stonebed.domain.auth.api;
 import com.depromeet.stonebed.domain.auth.application.AuthService;
 import com.depromeet.stonebed.domain.auth.application.JwtTokenService;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
-import com.depromeet.stonebed.domain.auth.domain.TokenType;
-import com.depromeet.stonebed.domain.auth.dto.AuthenticationToken;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.request.RefreshTokenRequest;
 import com.depromeet.stonebed.domain.auth.dto.request.SocialLoginRequest;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
-import com.depromeet.stonebed.domain.member.application.MemberService;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.member.dto.CreateNewUserDTO;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
-import com.depromeet.stonebed.global.error.ErrorCode;
-import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final MemberService memberService;
     private final JwtTokenService jwtTokenService;
     private final MemberUtil memberUtil;
 
@@ -54,42 +45,15 @@ public class AuthController {
         SocialClientResponse socialClientResponse =
                 authService.authenticateFromProvider(oAuthProvider, request.token());
 
-        // 위 결과에서 나온 oauthId로 토큰 발급
+        // 위 결과에서 나온 oauthId와 email로 토큰 발급
         return authService.socialLogin(
                 oAuthProvider, socialClientResponse.oauthId(), socialClientResponse.email());
     }
 
     @Operation(summary = "회원가입", description = "회원가입을 진행 후 토큰 발급")
     @PostMapping("/register")
-    public AuthTokenResponse register(Authentication authentication, CreateMemberRequest request) {
-        // 사용자 회원가입
-        if (authentication.getCredentials() instanceof AuthenticationToken token
-                && token.tokenType() == TokenType.TEMPORARY) {
-            OAuthProvider oAuthProvider = OAuthProvider.from(token.provider());
-
-            // oauthId로 이미 있는 사용자인지 확인
-            Optional<Member> preExistsMember =
-                    memberService.getMemberByOauthId(oAuthProvider, token.userId());
-            if (preExistsMember.isPresent()) {
-                throw new CustomException(ErrorCode.ALREADY_EXISTS_MEMBER);
-            }
-
-            CreateNewUserDTO createNewUserDTO =
-                    CreateNewUserDTO.of(
-                            oAuthProvider,
-                            token.userId(),
-                            request.nickname(),
-                            request.raisePet(),
-                            request.profileImageUrl(),
-                            request.email());
-            Member member = memberService.createNewMember(createNewUserDTO);
-
-            // 새 토큰 생성
-            TokenPairResponse tokenPair = authService.getLoginResponse(member);
-            return AuthTokenResponse.of(tokenPair, false);
-        }
-        // 일어날 수 없는 일
-        throw new CustomException(ErrorCode.AUTHORIZATION_FAILED);
+    public AuthTokenResponse register(@RequestBody @Valid CreateMemberRequest request) {
+        return authService.registerMember(request);
     }
 
     @Operation(summary = "리프레시 토큰 발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급합니다.")

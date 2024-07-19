@@ -1,5 +1,7 @@
 package com.depromeet.stonebed.domain.auth.application;
 
+import static com.depromeet.stonebed.global.common.constants.SecurityConstants.*;
+
 import com.depromeet.stonebed.domain.auth.dao.RefreshTokenRepository;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.domain.RefreshToken;
@@ -21,8 +23,8 @@ public class JwtTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public TokenPairResponse generateTokenPair(Long memberId, MemberRole memberRole) {
-        String accessToken = jwtUtil.generateAccessToken(memberId, memberRole);
-        String refreshToken = jwtUtil.generateRefreshToken(memberId);
+        String accessToken = createAccessToken(memberId, memberRole);
+        String refreshToken = createRefreshToken(memberId);
         return TokenPairResponse.of(accessToken, refreshToken);
     }
 
@@ -32,7 +34,7 @@ public class JwtTokenService {
         return TokenPairResponse.of(temporaryToken, null);
     }
 
-    public String createAccessToken(Long memberId, MemberRole memberRole) {
+    private String createAccessToken(Long memberId, MemberRole memberRole) {
         return jwtUtil.generateAccessToken(memberId, memberRole);
     }
 
@@ -40,7 +42,7 @@ public class JwtTokenService {
         return jwtUtil.generateAccessTokenDto(memberId, memberRole);
     }
 
-    public String createRefreshToken(Long memberId) {
+    private String createRefreshToken(Long memberId) {
         String token = jwtUtil.generateRefreshToken(memberId);
         RefreshToken refreshToken =
                 RefreshToken.builder()
@@ -116,7 +118,8 @@ public class JwtTokenService {
             return null;
         } catch (ExpiredJwtException e) {
             Long memberId = Long.parseLong(e.getClaims().getSubject());
-            MemberRole memberRole = MemberRole.valueOf(e.getClaims().get("role", String.class));
+            MemberRole memberRole =
+                    MemberRole.valueOf(e.getClaims().get(TOKEN_ROLE_NAME, String.class));
             return createAccessTokenDto(memberId, memberRole);
         }
     }

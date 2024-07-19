@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.domain.member.domain;
 
+import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -38,6 +39,9 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private RaisePet raisePet;
 
+    @Enumerated(EnumType.STRING)
+    private MarketingAgreement marketingAgree;
+
     private LocalDateTime lastLoginAt;
 
     @Builder(access = AccessLevel.PRIVATE)
@@ -46,12 +50,14 @@ public class Member extends BaseTimeEntity {
             OauthInfo oauthInfo,
             MemberStatus status,
             MemberRole role,
-            RaisePet raisePet) {
+            RaisePet raisePet,
+            MarketingAgreement marketingAgree) {
         this.profile = profile;
         this.oauthInfo = oauthInfo;
         this.status = status;
         this.role = role;
         this.raisePet = raisePet;
+        this.marketingAgree = marketingAgree;
     }
 
     public static Member createMember(
@@ -59,14 +65,29 @@ public class Member extends BaseTimeEntity {
             OauthInfo oauthInfo,
             MemberStatus status,
             MemberRole role,
-            RaisePet raisePet) {
+            RaisePet raisePet,
+            MarketingAgreement marketingAgree) {
         return Member.builder()
                 .profile(profile)
                 .oauthInfo(oauthInfo)
                 .status(status)
                 .role(role)
                 .raisePet(raisePet)
+                .marketingAgree(marketingAgree)
                 .build();
+    }
+
+    public static Member createSocialMember(
+            OAuthProvider oAuthProvider, String oauthId, String email) {
+        OauthInfo oauthInfo = OauthInfo.createOauthInfo(oauthId, oAuthProvider.getValue(), email);
+
+        return Member.createMember(
+                Profile.createProfile("", ""),
+                oauthInfo,
+                MemberStatus.NORMAL,
+                MemberRole.USER,
+                null,
+                MarketingAgreement.DISAGREED);
     }
 
     public void updateLastLoginAt() {
