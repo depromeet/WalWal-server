@@ -16,18 +16,15 @@ import com.nimbusds.jose.jwk.JWK;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.text.ParseException;
@@ -39,11 +36,12 @@ import java.util.Date;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @Component
@@ -58,48 +56,58 @@ public class AppleClient {
     private static final String KEY_ENDPOINT = "https://appleid.apple.com/auth/keys";
 
     public AppleTokenResponse getAppleToken(AppleTokenRequest appleTokenRequest) {
+        // Prepare form data
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("client_id", appleTokenRequest.client_id());
+        formData.add("client_secret", appleTokenRequest.client_secret());
+        formData.add("code", appleTokenRequest.code());
+        formData.add("grant_type", appleTokenRequest.grant_type());
+
         return restClient
                 .post()
                 .uri(TOKEN_ENDPOINT)
-                .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
-                .body(appleTokenRequest)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(formData)
                 .exchange(
                         (request, response) -> {
-                            if (!response.getStatusCode().is2xxSuccessful())
-                                throw new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR);
+                            if (!response.getStatusCode().is2xxSuccessful()) {
+                                throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+                            }
                             return Objects.requireNonNull(
                                     response.bodyTo(AppleTokenResponse.class));
                         });
     }
 
-    public String makeClientSecret() throws IOException {
+    private String generateAppleClientSecret() {
         Date expirationDate =
                 Date.from(
-                        LocalDateTime.now()
-                                .plusDays(30)
-                                .atZone(ZoneId.systemDefault())
-                                .toInstant());
+                        LocalDateTime.now().plusDays(5).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .setHeaderParam("kid", appleProperties.keyId())
                 .setHeaderParam("alg", "ES256")
                 // TODO: dev, prod 환경분리 필요
-                .setIssuer(appleProperties.dev().teamId())
+                .setIssuer(appleProperties.dev().teamId().split("\\.")[0])
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expirationDate)
                 .setAudience(APPLE_AUDIENCE)
-                .setSubject(appleProperties.dev().teamId())
-                .signWith(getPrivateKey())
+                .setSubject(appleProperties.dev().clientId())
+                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
                 .compact();
     }
 
-    private PrivateKey getPrivateKey() throws IOException {
-        ClassPathResource resource = new ClassPathResource(appleProperties.p8());
-        String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
-        Reader pemReader = new StringReader(privateKey);
-        PEMParser pemParser = new PEMParser(pemReader);
-        JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-        PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
-        return converter.getPrivateKey(object);
+    private PrivateKey getPrivateKey() {
+
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+
+        try {
+            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.p8());
+
+            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
+            return converter.getPrivateKey(privateKeyInfo);
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting private key from String", e);
+        }
     }
 
     /**
@@ -108,15 +116,15 @@ public class AppleClient {
      * @param authorizationCode
      * @return
      */
-    public SocialClientResponse authenticateFromApple(String authorizationCode) throws IOException {
+    public SocialClientResponse authenticateFromApple(String authorizationCode) {
         AppleTokenRequest tokenRequest =
                 AppleTokenRequest.of(
                         authorizationCode,
                         appleProperties.dev().clientId(),
-                        makeClientSecret(),
-                        "authorization_code",
-                        null);
+                        generateAppleClientSecret(),
+                        "authorization_code");
         AppleTokenResponse appleTokenResponse = getAppleToken(tokenRequest);
+        System.out.println("id_token: " + appleTokenResponse.id_token());
 
         AppleKeyResponse[] keys = retrieveAppleKeys();
         try {
@@ -141,7 +149,7 @@ public class AppleClient {
 
             return new SocialClientResponse(email, identifier);
         } catch (Exception ex) {
-            throw new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -154,7 +162,7 @@ public class AppleClient {
                         .exchange(
                                 (request, response) -> {
                                     if (!response.getStatusCode().is2xxSuccessful())
-                                        throw new CustomException(ErrorCode.UNKNOWN_SERVER_ERROR);
+                                        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
                                     return Objects.requireNonNull(
                                             response.bodyTo(AppleKeyListResponse.class));
                                 });

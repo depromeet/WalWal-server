@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -49,9 +48,8 @@ public class AuthController {
             @PathVariable(name = "provider")
                     @Parameter(example = "apple", description = "OAuth 제공자")
                     String provider,
-            @RequestBody @Valid SocialLoginRequest request)
-            throws IOException {
-        OAuthProvider oAuthProvider = OAuthProvider.fromString(provider);
+            @RequestBody @Valid SocialLoginRequest request) {
+        OAuthProvider oAuthProvider = OAuthProvider.from(provider);
 
         SocialClientResponse socialClientResponse =
                 authService.authenticateFromProvider(oAuthProvider, request.token());
@@ -67,7 +65,7 @@ public class AuthController {
         // 사용자 회원가입
         if (authentication.getCredentials() instanceof AuthenticationToken token
                 && token.tokenType() == TokenType.TEMPORARY) {
-            OAuthProvider oAuthProvider = OAuthProvider.fromString(token.provider());
+            OAuthProvider oAuthProvider = OAuthProvider.from(token.provider());
 
             // oauthId로 이미 있는 사용자인지 확인
             Optional<Member> preExistsMember =

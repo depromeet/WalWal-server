@@ -12,7 +12,6 @@ import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.member.domain.OauthInfo;
 import com.depromeet.stonebed.domain.member.domain.Profile;
-import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +29,8 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtTokenService jwtTokenService;
 
-    public SocialClientResponse authenticateFromProvider(OAuthProvider provider, String accessToken)
-            throws IOException {
+    public SocialClientResponse authenticateFromProvider(
+            OAuthProvider provider, String accessToken) {
         return switch (provider) {
             case APPLE -> appleClient.authenticateFromApple(accessToken);
                 // TODO: 추후 카카오 개발 예정

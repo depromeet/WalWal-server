@@ -3,19 +3,16 @@ package com.depromeet.stonebed.domain.auth.dto.response;
 public record AppleTokenResponse(
         // 외부 통신 시 snake_case로 요청 및 응답
         String access_token,
-        String expires_in,
+        Long expires_in,
         String id_token,
         String refresh_token,
-        String token_type,
-        String error) {
+        String token_type) {
     public static AppleTokenResponse of(
             String accessToken,
-            String expiresIn,
+            Long expiresIn,
             String idToken,
             String refreshToken,
-            String tokenType,
-            String error) {
-        return new AppleTokenResponse(
-                accessToken, expiresIn, idToken, refreshToken, tokenType, error);
+            String tokenType) {
+        return new AppleTokenResponse(accessToken, expiresIn, idToken, refreshToken, tokenType);
     }
 }

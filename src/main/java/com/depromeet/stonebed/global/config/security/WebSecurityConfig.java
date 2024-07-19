@@ -26,20 +26,24 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(
-                authorize ->
-                        authorize
-                                .requestMatchers("/walwal-actuator/**")
-                                .permitAll() // 액추에이터
-                                .requestMatchers("/auth/**")
-                                .permitAll() // 임시 회원가입 / 로그인 + OAuth2 로그인
-                                .anyRequest()
-                                .authenticated());
-
-        http.exceptionHandling(
-                exception ->
-                        exception.authenticationEntryPoint(
-                                (request, response, authException) -> response.setStatus(401)));
+        defaultFilterChain(http);
+        http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF if not needed
+                .authorizeHttpRequests(
+                        authorize ->
+                                authorize
+                                        .requestMatchers("/walwal-actuator/**")
+                                        .permitAll() // Actuator
+                                        .requestMatchers("/auth/**")
+                                        .permitAll() // Auth endpoints
+                                        .anyRequest()
+                                        .authenticated())
+                .exceptionHandling(
+                        exception ->
+                                exception.authenticationEntryPoint(
+                                        (request, response, authException) ->
+                                                response.setStatus(401)))
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
@@ -64,9 +68,7 @@ public class WebSecurityConfig {
     private void defaultFilterChain(HttpSecurity http) throws Exception {
         http.httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(withDefaults())
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .cors(withDefaults());
     }
 
     @Bean

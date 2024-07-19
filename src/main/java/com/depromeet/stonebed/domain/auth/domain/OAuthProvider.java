@@ -12,7 +12,7 @@ public enum OAuthProvider {
     ;
     private final String value;
 
-    public static OAuthProvider fromString(String provider) {
+    public static OAuthProvider from(String provider) {
         return switch (provider.toUpperCase()) {
             case "APPLE" -> APPLE;
             case "KAKAO" -> KAKAO;
