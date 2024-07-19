@@ -3,7 +3,11 @@ package com.depromeet.stonebed.global.config.security;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.security.config.Customizer.*;
 
+import com.depromeet.stonebed.domain.auth.application.JwtTokenService;
 import com.depromeet.stonebed.global.common.constants.SwaggerUrlConstants;
+import com.depromeet.stonebed.global.filter.JwtAuthenticationFilter;
+import com.depromeet.stonebed.global.util.CookieUtil;
+import com.depromeet.stonebed.infra.properties.SwaggerProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +16,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,12 +31,25 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+    private final JwtTokenService jwtTokenService;
+    private final CookieUtil cookieUtil;
+
+    private final SwaggerProperties swaggerProperties;
+
+    @Bean
+    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
+        UserDetails user =
+                User.withUsername(swaggerProperties.user())
+                        .password(passwordEncoder().encode(swaggerProperties.password()))
+                        .roles("SWAGGER")
+                        .build();
+        return new InMemoryUserDetailsManager(user);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         defaultFilterChain(http);
-        http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF if not needed
-                .authorizeHttpRequests(
+        http.authorizeHttpRequests(
                         authorize ->
                                 authorize
                                         .requestMatchers("/walwal-actuator/**")
@@ -41,9 +62,11 @@ public class WebSecurityConfig {
                         exception ->
                                 exception.authenticationEntryPoint(
                                         (request, response, authException) ->
-                                                response.setStatus(401)))
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                                                response.setStatus(401)));
+
+        http.addFilterBefore(
+                jwtAuthenticationFilter(jwtTokenService, cookieUtil),
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -68,7 +91,10 @@ public class WebSecurityConfig {
     private void defaultFilterChain(HttpSecurity http) throws Exception {
         http.httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(withDefaults());
+                .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     }
 
     @Bean
@@ -85,5 +111,11 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtTokenService jwtTokenService, CookieUtil cookieUtil) {
+        return new JwtAuthenticationFilter(jwtTokenService, cookieUtil);
     }
 }
