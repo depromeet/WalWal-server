@@ -7,10 +7,18 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordDayRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordDayResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,5 +63,44 @@ public class MissionRecordService {
         return missionRepository
                 .findById(missionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+    }
+
+    // 전체 미션 기록 조회 메서드
+    public MissionRecordCalendarResponse getMissionRecordsForCalendar() {
+        Member member = memberUtil.getCurrentMember();
+        List<MissionRecord> records = missionRecordRepository.findByMemberId(member.getId());
+
+        Map<String, Map<String, List<String>>> calendarData =
+                records.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        record ->
+                                                record.getCreatedAt()
+                                                        .format(
+                                                                DateTimeFormatter.ofPattern(
+                                                                        "yyyy-MM")),
+                                        Collectors.groupingBy(
+                                                record ->
+                                                        record.getCreatedAt()
+                                                                .format(
+                                                                        DateTimeFormatter.ofPattern(
+                                                                                "dd")),
+                                                Collectors.mapping(
+                                                        MissionRecord::getImageUrl,
+                                                        Collectors.toList()))));
+
+        return MissionRecordCalendarResponse.from(calendarData);
+    }
+
+    // 단건 미션 기록 조회 메서드
+    public MissionRecordDayResponse getMissionRecordsForDay(MissionRecordDayRequest request) {
+        Member member = memberUtil.getCurrentMember();
+        LocalDate date = request.date();
+        MissionRecord record =
+                missionRecordRepository
+                        .findFirstByMemberIdAndCreatedAt(member.getId(), date)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        return MissionRecordDayResponse.from(record.getImageUrl());
     }
 }
