@@ -25,6 +25,7 @@ class TestFixtureMonkey {
                 sut.giveMeBuilder(User.class)
                         .set("age", Arbitraries.integers().between(1, 100))
                         .set("personNo", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
+                        .set("personName", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
                         .sample();
 
         // then
