@@ -1,17 +1,12 @@
 package com.depromeet.stonebed.domain.auth.api;
 
 import com.depromeet.stonebed.domain.auth.application.AuthService;
-import com.depromeet.stonebed.domain.auth.application.JwtTokenService;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
-import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.request.RefreshTokenRequest;
 import com.depromeet.stonebed.domain.auth.dto.request.SocialLoginRequest;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
-import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
-import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
-import com.depromeet.stonebed.global.util.MemberUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,15 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "1-1. [인증]", description = "인증 관련 API")
+@Tag(name = "1-1. [인증]", description = "인증 관련 API입니다.")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtTokenService jwtTokenService;
-    private final MemberUtil memberUtil;
 
     @Operation(summary = "소셜 로그인", description = "소셜 로그인 후 임시 토큰을 발급합니다.")
     @PostMapping("/social-login/{provider}")
@@ -59,15 +52,6 @@ public class AuthController {
     @Operation(summary = "리프레시 토큰 발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급합니다.")
     @PostMapping("/reissue")
     public AuthTokenResponse reissueTokenPair(RefreshTokenRequest request) {
-        // 리프레시 토큰을 이용해 새로운 액세스 토큰 발급
-        RefreshTokenDto refreshTokenDto =
-                jwtTokenService.retrieveRefreshToken(request.refreshToken());
-        RefreshTokenDto refreshToken =
-                jwtTokenService.createRefreshTokenDto(refreshTokenDto.memberId());
-
-        Member member = memberUtil.getMemberByMemberId(refreshToken.memberId());
-
-        TokenPairResponse tokenPair = authService.getLoginResponse(member);
-        return AuthTokenResponse.of(tokenPair, false);
+        return authService.reissueTokenPair(request);
     }
 }

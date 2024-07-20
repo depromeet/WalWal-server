@@ -3,6 +3,8 @@ package com.depromeet.stonebed.domain.auth.application;
 import com.depromeet.stonebed.domain.auth.application.apple.AppleClient;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.domain.TokenType;
+import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
+import com.depromeet.stonebed.domain.auth.dto.request.RefreshTokenRequest;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
@@ -55,20 +57,17 @@ public class AuthService {
             TokenPairResponse temporaryTokenPair =
                     jwtTokenService.generateTemporaryTokenPair(
                             oAuthProvider, newMember.getOauthInfo().getOauthId());
+            newMember.updateLastLoginAt();
+
             return AuthTokenResponse.of(temporaryTokenPair, true);
         } else {
             Member member = memberOptional.get();
             // 사용자 로그인 토큰 생성
             TokenPairResponse tokenPair = getLoginResponse(member);
+            member.updateLastLoginAt();
+
             return AuthTokenResponse.of(tokenPair, false);
         }
-    }
-
-    public TokenPairResponse getLoginResponse(Member member) {
-        TokenPairResponse tokenPairResponse =
-                jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER);
-        member.updateLastLoginAt();
-        return tokenPairResponse;
     }
 
     public AuthTokenResponse registerMember(CreateMemberRequest request) {
@@ -85,5 +84,23 @@ public class AuthService {
             return AuthTokenResponse.of(tokenPair, false);
         }
         throw new CustomException(ErrorCode.AUTHORIZATION_FAILED);
+    }
+
+    @Transactional(readOnly = true)
+    public AuthTokenResponse reissueTokenPair(RefreshTokenRequest request) {
+        // 리프레시 토큰을 이용해 새로운 액세스 토큰 발급
+        RefreshTokenDto refreshTokenDto =
+                jwtTokenService.retrieveRefreshToken(request.refreshToken());
+        RefreshTokenDto refreshToken =
+                jwtTokenService.createRefreshTokenDto(refreshTokenDto.memberId());
+
+        Member member = memberUtil.getMemberByMemberId(refreshToken.memberId());
+
+        TokenPairResponse tokenPair = getLoginResponse(member);
+        return AuthTokenResponse.of(tokenPair, false);
+    }
+
+    private TokenPairResponse getLoginResponse(Member member) {
+        return jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER);
     }
 }
