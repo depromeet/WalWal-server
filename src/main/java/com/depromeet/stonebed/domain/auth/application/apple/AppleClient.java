@@ -7,7 +7,6 @@ import com.depromeet.stonebed.domain.auth.dto.response.AppleKeyListResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.AppleKeyResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.AppleTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
-import com.depromeet.stonebed.global.common.constants.SecurityConstants;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.infra.properties.AppleProperties;
@@ -65,7 +64,7 @@ public class AppleClient {
                 .exchange(
                         (request, response) -> {
                             if (!response.getStatusCode().is2xxSuccessful()) {
-                                throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+                                throw new CustomException(ErrorCode.APPLE_TOKEN_CLIENT_FAILED);
                             }
                             return Objects.requireNonNull(
                                     response.bodyTo(AppleTokenResponse.class));
@@ -150,12 +149,13 @@ public class AppleClient {
         AppleKeyListResponse keyListResponse =
                 restClient
                         .get()
-                        .uri(SecurityConstants.APPLE_JWK_SET_URL)
+                        .uri(APPLE_JWK_SET_URL)
                         .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
                         .exchange(
                                 (request, response) -> {
                                     if (!response.getStatusCode().is2xxSuccessful())
-                                        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+                                        throw new CustomException(
+                                                ErrorCode.APPLE_TOKEN_CLIENT_FAILED);
                                     return Objects.requireNonNull(
                                             response.bodyTo(AppleKeyListResponse.class));
                                 });
