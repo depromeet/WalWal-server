@@ -93,4 +93,16 @@ public class Member extends BaseTimeEntity {
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
     }
+
+    public void updateRaisePet(RaisePet raisePet) {
+        this.raisePet = raisePet;
+    }
+
+    public void updateMarketingAgreement(MarketingAgreement marketingAgree) {
+        this.marketingAgree = marketingAgree;
+    }
+
+    public void updateProfile(Profile profile) {
+        this.profile = profile;
+    }
 }

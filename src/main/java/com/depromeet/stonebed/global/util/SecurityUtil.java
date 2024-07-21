@@ -1,7 +1,5 @@
 package com.depromeet.stonebed.global.util;
 
-import com.depromeet.stonebed.domain.auth.domain.TokenType;
-import com.depromeet.stonebed.domain.auth.dto.AuthenticationToken;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import org.springframework.security.core.Authentication;
@@ -20,14 +18,10 @@ public class SecurityUtil {
         }
     }
 
-    public TokenType getTokenType() {
+    public String getCurrentMemberRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         try {
-            if (authentication.getCredentials() instanceof AuthenticationToken token) {
-                return token.tokenType();
-            } else {
-                throw new CustomException(ErrorCode.AUTH_NOT_FOUND);
-            }
+            return authentication.getAuthorities().stream().findFirst().get().getAuthority();
         } catch (Exception e) {
             throw new CustomException(ErrorCode.AUTH_NOT_FOUND);
         }

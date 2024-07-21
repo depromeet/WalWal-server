@@ -2,7 +2,6 @@ package com.depromeet.stonebed.domain.auth.application;
 
 import com.depromeet.stonebed.domain.auth.application.apple.AppleClient;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
-import com.depromeet.stonebed.domain.auth.domain.TokenType;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.request.RefreshTokenRequest;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
@@ -55,8 +54,7 @@ public class AuthService {
             Member newMember = memberService.socialSignUp(oAuthProvider, oauthId, email);
             // 임시 토큰 발행
             TokenPairResponse temporaryTokenPair =
-                    jwtTokenService.generateTemporaryTokenPair(
-                            oAuthProvider, newMember.getOauthInfo().getOauthId());
+                    jwtTokenService.generateTemporaryTokenPair(newMember);
             newMember.updateLastLoginAt();
 
             return AuthTokenResponse.of(temporaryTokenPair, true);
@@ -74,17 +72,13 @@ public class AuthService {
     public AuthTokenResponse registerMember(CreateMemberRequest request) {
         Member currentMember = memberUtil.getCurrentMember();
         // 사용자 회원가입
-        if (memberUtil.getMemberTokenType() == TokenType.TEMPORARY) {
-            OAuthProvider oAuthProvider = OAuthProvider.from(memberUtil.getMemberProvider());
-
-            Member member =
-                    memberService.getOrCreateMember(
-                            oAuthProvider, currentMember.getOauthInfo().getOauthId(), request);
+        if (memberUtil.getMemberRole().equals(MemberRole.TEMPORARY.getValue())) {
+            Member member = memberService.setMemberRegister(currentMember, request);
             // 새 토큰 생성
             TokenPairResponse tokenPair = getLoginResponse(member);
             return AuthTokenResponse.of(tokenPair, false);
         }
-        throw new CustomException(ErrorCode.AUTHORIZATION_FAILED);
+        throw new CustomException(ErrorCode.ALREADY_EXISTS_MEMBER);
     }
 
     @Transactional(readOnly = true)

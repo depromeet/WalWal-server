@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum MarketingAgreement {
-    AGREED("AGREE"),
+    AGREED("AGREED"),
     DISAGREED("DISAGREED");
 
     private final String value;

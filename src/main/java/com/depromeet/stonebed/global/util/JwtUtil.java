@@ -6,6 +6,7 @@ import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.domain.TokenType;
 import com.depromeet.stonebed.domain.auth.dto.AccessTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
+import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.infra.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
@@ -111,15 +112,18 @@ public class JwtUtil {
         return new Date(Long.MAX_VALUE);
     }
 
-    public String generateTemporaryToken(OAuthProvider oAuthProvider, String oauthId) {
+    public String generateTemporaryToken(OAuthProvider oAuthProvider, Member member) {
         return Jwts.builder()
                 .setHeader(createTokenHeader(TokenType.TEMPORARY))
+                .setSubject(member.getId().toString())
                 .setClaims(
                         Map.of(
                                 USER_ID_KEY_NAME,
-                                oauthId,
+                                member.getOauthInfo().getOauthId(),
                                 PROVIDER_KEY_NAME,
-                                oAuthProvider.getValue()))
+                                oAuthProvider.getValue(),
+                                TOKEN_ROLE_NAME,
+                                MemberRole.TEMPORARY.name()))
                 .setExpiration(generateTemporaryTokenExpiration())
                 .signWith(getAccessTokenKey())
                 .compact();
@@ -128,7 +132,11 @@ public class JwtUtil {
     private String buildAccessToken(
             Long memberId, MemberRole memberRole, Date issuedAt, Date expiredAt) {
         return Jwts.builder()
-                .setHeader(createTokenHeader(TokenType.ACCESS))
+                .setHeader(
+                        createTokenHeader(
+                                memberRole == MemberRole.TEMPORARY
+                                        ? TokenType.TEMPORARY
+                                        : TokenType.ACCESS))
                 .setSubject(memberId.toString())
                 .claim(TOKEN_ROLE_NAME, memberRole.name())
                 .setIssuedAt(issuedAt)

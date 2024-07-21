@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RaisePet {
-    DOG("강아지"),
-    CAT("고양이"),
+    DOG("DOG"),
+    CAT("CAT"),
     ;
 
     private final String value;

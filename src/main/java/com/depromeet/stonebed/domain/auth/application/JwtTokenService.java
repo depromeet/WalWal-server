@@ -3,11 +3,11 @@ package com.depromeet.stonebed.domain.auth.application;
 import static com.depromeet.stonebed.global.common.constants.SecurityConstants.*;
 
 import com.depromeet.stonebed.domain.auth.dao.RefreshTokenRepository;
-import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.domain.RefreshToken;
 import com.depromeet.stonebed.domain.auth.dto.AccessTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
+import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.global.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -28,10 +28,10 @@ public class JwtTokenService {
         return TokenPairResponse.of(accessToken, refreshToken);
     }
 
-    public TokenPairResponse generateTemporaryTokenPair(
-            OAuthProvider oAuthProvider, String oauthId) {
-        String temporaryToken = jwtUtil.generateTemporaryToken(oAuthProvider, oauthId);
-        return TokenPairResponse.of(temporaryToken, null);
+    public TokenPairResponse generateTemporaryTokenPair(Member temporaryMember) {
+        String accessToken = createAccessToken(temporaryMember.getId(), MemberRole.TEMPORARY);
+        String refreshToken = createRefreshToken(temporaryMember.getId());
+        return TokenPairResponse.of(accessToken, refreshToken);
     }
 
     private String createAccessToken(Long memberId, MemberRole memberRole) {
@@ -81,7 +81,7 @@ public class JwtTokenService {
 
     public RefreshTokenDto retrieveRefreshToken(String refreshTokenValue) {
         RefreshTokenDto refreshTokenDto = parseRefreshToken(refreshTokenValue);
-
+        System.out.println("refreshTokenDto: " + refreshTokenDto);
         if (refreshTokenDto == null) {
             return null;
         }
@@ -90,8 +90,7 @@ public class JwtTokenService {
         Optional<RefreshToken> refreshToken = getRefreshTokenFromRedis(refreshTokenDto.memberId());
 
         // Redis에 토큰이 존재하고, 쿠키의 토큰과 값이 일치하면 DTO 반환
-        if (refreshToken.isPresent()
-                && refreshTokenDto.tokenValue().equals(refreshToken.get().getToken())) {
+        if (refreshToken.isPresent()) {
             return refreshTokenDto;
         }
 

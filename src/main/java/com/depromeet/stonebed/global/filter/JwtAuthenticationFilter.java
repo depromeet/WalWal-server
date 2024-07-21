@@ -104,6 +104,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void setAuthenticationToContext(Long memberId, MemberRole memberRole) {
         UserDetails userDetails = new PrincipalDetails(memberId, memberRole);
+
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());

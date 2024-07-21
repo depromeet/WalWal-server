@@ -9,8 +9,6 @@ import com.depromeet.stonebed.domain.member.domain.OauthInfo;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.CreateNewUserDTO;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
-import com.depromeet.stonebed.global.error.ErrorCode;
-import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,22 +34,11 @@ public class MemberService {
                 oAuthProvider.getValue(), oauthId);
     }
 
-    public Member getOrCreateMember(
-            OAuthProvider oAuthProvider, String oauthId, CreateMemberRequest request) {
-        Optional<Member> existingMember = getMemberByOauthId(oAuthProvider, oauthId);
-        if (existingMember.isPresent()) {
-            throw new CustomException(ErrorCode.ALREADY_EXISTS_MEMBER);
-        }
-        CreateNewUserDTO createNewUserDTO =
-                CreateNewUserDTO.of(
-                        oAuthProvider,
-                        oauthId,
-                        request.nickname(),
-                        request.raisePet(),
-                        request.profileImageUrl(),
-                        request.email(),
-                        request.marketingAgreement());
-        return createNewMember(createNewUserDTO);
+    public Member setMemberRegister(Member member, CreateMemberRequest request) {
+        member.updateProfile(Profile.createProfile(request.nickname(), request.profileImageUrl()));
+        member.updateRaisePet(request.raisePet());
+        member.updateMarketingAgreement(request.marketingAgreement());
+        return member;
     }
 
     private Member createNewMember(CreateNewUserDTO createNewUserDTO) {

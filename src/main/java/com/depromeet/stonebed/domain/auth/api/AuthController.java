@@ -51,7 +51,7 @@ public class AuthController {
 
     @Operation(summary = "리프레시 토큰 발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급합니다.")
     @PostMapping("/reissue")
-    public AuthTokenResponse reissueTokenPair(RefreshTokenRequest request) {
+    public AuthTokenResponse reissueTokenPair(@RequestBody @Valid RefreshTokenRequest request) {
         return authService.reissueTokenPair(request);
     }
 }
