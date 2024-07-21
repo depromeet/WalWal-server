@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.domain.record.domain;
+package com.depromeet.stonebed.domain.missionRecord.domain;
 
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
