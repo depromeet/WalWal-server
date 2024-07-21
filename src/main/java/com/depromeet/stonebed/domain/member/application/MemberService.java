@@ -1,7 +1,5 @@
 package com.depromeet.stonebed.domain.member.application;
 
-import static com.depromeet.stonebed.domain.member.domain.Member.*;
-
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
@@ -72,7 +70,7 @@ public class MemberService {
     }
 
     public Member socialSignUp(OAuthProvider oAuthProvider, String oauthId, String email) {
-        Member member = Member.createSocialMember(oAuthProvider, oauthId, email);
+        Member member = Member.createOAuthMember(oAuthProvider, oauthId, email);
         return memberRepository.save(member);
     }
 }

@@ -156,6 +156,6 @@ public class JwtUtil {
                 "regDate",
                 System.currentTimeMillis(),
                 TOKEN_TYPE_KEY_NAME,
-                tokenType.getTypeKey());
+                tokenType.getValue());
     }
 }

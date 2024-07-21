@@ -77,7 +77,7 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
-    public static Member createSocialMember(
+    public static Member createOAuthMember(
             OAuthProvider oAuthProvider, String oauthId, String email) {
         OauthInfo oauthInfo = OauthInfo.createOauthInfo(oauthId, oAuthProvider.getValue(), email);
 

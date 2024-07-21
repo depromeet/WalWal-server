@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
 
     private final AppleClient appleClient;
@@ -45,7 +46,6 @@ public class AuthService {
         };
     }
 
-    @Transactional
     public AuthTokenResponse socialLogin(
             OAuthProvider oAuthProvider, String oauthId, String email) {
         Optional<Member> memberOptional = memberService.getMemberByOauthId(oAuthProvider, oauthId);
@@ -70,6 +70,7 @@ public class AuthService {
         }
     }
 
+    // 회원가입
     public AuthTokenResponse registerMember(CreateMemberRequest request) {
         Member currentMember = memberUtil.getCurrentMember();
         // 사용자 회원가입

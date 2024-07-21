@@ -10,7 +10,7 @@ public enum TokenType {
     ACCESS("access"),
     REFRESH("refresh"),
     TEMPORARY("temporary");
-    private final String typeKey;
+    private final String value;
 
     public static TokenType from(String typeKey) {
         return switch (typeKey.toUpperCase()) {
