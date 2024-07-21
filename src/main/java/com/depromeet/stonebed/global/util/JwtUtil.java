@@ -111,13 +111,13 @@ public class JwtUtil {
         return new Date(Long.MAX_VALUE);
     }
 
-    public String generateTemporaryToken(OAuthProvider oAuthProvider, String identifier) {
+    public String generateTemporaryToken(OAuthProvider oAuthProvider, String oauthId) {
         return Jwts.builder()
                 .setHeader(createTokenHeader(TokenType.TEMPORARY))
                 .setClaims(
                         Map.of(
                                 USER_ID_KEY_NAME,
-                                identifier,
+                                oauthId,
                                 PROVIDER_KEY_NAME,
                                 oAuthProvider.getValue()))
                 .setExpiration(generateTemporaryTokenExpiration())

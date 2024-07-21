@@ -31,9 +31,9 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Member> getMemberByOauthId(OAuthProvider oAuthProvider, String identifier) {
+    public Optional<Member> getMemberByOauthId(OAuthProvider oAuthProvider, String oauthId) {
         return memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
-                oAuthProvider.getValue(), identifier);
+                oAuthProvider.getValue(), oauthId);
     }
 
     public Member getOrCreateMember(

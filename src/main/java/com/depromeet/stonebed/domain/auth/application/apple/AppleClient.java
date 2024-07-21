@@ -118,7 +118,6 @@ public class AppleClient {
                         generateAppleClientSecret(),
                         "authorization_code");
         AppleTokenResponse appleTokenResponse = getAppleToken(tokenRequest);
-        System.out.println("id_token: " + appleTokenResponse.id_token());
 
         AppleKeyResponse[] keys = retrieveAppleKeys();
         try {
@@ -138,10 +137,10 @@ public class AppleClient {
             Claims claims =
                     parseIdentifierFromAppleToken(matchedKey, appleTokenResponse.id_token());
 
-            String identifier = claims.get("sub", String.class);
+            String oauthId = claims.get("sub", String.class);
             String email = claims.get("email", String.class);
 
-            return new SocialClientResponse(email, identifier);
+            return new SocialClientResponse(email, oauthId);
         } catch (Exception ex) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
