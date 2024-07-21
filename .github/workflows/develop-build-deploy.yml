@@ -1,7 +1,7 @@
 name: Develop Build & Deploy
 on:
   push:
-    branches: [ "chore/#48-eb-docker-compose" ]
+    branches: [ "develop" ]
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
