@@ -49,23 +49,25 @@ public class AuthService {
             OAuthProvider oAuthProvider, String oauthId, String email) {
         Optional<Member> memberOptional = memberService.getMemberByOauthId(oAuthProvider, oauthId);
 
-        if (memberOptional.isEmpty()) {
-            // 회원가입이 안된 경우, 회원가입 진행
-            Member newMember = memberService.socialSignUp(oAuthProvider, oauthId, email);
-            // 임시 토큰 발행
-            TokenPairResponse temporaryTokenPair =
-                    jwtTokenService.generateTemporaryTokenPair(newMember);
-            newMember.updateLastLoginAt();
-
-            return AuthTokenResponse.of(temporaryTokenPair, true);
-        } else {
-            Member member = memberOptional.get();
-            // 사용자 로그인 토큰 생성
-            TokenPairResponse tokenPair = getLoginResponse(member);
-            member.updateLastLoginAt();
-
-            return AuthTokenResponse.of(tokenPair, false);
-        }
+        return memberOptional
+                .map(
+                        member -> {
+                            // 사용자 로그인 토큰 생성
+                            TokenPairResponse tokenPair = getLoginResponse(member);
+                            member.updateLastLoginAt();
+                            return AuthTokenResponse.of(tokenPair, false);
+                        })
+                .orElseGet(
+                        () -> {
+                            // 회원가입이 안된 경우, 회원가입 진행
+                            Member newMember =
+                                    memberService.socialSignUp(oAuthProvider, oauthId, email);
+                            // 임시 토큰 발행
+                            TokenPairResponse temporaryTokenPair =
+                                    jwtTokenService.generateTemporaryTokenPair(newMember);
+                            newMember.updateLastLoginAt();
+                            return AuthTokenResponse.of(temporaryTokenPair, true);
+                        });
     }
 
     // 회원가입
