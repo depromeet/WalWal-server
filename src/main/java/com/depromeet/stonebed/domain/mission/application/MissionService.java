@@ -12,10 +12,10 @@ import com.depromeet.stonebed.domain.mission.dto.response.MissionGetTodayRespons
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MissionService {
     private final MissionRepository missionRepository;
     private final MissionHistoryRepository missionHistoryRepository;
-    private final Random random = new Random();
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public MissionCreateResponse createMission(MissionCreateRequest missionCreateRequest) {
         Mission mission = Mission.builder().title(missionCreateRequest.title()).build();
@@ -68,7 +68,8 @@ public class MissionService {
             throw new CustomException(ErrorCode.NO_AVAILABLE_TODAY_MISSION);
         }
 
-        Mission selectedMission = availableMissions.get(random.nextInt(availableMissions.size()));
+        Mission selectedMission =
+                availableMissions.get(secureRandom.nextInt(availableMissions.size()));
 
         MissionHistory newMissionHistory =
                 MissionHistory.builder().mission(selectedMission).assignedDate(today).build();
