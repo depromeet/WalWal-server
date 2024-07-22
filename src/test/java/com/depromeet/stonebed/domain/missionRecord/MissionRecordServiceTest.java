@@ -43,6 +43,7 @@ public class MissionRecordServiceTest {
                         .build();
     }
 
+    // Member Class 생성 후 테스트
     // @Test
     // void completeMission_success() {
     // 	// given
@@ -68,8 +69,8 @@ public class MissionRecordServiceTest {
     //
     // 	// then
     // 	then(response).isNotNull();
-    // 	then(response.getMissionId()).isEqualTo(missionRecord.getId());
-    // 	then(response.getMissionTitle()).isEqualTo(missionRecord.getMission().getTitle());
+    // 	then(response.recordId()).isEqualTo(missionRecord.getId());
+    // 	then(response.missionTitle()).isEqualTo(missionRecord.getMission().getTitle());
     //
     // 	verify(missionRepository).findById(request.missionId());
     // 	verify(memberUtil).getCurrentMember();
