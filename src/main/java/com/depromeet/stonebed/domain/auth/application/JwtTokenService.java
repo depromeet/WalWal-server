@@ -44,13 +44,7 @@ public class JwtTokenService {
 
     private String createRefreshToken(Long memberId) {
         String token = jwtUtil.generateRefreshToken(memberId);
-        RefreshToken refreshToken =
-                RefreshToken.builder()
-                        .memberId(memberId)
-                        .token(token)
-                        .ttl(jwtUtil.getRefreshTokenExpirationTime())
-                        .build();
-        refreshTokenRepository.save(refreshToken);
+        saveRefreshTokenToRedis(memberId, token, jwtUtil.getRefreshTokenExpirationTime());
         return token;
     }
 
@@ -60,14 +54,9 @@ public class JwtTokenService {
         return refreshTokenDto;
     }
 
-    private void saveRefreshTokenToRedis(
-            Long memberId, String refreshTokenDto, Long refreshTokenDto1) {
+    private void saveRefreshTokenToRedis(Long memberId, String refreshTokenDto, Long ttl) {
         RefreshToken refreshToken =
-                RefreshToken.builder()
-                        .memberId(memberId)
-                        .token(refreshTokenDto)
-                        .ttl(refreshTokenDto1)
-                        .build();
+                RefreshToken.builder().memberId(memberId).token(refreshTokenDto).ttl(ttl).build();
         refreshTokenRepository.save(refreshToken);
     }
 
