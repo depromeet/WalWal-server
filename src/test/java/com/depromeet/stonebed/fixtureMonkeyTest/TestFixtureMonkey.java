@@ -23,9 +23,17 @@ class TestFixtureMonkey {
         // when
         User person =
                 sut.giveMeBuilder(User.class)
+                        .set("personId", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
+                        .set("personName", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
                         .set("age", Arbitraries.integers().between(1, 100))
                         .set("personNo", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
-                        .set("personName", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
+                        .set(
+                                "addressList",
+                                Arbitraries.strings()
+                                        .ofMaxLength(16)
+                                        .list()
+                                        .ofMinSize(1)
+                                        .ofMaxSize(2))
                         .sample();
 
         // then
@@ -46,6 +54,7 @@ class TestFixtureMonkey {
         // when
         Order actual =
                 sut.giveMeBuilder(Order.class)
+                        .set("orderNo", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
                         .set("productName", Arbitraries.strings().ofMinLength(2).ofMaxLength(10))
                         .set("price", Arbitraries.longs().between(0, 1000))
                         .set("quantity", Arbitraries.integers().between(1, 100))
