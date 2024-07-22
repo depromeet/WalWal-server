@@ -74,7 +74,10 @@ public class AppleClient {
     private String generateAppleClientSecret() {
         Date expirationDate =
                 Date.from(
-                        LocalDateTime.now().plusDays(5).atZone(ZoneId.systemDefault()).toInstant());
+                        LocalDateTime.now()
+                                .plusMinutes(5)
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant());
         return Jwts.builder()
                 .setHeaderParam("kid", appleProperties.keyId())
                 .setHeaderParam("alg", "ES256")
