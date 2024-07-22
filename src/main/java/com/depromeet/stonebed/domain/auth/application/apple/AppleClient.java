@@ -22,7 +22,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.PrivateKey;
-import java.security.Security;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -31,8 +30,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -90,20 +87,6 @@ public class AppleClient {
                 .setSubject(appleProperties.dev().clientId())
                 .signWith(applePrivateKey, SignatureAlgorithm.ES256)
                 .compact();
-    }
-
-    private PrivateKey getPrivateKey() {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-
-        try {
-            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.p8());
-
-            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
-            return converter.getPrivateKey(privateKeyInfo);
-        } catch (Exception e) {
-            throw new RuntimeException("Error converting private key from String", e);
-        }
     }
 
     /**
