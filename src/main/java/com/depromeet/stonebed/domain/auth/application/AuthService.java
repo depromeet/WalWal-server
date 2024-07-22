@@ -59,7 +59,7 @@ public class AuthService {
                         })
                 .orElseGet(
                         () -> {
-                            // 회원가입이 안된 경우, 회원가입 진행
+                            // 회원가입이 안된 경우, 임시 회원가입 진행
                             Member newMember =
                                     memberService.socialSignUp(oAuthProvider, oauthId, email);
                             // 임시 토큰 발행

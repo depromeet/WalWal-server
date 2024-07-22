@@ -11,8 +11,8 @@ import org.springframework.data.redis.core.TimeToLive;
 public class RefreshToken {
 
     @Id private Long memberId;
-    private String token;
-    @TimeToLive private long ttl;
+    private final String token;
+    @TimeToLive private final long ttl;
 
     @Builder
     public RefreshToken(Long memberId, String token, long ttl) {

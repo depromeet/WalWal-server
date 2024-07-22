@@ -22,6 +22,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -30,6 +31,8 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -44,8 +47,10 @@ public class AppleClient {
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
     private final AppleProperties appleProperties;
-    private final PrivateKey applePrivateKey;
 
+    private static final int APPLE_TOKEN_EXPIRE_MINUTES = 5;
+
+    // apple server에서 받아온 id_token
     public AppleTokenResponse getAppleToken(AppleTokenRequest appleTokenRequest) {
         // Prepare form data
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -73,7 +78,7 @@ public class AppleClient {
         Date expirationDate =
                 Date.from(
                         LocalDateTime.now()
-                                .plusMinutes(5)
+                                .plusMinutes(APPLE_TOKEN_EXPIRE_MINUTES)
                                 .atZone(ZoneId.systemDefault())
                                 .toInstant());
         return Jwts.builder()
@@ -85,8 +90,21 @@ public class AppleClient {
                 .setExpiration(expirationDate)
                 .setAudience(APPLE_ISSUER)
                 .setSubject(appleProperties.dev().clientId())
-                .signWith(applePrivateKey, SignatureAlgorithm.ES256)
+                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
                 .compact();
+    }
+
+    private PrivateKey getPrivateKey() {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+
+        try {
+            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.p8());
+            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
+            return converter.getPrivateKey(privateKeyInfo);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.APPLE_PRIVATE_KEY_ENCODING_FAILED);
+        }
     }
 
     /**
@@ -101,7 +119,7 @@ public class AppleClient {
                         authorizationCode,
                         appleProperties.dev().clientId(),
                         generateAppleClientSecret(),
-                        "authorization_code");
+                        APPLE_GRANT_TYPE);
         AppleTokenResponse appleTokenResponse = getAppleToken(tokenRequest);
 
         AppleKeyResponse[] keys = retrieveAppleKeys();
@@ -136,7 +154,7 @@ public class AppleClient {
                 restClient
                         .get()
                         .uri(APPLE_JWK_SET_URL)
-                        .header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+                        .header(HttpHeaders.CONTENT_TYPE, APPLICATION_URLENCODED)
                         .exchange(
                                 (request, response) -> {
                                     if (!response.getStatusCode().is2xxSuccessful())
