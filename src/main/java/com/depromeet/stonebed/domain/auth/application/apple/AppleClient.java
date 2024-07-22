@@ -47,6 +47,7 @@ public class AppleClient {
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
     private final AppleProperties appleProperties;
+    private final PrivateKey applePrivateKey;
 
     public AppleTokenResponse getAppleToken(AppleTokenRequest appleTokenRequest) {
         // Prepare form data
@@ -87,12 +88,11 @@ public class AppleClient {
                 .setExpiration(expirationDate)
                 .setAudience(APPLE_ISSUER)
                 .setSubject(appleProperties.dev().clientId())
-                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
+                .signWith(applePrivateKey, SignatureAlgorithm.ES256)
                 .compact();
     }
 
     private PrivateKey getPrivateKey() {
-
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
 
