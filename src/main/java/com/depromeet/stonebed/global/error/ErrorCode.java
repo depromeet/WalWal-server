@@ -28,11 +28,13 @@ public enum ErrorCode {
     // mission
     MISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션을 찾을 수 없습니다."),
     MISSION_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션 기록을 찾을 수 없습니다."),
+	NO_AVAILABLE_TODAY_MISSION(HttpStatus.INTERNAL_SERVER_ERROR, "할당 가능한 오늘의 미션이 없습니다."),
 
     // image
     IMAGE_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지 파일 확장자를 찾을 수 없습니다."),
-    INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다.");
+    INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;

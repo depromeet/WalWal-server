@@ -9,6 +9,7 @@ import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionGetOneResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetTodayResponse;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.common.response.ApiResponseAdvice;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +52,19 @@ public class MissionControllerTest {
                         post("/missions")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"title\":\"Test Mission\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title").value("Test Mission"));
+    }
+
+    @Test
+    public void testGetTodayMission() throws Exception {
+        // Given
+        MissionGetTodayResponse missionGetTodayResponse =
+                new MissionGetTodayResponse(1L, "Test Mission");
+        when(missionService.getOrCreateTodayMission()).thenReturn(missionGetTodayResponse);
+
+        // When & Then
+        mockMvc.perform(get("/missions/today"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("Test Mission"));
     }
