@@ -2,10 +2,8 @@ package com.depromeet.stonebed.domain.missionRecord.api;
 
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordDayRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordDayResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -43,12 +41,5 @@ public class MissionRecordController {
     @GetMapping("/calendar")
     public MissionRecordCalendarResponse getMissionRecordsForCalendar() {
         return missionRecordService.getMissionRecordsForCalendar();
-    }
-
-    @Operation(summary = "특정 일자의 미션 기록 조회", description = "회원의 특정 일자에 해당하는 미션 기록을 조회한다.")
-    @PostMapping("/calendar/day")
-    public MissionRecordDayResponse getMissionRecordsForDay(
-            @Valid @RequestBody MissionRecordDayRequest request) {
-        return missionRecordService.getMissionRecordsForDay(request);
     }
 }

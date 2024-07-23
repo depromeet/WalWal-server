@@ -7,14 +7,12 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordDayRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordDayResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +68,7 @@ public class MissionRecordService {
         Member member = memberUtil.getCurrentMember();
         List<MissionRecord> records = missionRecordRepository.findByMemberId(member.getId());
 
-        Map<String, Map<String, List<String>>> calendarData =
+        Map<String, Map<String, List<MissionRecordCalendarDto>>> calendarData =
                 records.stream()
                         .collect(
                                 Collectors.groupingBy(
@@ -86,21 +84,12 @@ public class MissionRecordService {
                                                                         DateTimeFormatter.ofPattern(
                                                                                 "dd")),
                                                 Collectors.mapping(
-                                                        MissionRecord::getImageUrl,
+                                                        record ->
+                                                                MissionRecordCalendarDto.from(
+                                                                        record,
+                                                                        record.getBoosterValue()),
                                                         Collectors.toList()))));
 
         return MissionRecordCalendarResponse.from(calendarData);
-    }
-
-    // 단건 미션 기록 조회 메서드
-    public MissionRecordDayResponse getMissionRecordsForDay(MissionRecordDayRequest request) {
-        Member member = memberUtil.getCurrentMember();
-        LocalDate date = request.date();
-        MissionRecord record =
-                missionRecordRepository
-                        .findFirstByMemberIdAndCreatedAt(member.getId(), date)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
-
-        return MissionRecordDayResponse.from(record.getImageUrl());
     }
 }
