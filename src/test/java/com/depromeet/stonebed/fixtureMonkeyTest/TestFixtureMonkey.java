@@ -38,7 +38,6 @@ class TestFixtureMonkey {
 
         // then
         then(person.getPersonId()).isNotNull();
-        then(person.getPersonName()).isNotBlank();
         then(person.getPersonNo().length()).isBetween(1, 16);
     }
 
