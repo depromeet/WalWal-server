@@ -5,5 +5,5 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MissionRepository extends JpaRepository<Mission, Long> {
-    List<Mission> findMissionsByIdNotIn(List<Long> mission_ids);
+    List<Mission> findMissionsByIdNotIn(List<Long> missionIds);
 }
