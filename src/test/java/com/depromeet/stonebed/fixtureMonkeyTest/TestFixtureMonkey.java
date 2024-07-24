@@ -54,7 +54,12 @@ class TestFixtureMonkey {
         // when
         Order actual =
                 sut.giveMeBuilder(Order.class)
-                        .set("orderNo", Arbitraries.strings().ofMinLength(1).ofMaxLength(16))
+                        .set(
+                                "orderNo",
+                                Arbitraries.strings()
+                                        .ofMinLength(1)
+                                        .ofMaxLength(16)
+                                        .map(it -> "orderNo-" + it))
                         .set("productName", Arbitraries.strings().ofMinLength(2).ofMaxLength(10))
                         .set("price", Arbitraries.longs().between(0, 1000))
                         .set("quantity", Arbitraries.integers().between(1, 100))
