@@ -85,7 +85,7 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(
                 springEnvironmentUtil.isDevProfile()
-                        ? authorize -> authorize.anyRequest().authenticated()
+                        ? authorize -> authorize.anyRequest().permitAll()
                         : authorize -> authorize.anyRequest().permitAll());
 
         return http.build();
