@@ -4,6 +4,7 @@ services:
   backend:
     image: "olderstonebed/walwal-server:latest"
     container_name: "walwal-server"
+    restart: always
     environment:
       - TZ=Asia/Seoul
     network_mode: host
