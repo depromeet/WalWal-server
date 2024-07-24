@@ -2,7 +2,7 @@ name: Develop Build & Deploy
 
 on:
   push:
-    branches: [ "feature/#54-dev-prod-env" ]
+    branches: [ "develop" ]
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
