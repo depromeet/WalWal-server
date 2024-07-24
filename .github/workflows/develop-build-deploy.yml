@@ -70,6 +70,7 @@ jobs:
           version_label: "walwal-dev-${{ steps.format-time.outputs.replaced }}"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
+          wait_for_environment_recovery: 180
 
       # Slack 알림
       - name: Send Deploy Result to Slack
