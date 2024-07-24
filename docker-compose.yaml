@@ -9,7 +9,7 @@ services:
       - TZ=Asia/Seoul
     network_mode: host
     env_file:
-      - ./.env
+      - .env
   redis:
     image: "redis:alpine"
     container_name: redis
