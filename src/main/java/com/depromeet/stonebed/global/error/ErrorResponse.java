@@ -1,7 +1,8 @@
 package com.depromeet.stonebed.global.error;
 
-public record ErrorResponse(String message, Integer code, Object data) {
-    public static ErrorResponse of(String message, Integer code, Object data) {
-        return new ErrorResponse(message, code, data);
+public record ErrorResponse(String errorClassName, String message) {
+
+    public static ErrorResponse of(String errorClassName, String message) {
+        return new ErrorResponse(errorClassName, message);
     }
 }

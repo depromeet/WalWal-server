@@ -1,4 +1,4 @@
-name: Pull Request on Check
+name: Develop Build & Deploy
 on:
   push:
     branches: [ "develop" ]
@@ -56,7 +56,7 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          zip -r deployment-package.zip Dockerrun.aws.json
+          zip -r deployment-package.zip docker-compose.yaml nginx/default.conf
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
@@ -66,17 +66,20 @@ jobs:
           existing_bucket_name: "walwal-server-dev-deployment"
           application_name: "walwal-dev"
           environment_name: "Walwal-dev-env"
-          version_label: "github-action-dev-${{ steps.format-time.outputs.replaced }}"
+          version_label: "walwal-dev-${{ steps.format-time.outputs.replaced }}"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
 
-      ## slack 알람
-      - name: Slack Alarm
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          author_name: GitHub-Actions CI/CD
-          fields: repo,message,commit,author,ref,job,took
+      # Slack 알림
+      - name: Send Deploy Result to Slack
+        uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        if: always() # Pick up events even if the job fails or is canceled.
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: 왈왈봇
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: "Deploy Summary - Develop"
+          SLACK_MESSAGE: |
+            - image tag: `${{ steps.metadata.outputs.tags }}`
+            - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
+            - deploy status: ${{ job.status }}
+            - deploy time: ${{ steps.current-time.outputs.time }}

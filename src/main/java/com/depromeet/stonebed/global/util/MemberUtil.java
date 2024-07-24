@@ -25,4 +25,12 @@ public class MemberUtil {
                 .findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
+
+    public String getMemberRole() {
+        return securityUtil.getCurrentMemberRole();
+    }
+
+    public String getMemberProvider() {
+        return getCurrentMember().getOauthInfo().getOauthProvider();
+    }
 }
