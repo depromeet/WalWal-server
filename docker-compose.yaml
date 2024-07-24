@@ -4,12 +4,11 @@ services:
   backend:
     image: "olderstonebed/walwal-server:latest"
     container_name: "walwal-server"
-    restart: always
     environment:
       - TZ=Asia/Seoul
     network_mode: host
     env_file:
-      - .env
+      - ~/.env
   redis:
     image: "redis:alpine"
     container_name: redis
