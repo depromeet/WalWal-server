@@ -4,36 +4,36 @@ import com.depromeet.stonebed.global.common.response.ApiResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    /** CustomException 예외 처리 */
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse> handleCustomException(CustomException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-        log.error("CustomException: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse =
-                ErrorResponse.of(errorCode.name(), errorCode.getHttpStatus().value(), null);
-        ApiResponse apiResponse =
+    public ResponseEntity<ApiResponse> handleCustomException(CustomException e) {
+        log.error("CustomException : {}", e.getMessage(), e);
+        final ErrorCode errorCode = e.getErrorCode();
+        final ErrorResponse errorResponse =
+                ErrorResponse.of(errorCode.name(), errorCode.getMessage());
+        final ApiResponse response =
                 ApiResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
-        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
     }
 
+    /** 500번대 에러 처리 */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleAllExceptions(Exception ex, WebRequest request) {
-        log.error("Exception: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse =
-                ErrorResponse.of(
-                        "서버에서 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null);
-        ApiResponse response =
-                ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    protected ResponseEntity<ApiResponse> handleException(Exception e) {
+        log.error("Internal Server Error : {}", e.getMessage(), e);
+        final ErrorCode internalServerError = ErrorCode.INTERNAL_SERVER_ERROR;
+        final ErrorResponse errorResponse =
+                ErrorResponse.of(e.getClass().getSimpleName(), internalServerError.getMessage());
+        final ApiResponse response =
+                ApiResponse.fail(internalServerError.getHttpStatus().value(), errorResponse);
+        return ResponseEntity.status(internalServerError.getHttpStatus()).body(response);
     }
 }

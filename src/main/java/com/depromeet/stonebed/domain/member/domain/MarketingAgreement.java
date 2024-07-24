@@ -5,11 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum MemberRole {
-    USER("ROLE_USER"),
-    ADMIN("ROLE_ADMIN"),
-    TEMPORARY("ROLE_TEMPORARY"),
-    ;
+public enum MarketingAgreement {
+    AGREED("AGREED"),
+    DISAGREED("DISAGREED");
 
     private final String value;
 }

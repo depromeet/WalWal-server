@@ -17,4 +17,13 @@ public class SecurityUtil {
             throw new CustomException(ErrorCode.AUTH_NOT_FOUND);
         }
     }
+
+    public String getCurrentMemberRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            return authentication.getAuthorities().stream().findFirst().get().getAuthority();
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.AUTH_NOT_FOUND);
+        }
+    }
 }

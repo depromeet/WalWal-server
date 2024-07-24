@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties({
     RedisProperties.class,
     S3Properties.class,
+    JwtProperties.class,
+    AppleProperties.class,
+    SwaggerProperties.class
 })
 @Configuration
 public class PropertiesConfig {}

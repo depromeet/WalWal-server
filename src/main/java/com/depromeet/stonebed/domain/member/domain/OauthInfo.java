@@ -15,7 +15,7 @@ public class OauthInfo {
     @Schema(description = "소셜 ID", example = "123487892")
     private String oauthId;
 
-    @Schema(description = "소셜 제공자", example = "KAKAO")
+    @Schema(description = "소셜 제공자", example = "APPLE")
     private String oauthProvider;
 
     @Schema(description = "소셜 이메일", example = "test@gmail.com")

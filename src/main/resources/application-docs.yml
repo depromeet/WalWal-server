@@ -3,20 +3,29 @@ spring:
     activate:
       on-profile: "docs"
 
+swagger:
+  version: ${SWAGGER_VERSION:0.0.1}
+  user: ${SWAGGER_USER:default}
+  password: ${SWAGGER_PASSWORD:default}
+
 springdoc:
-  api-docs:
-    path: /api-docs
-    groups:
-      enabled: true
   swagger-ui:
+    default-consumes-media-type: application/json;charset=UTF-8
+    default-produces-media-type: application/json;charset=UTF-8
     enabled: true
     groups-order: ASC
+    syntax-highlight:
+      theme: none
     tags-sorter: alpha
     operations-sorter: alpha
+    disable-swagger-default-url: true
     display-request-duration: true
     doc-expansion: none
+    urls-primary-name: WALWAL API DOCS
+
   cache:
     disabled: true
+
 
 api:
   version: "0.0.1"

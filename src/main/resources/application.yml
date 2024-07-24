@@ -9,6 +9,8 @@ spring:
       - redis
       - actuator
       - docs
+      - cloud
+      - security
   application:
     name: stonebed
 
