@@ -13,11 +13,15 @@ import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCre
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,32 +69,34 @@ public class MissionRecordService {
 
     // 전체 미션 기록 조회 메서드
     @Transactional(readOnly = true)
-    public MissionRecordCalendarResponse getMissionRecordsForCalendar() {
+    public MissionRecordCalendarResponse getMissionRecordsForCalendar(String cursor, int limit) {
         Member member = memberUtil.getCurrentMember();
-        List<MissionRecord> records = missionRecordRepository.findByMemberId(member.getId());
+        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
-        Map<String, Map<String, List<MissionRecordCalendarDto>>> calendarData =
+        List<MissionRecord> records;
+        if (cursor == null) {
+            records = missionRecordRepository.findByMemberId(member.getId(), pageable);
+        } else {
+            LocalDateTime cursorDate =
+                    LocalDate.parse(cursor, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            .atStartOfDay();
+            records =
+                    missionRecordRepository.findByMemberIdAndCreatedAtAfter(
+                            member.getId(), cursorDate, pageable);
+        }
+
+        List<MissionRecordCalendarDto> calendarData =
                 records.stream()
-                        .collect(
-                                Collectors.groupingBy(
-                                        record ->
-                                                record.getCreatedAt()
-                                                        .format(
-                                                                DateTimeFormatter.ofPattern(
-                                                                        "yyyy-MM")),
-                                        Collectors.groupingBy(
-                                                record ->
-                                                        record.getCreatedAt()
-                                                                .format(
-                                                                        DateTimeFormatter.ofPattern(
-                                                                                "dd")),
-                                                Collectors.mapping(
-                                                        record ->
-                                                                MissionRecordCalendarDto.from(
-                                                                        record,
-                                                                        record.getBoosterValue()),
-                                                        Collectors.toList()))));
+                        .map(record -> MissionRecordCalendarDto.from(record))
+                        .collect(Collectors.toList());
 
-        return MissionRecordCalendarResponse.from(calendarData);
+        String nextCursor = null;
+        if (!records.isEmpty()) {
+            MissionRecord lastRecord = records.get(records.size() - 1);
+            LocalDate nextCursorDate = lastRecord.getCreatedAt().toLocalDate().plusDays(1);
+            nextCursor = nextCursorDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+
+        return MissionRecordCalendarResponse.from(calendarData, nextCursor);
     }
 }
