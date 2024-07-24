@@ -16,7 +16,7 @@ public class MissionRepositoryTest {
     @Autowired private MissionRepository missionRepository;
 
     @Test
-    public void testCreateMission() {
+    public void 미션_생성_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
 
@@ -29,7 +29,7 @@ public class MissionRepositoryTest {
     }
 
     @Test
-    public void testFindMissionById() {
+    public void 고유번호로_미션_조회_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         missionRepository.save(mission);
@@ -43,7 +43,7 @@ public class MissionRepositoryTest {
     }
 
     @Test
-    public void testDeleteMission() {
+    public void 미션_삭제_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         mission = missionRepository.save(mission);

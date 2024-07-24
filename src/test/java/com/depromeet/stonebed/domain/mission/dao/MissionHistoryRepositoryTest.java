@@ -21,7 +21,7 @@ public class MissionHistoryRepositoryTest {
     @Autowired private MissionHistoryRepository missionHistoryRepository;
 
     @Test
-    public void testCreateMissionHistory() {
+    public void 미션_히스토리_생성_성공() {
         // Given: 오늘 날짜를 기준으로 미션 히스토리가 있다 (생성할 예정)
         Mission mission = Mission.builder().title("Test Mission").build();
         missionRepository.save(mission);
@@ -40,7 +40,7 @@ public class MissionHistoryRepositoryTest {
     }
 
     @Test
-    public void testFindMissionHistoryByAssignedDate() {
+    public void 미션_히스토리_특정_날짜_조회_성공() {
         // Given: 오늘 날짜를 기준으로 저장된 객체가 있다
         Mission mission = Mission.builder().title("Test Mission").build();
         missionRepository.save(mission);
@@ -61,7 +61,7 @@ public class MissionHistoryRepositoryTest {
     }
 
     @Test
-    public void testFindMissionHistoriesBeforeFiveDaysAgo() {
+    public void 미션_히스토리_리스트_5일전_조회_성공() {
         // Given: 최근 10일간 미션과 미션 히스토리를 미리 만들어둔다
         Mission mission = Mission.builder().title("Test Mission").build();
         missionRepository.save(mission);

@@ -37,7 +37,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void testCreateMission() {
+    public void 미션_생성_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         when(missionRepository.save(any(Mission.class))).thenReturn(mission);
@@ -53,7 +53,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void testGetMission() {
+    public void 미션_단일_조회_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         when(missionRepository.findById(anyLong())).thenReturn(Optional.of(mission));
@@ -67,7 +67,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void testGetOrCreateTodayMission_오늘의_미션_히스토리가_이미_존재하는_경우() {
+    public void 오늘의_미션_조회_성공_히스토리가_이미_존재하는_경우() {
         // Given
         LocalDate today = LocalDate.now();
         Mission mission = Mission.builder().title("Test Mission").build();
@@ -88,7 +88,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    void testGetOrCreateTodayMission_오늘의_미션_히스토리가_없는_경우() {
+    public void 오늘의_미션_조회_성공_히스토리가_없는_경우() {
         // Given: 1 ~ 5일 전 데이터를 만든다
         LocalDate today = LocalDate.now();
         LocalDate threeDaysAgo = today.minusDays(3);
@@ -123,7 +123,8 @@ public class MissionServiceTest {
         }
 
         // 최근 3일간 할당되지 않은 미션 가져오는 동작을 모킹
-        when(missionRepository.findAllByIdNotIn(recentMissionIds)).thenReturn(missionsThreeDaysAgo);
+        when(missionRepository.findMissionsByIdNotIn(recentMissionIds))
+                .thenReturn(missionsThreeDaysAgo);
         when(missionHistoryRepository.save(any(MissionHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -135,12 +136,12 @@ public class MissionServiceTest {
         assertThat(result.title()).isIn("4일 전 미션", "5일 전 미션");
         verify(missionHistoryRepository, times(1)).findByAssignedDate(today);
         verify(missionHistoryRepository, times(1)).findByAssignedDateBefore(threeDaysAgo);
-        verify(missionRepository, times(1)).findAllByIdNotIn(recentMissionIds);
+        verify(missionRepository, times(1)).findMissionsByIdNotIn(recentMissionIds);
         verify(missionHistoryRepository, times(1)).save(any(MissionHistory.class));
     }
 
     @Test
-    void testGetOrCreateTodayMission_할당가능한_미션이_없는_경우() {
+    public void 오늘의_미션_조회_실패_할당가능한_미션이_없는_경우() {
         LocalDate today = LocalDate.now();
         LocalDate threeDaysAgo = today.minusDays(3);
 
@@ -154,7 +155,7 @@ public class MissionServiceTest {
         List<Mission> emptyMissionList = new ArrayList<>();
 
         // 할당 가능한 미션이 없는 경우를 모킹
-        when(missionRepository.findAllByIdNotIn(emptyMissionIds)).thenReturn(emptyMissionList);
+        when(missionRepository.findMissionsByIdNotIn(emptyMissionIds)).thenReturn(emptyMissionList);
         when(missionHistoryRepository.save(any(MissionHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -167,7 +168,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void testGetMissionNotFound() {
+    public void 미션_조회_미션이_없는_경우() {
         // Given
 
         // When
@@ -179,7 +180,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void testUpdateMission() {
+    public void 미션_수정_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         when(missionRepository.findById(anyLong())).thenReturn(Optional.of(mission));
@@ -195,7 +196,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void testUpdateMissionNotFound() {
+    public void 미션_수정_실패_미션이_없는_경우() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.empty());
         MissionUpdateRequest updateRequest = new MissionUpdateRequest("Test Mission");
@@ -205,7 +206,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void testDeleteMission() {
+    public void 미션_삭제_성공() {
         // Given
         doNothing().when(missionRepository).deleteById(anyLong());
 

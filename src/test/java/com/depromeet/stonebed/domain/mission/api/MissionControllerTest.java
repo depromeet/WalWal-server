@@ -41,7 +41,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testCreateMission() throws Exception {
+    public void 미션_생성_성공() throws Exception {
         // Given
         MissionCreateResponse missionCreateResponse = new MissionCreateResponse(1L, "Test Mission");
         when(missionService.createMission(any(MissionCreateRequest.class)))
@@ -57,7 +57,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testGetTodayMission() throws Exception {
+    public void 오늘의_미션_조회_성공() throws Exception {
         // Given
         MissionGetTodayResponse missionGetTodayResponse =
                 new MissionGetTodayResponse(1L, "Test Mission");
@@ -70,7 +70,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testGetMission() throws Exception {
+    public void 미션_조회_성공() throws Exception {
         // Given
         MissionGetOneResponse missionGetOneResponse = new MissionGetOneResponse(1L, "Test Mission");
         when(missionService.getMission(1L)).thenReturn(missionGetOneResponse);
@@ -82,7 +82,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testUpdateMission() throws Exception {
+    public void 미션_수정_성공() throws Exception {
         // Given
         when(missionService.updateMission(anyLong(), any(MissionUpdateRequest.class)))
                 .thenReturn(new MissionUpdateResponse(1L, "Updated Mission"));
@@ -97,7 +97,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testDeleteMission() throws Exception {
+    public void 미션_삭제_성공() throws Exception {
         // Given
         doNothing().when(missionService).deleteMission(anyLong());
 

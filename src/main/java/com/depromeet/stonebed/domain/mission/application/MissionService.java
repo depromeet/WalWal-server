@@ -53,7 +53,7 @@ public class MissionService {
             return MissionGetTodayResponse.from(optionalMissionHistory.get().getMission());
         }
 
-        LocalDate threeDaysAgo = LocalDate.now().minusDays(3);
+        LocalDate threeDaysAgo = today.minusDays(3);
 
         List<MissionHistory> recentMissionHistories =
                 missionHistoryRepository.findByAssignedDateBefore(threeDaysAgo);
@@ -62,7 +62,7 @@ public class MissionService {
                         .map(history -> history.getMission().getId())
                         .toList();
 
-        List<Mission> availableMissions = missionRepository.findAllByIdNotIn(recentMissionIds);
+        List<Mission> availableMissions = missionRepository.findMissionsByIdNotIn(recentMissionIds);
 
         if (availableMissions.isEmpty()) {
             throw new CustomException(ErrorCode.NO_AVAILABLE_TODAY_MISSION);
