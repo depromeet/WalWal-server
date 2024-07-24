@@ -1,7 +1,7 @@
 name: Develop Build & Deploy
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "feature/#54-dev-prod-env" ]
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
@@ -9,6 +9,7 @@ env:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    environment: DEV
     strategy:
       matrix:
         java-version: [ 17 ]
