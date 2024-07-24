@@ -64,6 +64,7 @@ public class MissionRecordService {
     }
 
     // 전체 미션 기록 조회 메서드
+    @Transactional(readOnly = true)
     public MissionRecordCalendarResponse getMissionRecordsForCalendar() {
         Member member = memberUtil.getCurrentMember();
         List<MissionRecord> records = missionRecordRepository.findByMemberId(member.getId());

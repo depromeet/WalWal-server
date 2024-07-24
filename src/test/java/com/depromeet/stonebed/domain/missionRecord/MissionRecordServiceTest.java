@@ -3,15 +3,22 @@ package com.depromeet.stonebed.domain.missionRecord;
 import static org.assertj.core.api.BDDAssertions.*;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
+import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
+import java.util.List;
 import java.util.Optional;
 import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,42 +50,41 @@ public class MissionRecordServiceTest {
                         .build();
     }
 
-    // Member Class 생성 후 테스트
-    // @Test
-    // void completeMission_success() {
-    // 	// given
-    // 	MissionRecordCreateRequest request =
-    // fixtureMonkey.giveMeBuilder(MissionRecordCreateRequest.class)
-    // 		.set("missionId", Arbitraries.longs().greaterOrEqual(1L))
-    // 		.sample();
-    //
-    // 	Mission mission = fixtureMonkey.giveMeOne(Mission.class);
-    // 	Member member = fixtureMonkey.giveMeOne(Member.class);
-    // 	MissionRecord missionRecord = fixtureMonkey.giveMeBuilder(MissionRecord.class)
-    // 		.set("mission", mission)
-    // 		.set("member", member)
-    // 		.set("status", MissionStatus.COMPLETED)
-    // 		.sample();
-    //
-    // 	when(missionRepository.findById(any(Long.class))).thenReturn(Optional.of(mission));
-    // 	when(memberUtil.getCurrentMember()).thenReturn(member);
-    // 	when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
-    //
-    // 	// when
-    // 	MissionRecordCreateResponse response = missionRecordService.completeMission(request);
-    //
-    // 	// then
-    // 	then(response).isNotNull();
-    // 	then(response.recordId()).isEqualTo(missionRecord.getId());
-    // 	then(response.missionTitle()).isEqualTo(missionRecord.getMission().getTitle());
-    //
-    // 	verify(missionRepository).findById(request.missionId());
-    // 	verify(memberUtil).getCurrentMember();
-    // 	verify(missionRecordRepository).save(any(MissionRecord.class));
-    // }
+    @Test
+    void 미션기록_성공() {
+        // given
+        Long missionId = Arbitraries.longs().greaterOrEqual(1L).sample();
+        MissionRecordCreateRequest request = new MissionRecordCreateRequest(missionId);
+
+        Mission mission = fixtureMonkey.giveMeOne(Mission.class);
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("mission", mission)
+                        .set("member", member)
+                        .set("status", MissionStatus.COMPLETED)
+                        .sample();
+
+        when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
+
+        // when
+        MissionRecordCreateResponse response = missionRecordService.completeMission(request);
+
+        // then
+        then(response).isNotNull();
+        then(response.recordId()).isEqualTo(missionRecord.getId());
+        then(response.missionTitle()).isEqualTo(missionRecord.getMission().getTitle());
+
+        verify(missionRepository).findById(request.missionId());
+        verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository).save(any(MissionRecord.class));
+    }
 
     @Test
-    void deleteMissionRecord_success() {
+    void 미션기록삭제_성공() {
         // given
         Long recordId = Arbitraries.longs().greaterOrEqual(1L).sample();
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
@@ -94,7 +100,7 @@ public class MissionRecordServiceTest {
     }
 
     @Test
-    void deleteMissionRecord_notFound() {
+    void 미션기록삭제_실패() {
         // given
         Long recordId = Arbitraries.longs().greaterOrEqual(1L).sample();
 
@@ -110,5 +116,26 @@ public class MissionRecordServiceTest {
 
         verify(missionRecordRepository).findById(recordId);
         verify(missionRecordRepository, never()).delete(any(MissionRecord.class));
+    }
+
+    @Test
+    void 캘린더미션기록조회_성공() {
+        // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
+
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.findByMemberId(member.getId())).thenReturn(missionRecords);
+
+        // when
+        MissionRecordCalendarResponse response =
+                missionRecordService.getMissionRecordsForCalendar();
+
+        // then
+        then(response).isNotNull();
+        then(response.data()).isNotEmpty();
+
+        verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository).findByMemberId(member.getId());
     }
 }
