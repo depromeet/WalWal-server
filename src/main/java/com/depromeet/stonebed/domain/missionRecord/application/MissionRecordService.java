@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +40,7 @@ public class MissionRecordService {
     public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
         Mission mission = findMissionById(request.missionId());
 
-        Member member = memberUtil.getCurrentMember();
+        final Member member = memberUtil.getCurrentMember();
 
         MissionRecord missionRecord =
                 MissionRecord.builder()
@@ -74,13 +73,15 @@ public class MissionRecordService {
     // 전체 미션 기록 조회 메서드
     @Transactional(readOnly = true)
     public MissionRecordCalendarResponse getMissionRecordsForCalendar(String cursor, int limit) {
-        Member member = memberUtil.getCurrentMember();
+        final Member member = memberUtil.getCurrentMember();
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
         List<MissionRecord> records = getMissionRecords(cursor, member, pageable);
 
         List<MissionRecordCalendarDto> calendarData =
-                records.stream().map(MissionRecordCalendarDto::from).collect(Collectors.toList());
+                records.stream()
+                        .map(record -> MissionRecordCalendarDto.from(record, DATE_FORMATTER))
+                        .toList();
 
         String nextCursor = getNextCursor(records);
 
