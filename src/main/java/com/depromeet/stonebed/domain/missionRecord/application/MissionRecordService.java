@@ -16,6 +16,7 @@ import com.depromeet.stonebed.global.util.MemberUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,9 @@ public class MissionRecordService {
     private final MissionRepository missionRepository;
     private final MissionRecordRepository missionRecordRepository;
     private final MemberUtil memberUtil;
+
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
         Mission mission = findMissionById(request.missionId());
@@ -73,30 +77,39 @@ public class MissionRecordService {
         Member member = memberUtil.getCurrentMember();
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt"));
 
-        List<MissionRecord> records;
-        if (cursor == null) {
-            records = missionRecordRepository.findByMemberId(member.getId(), pageable);
-        } else {
-            LocalDateTime cursorDate =
-                    LocalDate.parse(cursor, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                            .atStartOfDay();
-            records =
-                    missionRecordRepository.findByMemberIdAndCreatedAtAfter(
-                            member.getId(), cursorDate, pageable);
-        }
+        List<MissionRecord> records = getMissionRecords(cursor, member, pageable);
 
         List<MissionRecordCalendarDto> calendarData =
-                records.stream()
-                        .map(record -> MissionRecordCalendarDto.from(record))
-                        .collect(Collectors.toList());
+                records.stream().map(MissionRecordCalendarDto::from).collect(Collectors.toList());
 
-        String nextCursor = null;
-        if (!records.isEmpty()) {
-            MissionRecord lastRecord = records.get(records.size() - 1);
-            LocalDate nextCursorDate = lastRecord.getCreatedAt().toLocalDate().plusDays(1);
-            nextCursor = nextCursorDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        }
+        String nextCursor = getNextCursor(records);
 
         return MissionRecordCalendarResponse.from(calendarData, nextCursor);
+    }
+
+    // 커서별 미션 기록을 조회하는 메서드
+    private List<MissionRecord> getMissionRecords(String cursor, Member member, Pageable pageable) {
+        if (cursor == null) {
+            return missionRecordRepository.findByMemberId(member.getId(), pageable);
+        }
+
+        try {
+            LocalDateTime cursorDate = LocalDate.parse(cursor, DATE_FORMATTER).atStartOfDay();
+            return missionRecordRepository.findByMemberIdAndCreatedAtAfter(
+                    member.getId(), cursorDate, pageable);
+        } catch (DateTimeParseException e) {
+            throw new CustomException(ErrorCode.INVALID_CURSOR_DATE_FORMAT);
+        }
+    }
+
+    // 다음 페이지의 커서를 생성하는 메서드
+    private String getNextCursor(List<MissionRecord> records) {
+        if (records.isEmpty()) {
+            return null;
+        }
+
+        MissionRecord lastRecord = records.get(records.size() - 1);
+        LocalDate nextCursorDate = lastRecord.getCreatedAt().toLocalDate().plusDays(1);
+        return nextCursorDate.format(DATE_FORMATTER);
     }
 }

@@ -1,6 +1,6 @@
 package com.depromeet.stonebed.domain.missionRecord;
 
-import static org.assertj.core.api.BDDAssertions.*;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.domain.member.domain.Member;
@@ -27,6 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 public class MissionRecordServiceTest {
@@ -125,17 +128,24 @@ public class MissionRecordServiceTest {
         List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
 
         when(memberUtil.getCurrentMember()).thenReturn(member);
-        when(missionRecordRepository.findByMemberId(member.getId())).thenReturn(missionRecords);
+        when(missionRecordRepository.findByMemberId(anyLong(), any(Pageable.class)))
+                .thenReturn(missionRecords);
+
+        String cursor = null;
+        int limit = 5;
 
         // when
         MissionRecordCalendarResponse response =
-                missionRecordService.getMissionRecordsForCalendar();
+                missionRecordService.getMissionRecordsForCalendar(cursor, limit);
 
         // then
         then(response).isNotNull();
         then(response.data()).isNotEmpty();
 
         verify(memberUtil).getCurrentMember();
-        verify(missionRecordRepository).findByMemberId(member.getId());
+        verify(missionRecordRepository)
+                .findByMemberId(
+                        member.getId(),
+                        PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt")));
     }
 }

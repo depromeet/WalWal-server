@@ -6,8 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 public record MissionRecordCalendarResponse(
-        @Schema(description = "미션 기록 데이터 리스트") Map<String, List<MissionRecordCalendarDto>> data,
-        @Schema(description = "다음 데이터 커서 위치") String nextCursor) {
+        @Schema(
+                        description = "미션 기록 데이터 리스트",
+                        example =
+                                "{ 'list': [{ 'imageId': 1, 'imageUrl': 'http://example.com/image1.jpg', 'missionDate': '2024-01-01' }]}")
+                Map<String, List<MissionRecordCalendarDto>> data,
+        @Schema(description = "커서 위치", example = "2024-01-03") String nextCursor) {
 
     public static MissionRecordCalendarResponse from(
             List<MissionRecordCalendarDto> list, String nextCursor) {

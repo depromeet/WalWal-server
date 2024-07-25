@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.missionRecord.api;
 
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
@@ -9,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,9 +37,10 @@ public class MissionRecordController {
         missionRecordService.deleteMissionRecord(recordId);
     }
 
-    @Operation(summary = "캘린더 형식의 미션 기록 조회", description = "회원의 월별, 일별 미션 기록을 조회한다.")
-    @GetMapping("/calendar")
-    public MissionRecordCalendarResponse getMissionRecordsForCalendar() {
-        return missionRecordService.getMissionRecordsForCalendar();
+    @Operation(summary = "캘린더 형식의 미션 기록 조회", description = "회원의 미션 기록을 페이징하여 조회한다.")
+    @PostMapping("/calendar")
+    public MissionRecordCalendarResponse getMissionRecordsForCalendar(
+            @Valid @RequestBody MissionRecordCalendarRequest request) {
+        return missionRecordService.getMissionRecordsForCalendar(request.cursor(), request.limit());
     }
 }
