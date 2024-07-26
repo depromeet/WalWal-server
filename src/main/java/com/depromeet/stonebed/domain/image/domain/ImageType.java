@@ -8,7 +8,6 @@ import lombok.Getter;
 public enum ImageType {
     MISSION_RECORD("mission_record"),
     MEMBER_PROFILE("member_profile"),
-    MEMBER_BACKGROUND("member_background"),
     ;
     private final String value;
 }
