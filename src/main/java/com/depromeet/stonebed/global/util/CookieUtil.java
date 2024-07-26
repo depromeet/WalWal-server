@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CookieUtil {
 
+    private final SpringEnvironmentUtil springEnvironmentUtil;
+
     public HttpHeaders generateTokenCookies(String accessToken, String refreshToken) {
 
         String sameSite = determineSameSitePolicy();
@@ -40,10 +42,9 @@ public class CookieUtil {
     }
 
     private String determineSameSitePolicy() {
-        // TODO: prod 환경 구성 시 주석 해제
-        // if (springEnvironmentUtil.isProdProfile()) {
-        //     return Cookie.SameSite.STRICT.attributeValue();
-        // }
+        if (springEnvironmentUtil.isProdProfile()) {
+            return Cookie.SameSite.STRICT.attributeValue();
+        }
         return Cookie.SameSite.NONE.attributeValue();
     }
 }
