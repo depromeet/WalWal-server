@@ -25,7 +25,8 @@ public class OnProfileCondition implements Condition {
         return (EnvironmentConstants[])
                 requireNonNull(
                                 metadata.getAnnotationAttributes(
-                                        ConditionalOnProfile.class.getName()))
+                                        ConditionalOnProfile.class.getName()),
+                                "target Profiles가 null입니다.")
                         .get("value");
     }
 }
