@@ -128,7 +128,7 @@ public class MissionRecordServiceTest {
         List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
 
         when(memberUtil.getCurrentMember()).thenReturn(member);
-        when(missionRecordRepository.findByMemberId(anyLong(), any(Pageable.class)))
+        when(missionRecordRepository.findByMemberIdWithPagination(anyLong(), any(Pageable.class)))
                 .thenReturn(missionRecords);
 
         String cursor = null;
@@ -144,7 +144,7 @@ public class MissionRecordServiceTest {
 
         verify(memberUtil).getCurrentMember();
         verify(missionRecordRepository)
-                .findByMemberId(
+                .findByMemberIdWithPagination(
                         member.getId(),
                         PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt")));
     }

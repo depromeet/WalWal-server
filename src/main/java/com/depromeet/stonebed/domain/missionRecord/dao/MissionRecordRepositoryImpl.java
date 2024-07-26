@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.missionRecord.dao;
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
 
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,10 +18,10 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<MissionRecord> findByMemberId(Long memberId, Pageable pageable) {
+    public List<MissionRecord> findByMemberIdWithPagination(Long memberId, Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
-                .where(missionRecord.member.id.eq(memberId))
+                .where(isMemberId(memberId))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -28,7 +29,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
     }
 
     @Override
-    public List<MissionRecord> findByMemberIdAndCreatedAtAfter(
+    public List<MissionRecord> findByMemberIdAndCreatedAtAfterWithPagination(
             Long memberId, LocalDateTime createdAt, Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
@@ -42,5 +43,9 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
+
+    private BooleanExpression isMemberId(Long memberId) {
+        return missionRecord.member.id.eq(memberId);
     }
 }

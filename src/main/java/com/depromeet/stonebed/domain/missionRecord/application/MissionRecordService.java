@@ -63,14 +63,12 @@ public class MissionRecordService {
         missionRecordRepository.delete(missionRecord);
     }
 
-    // 단일 미션 조회 메서드
     private Mission findMissionById(Long missionId) {
         return missionRepository
                 .findById(missionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
     }
 
-    // 전체 미션 기록 조회 메서드
     @Transactional(readOnly = true)
     public MissionRecordCalendarResponse getMissionRecordsForCalendar(String cursor, int limit) {
         final Member member = memberUtil.getCurrentMember();
@@ -88,22 +86,20 @@ public class MissionRecordService {
         return MissionRecordCalendarResponse.from(calendarData, nextCursor);
     }
 
-    // 커서별 미션 기록을 조회하는 메서드
     private List<MissionRecord> getMissionRecords(String cursor, Member member, Pageable pageable) {
         if (cursor == null) {
-            return missionRecordRepository.findByMemberId(member.getId(), pageable);
+            return missionRecordRepository.findByMemberIdWithPagination(member.getId(), pageable);
         }
 
         try {
             LocalDateTime cursorDate = LocalDate.parse(cursor, DATE_FORMATTER).atStartOfDay();
-            return missionRecordRepository.findByMemberIdAndCreatedAtAfter(
+            return missionRecordRepository.findByMemberIdAndCreatedAtAfterWithPagination(
                     member.getId(), cursorDate, pageable);
         } catch (DateTimeParseException e) {
             throw new CustomException(ErrorCode.INVALID_CURSOR_DATE_FORMAT);
         }
     }
 
-    // 다음 페이지의 커서를 생성하는 메서드
     private String getNextCursor(List<MissionRecord> records) {
         if (records.isEmpty()) {
             return null;
