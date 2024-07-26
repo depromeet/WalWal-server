@@ -1,7 +1,7 @@
 package com.depromeet.stonebed.domain.image.domain;
 
-import com.depromeet.global.error.exception.CustomException;
-import com.depromeet.global.error.exception.ErrorCode;
+import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
