@@ -1,12 +1,15 @@
 package com.depromeet.stonebed.global.config.security;
 
+import static com.depromeet.stonebed.global.common.constants.EnvironmentConstants.*;
+import static com.depromeet.stonebed.global.common.constants.SwaggerUrlConstants.*;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.security.config.Customizer.*;
 
 import com.depromeet.stonebed.domain.auth.application.JwtTokenService;
-import com.depromeet.stonebed.global.common.constants.SwaggerUrlConstants;
+import com.depromeet.stonebed.global.annotation.ConditionalOnProfile;
 import com.depromeet.stonebed.global.filter.JwtAuthenticationFilter;
 import com.depromeet.stonebed.global.util.CookieUtil;
+import com.depromeet.stonebed.global.util.SpringEnvironmentUtil;
 import com.depromeet.stonebed.infra.properties.SwaggerProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +36,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class WebSecurityConfig {
     private final JwtTokenService jwtTokenService;
     private final CookieUtil cookieUtil;
+    private final SpringEnvironmentUtil springEnvironmentUtil;
 
     private final SwaggerProperties swaggerProperties;
 
@@ -73,12 +77,16 @@ public class WebSecurityConfig {
 
     @Bean
     @Order(1)
+    @ConditionalOnProfile({DEV, LOCAL})
     public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
         defaultFilterChain(http);
 
-        http.securityMatcher(SwaggerUrlConstants.getSwaggerUrls()).httpBasic(withDefaults());
+        http.securityMatcher(getSwaggerUrls()).httpBasic(withDefaults());
 
-        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+        http.authorizeHttpRequests(
+                springEnvironmentUtil.isDevProfile()
+                        ? authorize -> authorize.anyRequest().authenticated()
+                        : authorize -> authorize.anyRequest().permitAll());
 
         return http.build();
     }

@@ -1,7 +1,7 @@
 package com.depromeet.stonebed.global.config.swagger;
 
-import static com.depromeet.stonebed.global.common.constants.UrlConstants.*;
-
+import com.depromeet.stonebed.global.common.constants.UrlConstants;
+import com.depromeet.stonebed.global.util.SpringEnvironmentUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.Components;
@@ -11,16 +11,20 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
 public class SwaggerConfig {
     private static final String PACKAGES_TO_SCAN = "com.depromeet.stonebed";
     private static final String SWAGGER_API_TITLE = "WalWal 프로젝트 API 문서";
     private static final String SWAGGER_API_DESCRIPTION = "WalWal 프로젝트 API 문서입니다.";
+
+    private final SpringEnvironmentUtil springEnvironmentUtil;
 
     @Value("${api.version}")
     private String apiVersion;
@@ -39,12 +43,17 @@ public class SwaggerConfig {
                                 .description(SWAGGER_API_DESCRIPTION));
     }
 
+    private String getServerUrl() {
+        return switch (springEnvironmentUtil.getCurrentProfile()) {
+            case "prod" -> UrlConstants.PROD_SERVER_URL.getValue();
+            case "dev" -> UrlConstants.DEV_SERVER_URL.getValue();
+            default -> UrlConstants.LOCAL_SERVER_URL.getValue();
+        };
+    }
+
     private List<Server> swaggerServers() {
-        Server localServer =
-                new Server().url(LOCAL_SERVER_URL.getValue()).description(SWAGGER_API_DESCRIPTION);
-        Server devServer =
-                new Server().url(LOCAL_SERVER_URL.getValue()).description(SWAGGER_API_DESCRIPTION);
-        return List.of(localServer, devServer);
+        Server server = new Server().url(getServerUrl()).description(SWAGGER_API_DESCRIPTION);
+        return List.of(server);
     }
 
     private Components authSetting() {
