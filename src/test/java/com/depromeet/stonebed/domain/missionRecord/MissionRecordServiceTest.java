@@ -140,7 +140,7 @@ public class MissionRecordServiceTest {
 
         // then
         then(response).isNotNull();
-        then(response.data()).isNotEmpty();
+        then(response.list()).isNotEmpty();
 
         verify(memberUtil).getCurrentMember();
         verify(missionRecordRepository)
