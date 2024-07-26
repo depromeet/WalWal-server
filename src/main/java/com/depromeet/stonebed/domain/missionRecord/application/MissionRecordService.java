@@ -93,7 +93,7 @@ public class MissionRecordService {
 
         try {
             LocalDateTime cursorDate = LocalDate.parse(cursor, DATE_FORMATTER).atStartOfDay();
-            return missionRecordRepository.findByMemberIdAndCreatedAtAfterWithPagination(
+            return missionRecordRepository.findByMemberIdAndCreatedAtFromWithPagination(
                     member.getId(), cursorDate, pageable);
         } catch (DateTimeParseException e) {
             throw new CustomException(ErrorCode.INVALID_CURSOR_DATE_FORMAT);

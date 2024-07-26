@@ -29,16 +29,11 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
     }
 
     @Override
-    public List<MissionRecord> findByMemberIdAndCreatedAtAfterWithPagination(
+    public List<MissionRecord> findByMemberIdAndCreatedAtFromWithPagination(
             Long memberId, LocalDateTime createdAt, Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
-                .where(
-                        missionRecord
-                                .member
-                                .id
-                                .eq(memberId)
-                                .and(missionRecord.createdAt.gt(createdAt)))
+                .where(missionRecord.member.id.eq(memberId).and(createdAtFrom(createdAt)))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -47,5 +42,9 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
 
     private BooleanExpression isMemberId(Long memberId) {
         return missionRecord.member.id.eq(memberId);
+    }
+
+    private BooleanExpression createdAtFrom(LocalDateTime createdAt) {
+        return missionRecord.createdAt.goe(createdAt);
     }
 }

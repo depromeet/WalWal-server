@@ -8,6 +8,6 @@ import org.springframework.data.domain.Pageable;
 public interface MissionRecordRepositoryCustom {
     List<MissionRecord> findByMemberIdWithPagination(Long memberId, Pageable pageable);
 
-    List<MissionRecord> findByMemberIdAndCreatedAtAfterWithPagination(
+    List<MissionRecord> findByMemberIdAndCreatedAtFromWithPagination(
             Long memberId, LocalDateTime createdAt, Pageable pageable);
 }
