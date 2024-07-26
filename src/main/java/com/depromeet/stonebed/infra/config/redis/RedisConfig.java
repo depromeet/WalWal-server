@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.infra.config;
+package com.depromeet.stonebed.infra.config.redis;
 
 import com.depromeet.stonebed.infra.properties.RedisProperties;
 import java.time.Duration;
