@@ -27,6 +27,7 @@ public enum ErrorCode {
     // mission
     MISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션을 찾을 수 없습니다."),
     MISSION_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션 기록을 찾을 수 없습니다."),
+    INVALID_CURSOR_DATE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 커서 날짜 형식입니다."),
     ;
 
     private final HttpStatus httpStatus;
