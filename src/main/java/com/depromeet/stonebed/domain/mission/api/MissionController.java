@@ -20,7 +20,7 @@ public class MissionController {
 
     @PostMapping
     public MissionCreateResponse createMission(
-            @RequestBody MissionCreateRequest missionCreateRequest) {
+            @Valid @RequestBody MissionCreateRequest missionCreateRequest) {
         return missionService.createMission(missionCreateRequest);
     }
 

@@ -51,7 +51,7 @@ public class AppleClient {
     private static final int APPLE_TOKEN_EXPIRE_MINUTES = 5;
 
     // apple server에서 받아온 id_token
-    public AppleTokenResponse getAppleToken(AppleTokenRequest appleTokenRequest) {
+    private AppleTokenResponse getAppleToken(AppleTokenRequest appleTokenRequest) {
         // Prepare form data
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("client_id", appleTokenRequest.client_id());

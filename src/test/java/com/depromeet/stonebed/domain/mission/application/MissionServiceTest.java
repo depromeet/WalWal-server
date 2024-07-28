@@ -35,7 +35,7 @@ public class MissionServiceTest {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         when(missionRepository.save(any(Mission.class))).thenReturn(mission);
-        MissionCreateRequest missionCreateRequest = new MissionCreateRequest(1L, "Test Mission");
+        MissionCreateRequest missionCreateRequest = new MissionCreateRequest("Test Mission");
 
         // When
         MissionCreateResponse missionCreateResponse =
