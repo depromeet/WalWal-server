@@ -10,6 +10,7 @@ public enum ErrorCode {
     SAMPLE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "샘플 에러 메시지 입니다."),
     JSON_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 처리 중 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
+    INVALID_CURSOR_DATE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 커서 날짜 형식입니다."),
 
     // auth
     AUTH_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "시큐리티 인증 정보를 찾을 수 없습니다."),

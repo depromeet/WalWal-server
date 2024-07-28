@@ -42,6 +42,9 @@ public class MissionRecord extends BaseTimeEntity {
     @Column(name = "status", nullable = false)
     private MissionStatus status;
 
+    @Column(name = "booster_value")
+    private int boosterValue;
+
     @Builder
     public MissionRecord(Member member, Mission mission, String imageUrl, MissionStatus status) {
         this.member = member;
