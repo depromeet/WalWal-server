@@ -41,7 +41,7 @@ public class ImageService {
     public PresignedUrlResponse createMemberProfilePresignedUrl(
             MemberProfileImageCreateRequest request) {
         final Member currentMember = memberUtil.getCurrentMember();
-
+        validateImageFileExtension(request.imageFileExtension());
         String imageKey = generateUUID();
         String fileName =
                 createFileName(
@@ -67,22 +67,31 @@ public class ImageService {
 
     public void uploadCompleteMemberProfile(MemberProfileImageUploadCompleteRequest request) {
         final Member currentMember = memberUtil.getCurrentMember();
-        String imageUrl = null;
-        if (request.imageFileExtension() != null) {
-            Image image =
-                    findImage(
-                            ImageType.MEMBER_PROFILE,
-                            currentMember.getId(),
-                            request.imageFileExtension());
-            imageUrl =
-                    createReadImageUrl(
-                            ImageType.MEMBER_PROFILE,
-                            currentMember.getId(),
-                            image.getImageKey(),
-                            request.imageFileExtension());
-        }
-        // String currentNickname = currentMember.getProfile().getNickname();
+        validateImageFileExtension(request.imageFileExtension());
+
+        Image image =
+                findImage(
+                        ImageType.MEMBER_PROFILE,
+                        currentMember.getId(),
+                        request.imageFileExtension());
+        String imageUrl =
+                createReadImageUrl(
+                        ImageType.MEMBER_PROFILE,
+                        currentMember.getId(),
+                        image.getImageKey(),
+                        request.imageFileExtension());
         currentMember.updateProfile(Profile.createProfile(request.nickname(), imageUrl));
+    }
+
+    private void validateImageFileExtension(ImageFileExtension imageFileExtension) {
+        if (imageFileExtension == null) {
+            throw new CustomException(ErrorCode.IMAGE_FILE_EXTENSION_NOT_FOUND);
+        }
+        try {
+            ImageFileExtension.of(imageFileExtension.getUploadExtension());
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.INVALID_IMAGE_FILE_EXTENSION);
+        }
     }
 
     private Image findImage(
