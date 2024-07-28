@@ -20,6 +20,7 @@ import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import com.depromeet.stonebed.global.util.SpringEnvironmentUtil;
 import com.depromeet.stonebed.infra.properties.S3Properties;
+import java.net.URL;
 import java.util.Date;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -48,20 +49,20 @@ public class ImageService {
                         currentMember.getId(),
                         imageKey,
                         request.imageFileExtension());
-        GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                createGeneratePreSignedUrlRequest(
+        GeneratePresignedUrlRequest presignedUrlRequest =
+                createPreSignedUrlRequest(
                         s3Properties.bucket(),
                         fileName,
                         request.imageFileExtension().getUploadExtension());
 
-        String presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
+        URL presignedUrl = amazonS3.generatePresignedUrl(presignedUrlRequest);
         imageRepository.save(
                 Image.createImage(
                         ImageType.MEMBER_PROFILE,
                         currentMember.getId(),
                         imageKey,
                         request.imageFileExtension()));
-        return PresignedUrlResponse.from(presignedUrl);
+        return PresignedUrlResponse.from(presignedUrl.toString());
     }
 
     public void uploadCompleteMemberProfile(MemberProfileImageUploadCompleteRequest request) {
@@ -101,35 +102,13 @@ public class ImageService {
             Long targetId,
             String imageKey,
             ImageFileExtension imageFileExtension) {
-        return springEnvironmentUtil.getCurrentProfile()
-                + "/"
-                + imageType.getValue()
-                + "/"
-                + targetId
-                + "/"
-                + imageKey
-                + "."
-                + imageFileExtension.getUploadExtension();
-    }
-
-    private String createUploadImageUrl(
-            ImageType imageType,
-            Long targetId,
-            String imageKey,
-            ImageFileExtension imageFileExtension) {
-        return s3Properties.endpoint()
-                + "/"
-                + s3Properties.bucket()
-                + "/"
-                + springEnvironmentUtil.getCurrentProfile()
-                + "/"
-                + imageType.getValue()
-                + "/"
-                + targetId
-                + "/"
-                + imageKey
-                + "."
-                + imageFileExtension.getUploadExtension();
+        return String.format(
+                "%s/%s/%d/%s.%s",
+                springEnvironmentUtil.getCurrentProfile(),
+                imageType.getValue(),
+                targetId,
+                imageKey,
+                imageFileExtension.getUploadExtension());
     }
 
     private String createReadImageUrl(
@@ -137,20 +116,17 @@ public class ImageService {
             Long targetId,
             String imageKey,
             ImageFileExtension imageFileExtension) {
-        return UrlConstants.IMAGE_DOMAIN_URL.getValue()
-                + "/"
-                + springEnvironmentUtil.getCurrentProfile()
-                + "/"
-                + imageType.getValue()
-                + "/"
-                + targetId
-                + "/"
-                + imageKey
-                + "."
-                + imageFileExtension.getUploadExtension();
+        return String.format(
+                "%s/%s/%s/%d/%s.%s",
+                UrlConstants.IMAGE_DOMAIN_URL.getValue(),
+                springEnvironmentUtil.getCurrentProfile(),
+                imageType.getValue(),
+                targetId,
+                imageKey,
+                imageFileExtension.getUploadExtension());
     }
 
-    private GeneratePresignedUrlRequest createGeneratePreSignedUrlRequest(
+    private GeneratePresignedUrlRequest createPreSignedUrlRequest(
             String bucket, String fileName, String fileExtension) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
                 new GeneratePresignedUrlRequest(bucket, fileName, HttpMethod.PUT)
@@ -165,10 +141,6 @@ public class ImageService {
     }
 
     private Date getPreSignedUrlExpiration() {
-        Date expiration = new Date();
-        var expTimeMillis = expiration.getTime();
-        expTimeMillis += 1000 * 60 * 30;
-        expiration.setTime(expTimeMillis);
-        return expiration;
+        return new Date(System.currentTimeMillis() + 1000 * 60 * 30);
     }
 }
