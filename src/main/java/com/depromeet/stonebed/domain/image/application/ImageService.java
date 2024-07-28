@@ -80,15 +80,14 @@ public class ImageService {
                             image.getImageKey(),
                             request.imageFileExtension());
         }
-        // 현재 닉네임을 그대로 사용
-        String currentNickname = currentMember.getProfile().getNickname();
-        currentMember.updateProfile(Profile.createProfile(currentNickname, imageUrl));
+        // String currentNickname = currentMember.getProfile().getNickname();
+        currentMember.updateProfile(Profile.createProfile(request.nickname(), imageUrl));
     }
 
     private Image findImage(
             ImageType imageType, Long targetId, ImageFileExtension imageFileExtension) {
         return imageRepository
-                .findTopByImageTypeAndTargetIdAndImageFileExtensionOrderById(
+                .findTopByImageTypeAndTargetIdAndImageFileExtensionOrderByIdDesc(
                         imageType, targetId, imageFileExtension)
                 .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_KEY_NOT_FOUND));
     }
