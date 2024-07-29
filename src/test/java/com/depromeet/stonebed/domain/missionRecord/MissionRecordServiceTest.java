@@ -74,7 +74,7 @@ public class MissionRecordServiceTest {
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
         // when
-        MissionRecordCreateResponse response = missionRecordService.completeMission(request);
+        MissionRecordCreateResponse response = missionRecordService.saveMission(request);
 
         // then
         then(response).isNotNull();

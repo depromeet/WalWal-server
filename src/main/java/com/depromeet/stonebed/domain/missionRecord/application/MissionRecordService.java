@@ -6,9 +6,11 @@ import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionCompleteRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionTabRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionCompleteResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
@@ -44,10 +46,7 @@ public class MissionRecordService {
     public MissionStartResponse startMission(MissionStartRequest request) {
         final Member member = memberUtil.getCurrentMember();
 
-        Mission mission =
-                missionRepository
-                        .findById(request.missionId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+        Mission mission = findMissionById(request.missionId());
 
         MissionRecord missionRecord =
                 missionRecordRepository
@@ -66,7 +65,20 @@ public class MissionRecordService {
         return MissionStartResponse.from(MissionStatus.IN_PROGRESS);
     }
 
-    public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
+    public MissionCompleteResponse completeMission(MissionCompleteRequest request) {
+        final Member member = memberUtil.getCurrentMember();
+
+        Mission mission = findMissionById(request.missionId());
+
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findByMemberAndMission(member, mission)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        return MissionCompleteResponse.from(missionRecord.getImageUrl());
+    }
+
+    public MissionRecordCreateResponse saveMission(MissionRecordCreateRequest request) {
         Mission mission = findMissionById(request.missionId());
 
         final Member member = memberUtil.getCurrentMember();
@@ -143,10 +155,7 @@ public class MissionRecordService {
     public MissionTabResponse getMissionTabStatus(MissionTabRequest request) {
         final Member member = memberUtil.getCurrentMember();
 
-        Mission mission =
-                missionRepository
-                        .findById(request.missionId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+        Mission mission = findMissionById(request.missionId());
 
         MissionRecord missionRecord =
                 missionRecordRepository.findByMemberAndMission(member, mission).orElse(null);

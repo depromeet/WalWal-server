@@ -1,10 +1,12 @@
 package com.depromeet.stonebed.domain.missionRecord.api;
 
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionCompleteRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionTabRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionCompleteResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
@@ -40,11 +42,18 @@ public class MissionRecordController {
         return missionRecordService.startMission(request);
     }
 
+    @Operation(summary = "미션 완료", description = "미션 완료된 데이터를 조회한다.")
+    @PostMapping("/complete")
+    public MissionCompleteResponse completeMission(
+            @Valid @RequestBody MissionCompleteRequest request) {
+        return missionRecordService.completeMission(request);
+    }
+
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
     @PostMapping
-    public MissionRecordCreateResponse completeMission(
+    public MissionRecordCreateResponse saveMission(
             @Valid @RequestBody MissionRecordCreateRequest request) {
-        return missionRecordService.completeMission(request);
+        return missionRecordService.saveMission(request);
     }
 
     @Operation(summary = "미션 기록 삭제", description = "미션 기록을 삭제한다.")
