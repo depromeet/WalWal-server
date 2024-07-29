@@ -45,7 +45,7 @@ public class MissionRecordController {
     }
 
     @Operation(summary = "수행한 총 미션 기록 수", description = "회원이 수행한 총 미션 기록 수를 조회한다.")
-    @PostMapping("/total")
+    @PostMapping("/complete/total")
     public Long getTotalMissionRecords() {
         return missionRecordService.getTotalMissionRecords();
     }
