@@ -4,9 +4,11 @@ import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordServ
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionTabRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,6 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MissionRecordController {
 
     private final MissionRecordService missionRecordService;
+
+    @Operation(summary = "미션 탭 상태 조회", description = "미션 탭의 상태를 조회한다.")
+    @PostMapping("/status")
+    public MissionTabResponse getMissionTabStatus(@Valid @RequestBody MissionTabRequest request) {
+        return missionRecordService.getMissionTabStatus(request);
+    }
 
     @Operation(summary = "미션 참여", description = "미션 참여하기.")
     @PostMapping("/start")

@@ -8,10 +8,12 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionTabRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -135,5 +137,23 @@ public class MissionRecordService {
         MissionRecord lastRecord = records.get(records.size() - 1);
         LocalDate nextCursorDate = lastRecord.getCreatedAt().toLocalDate().plusDays(1);
         return nextCursorDate.format(DATE_FORMATTER);
+    }
+
+    @Transactional(readOnly = true)
+    public MissionTabResponse getMissionTabStatus(MissionTabRequest request) {
+        final Member member = memberUtil.getCurrentMember();
+
+        Mission mission =
+                missionRepository
+                        .findById(request.missionId())
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionRecord missionRecord =
+                missionRecordRepository.findByMemberAndMission(member, mission).orElse(null);
+
+        MissionStatus missionStatus =
+                missionRecord != null ? missionRecord.getStatus() : MissionStatus.NOT_COMPLETED;
+
+        return MissionTabResponse.from(missionStatus);
     }
 }
