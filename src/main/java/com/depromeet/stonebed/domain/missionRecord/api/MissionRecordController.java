@@ -3,8 +3,10 @@ package com.depromeet.stonebed.domain.missionRecord.api;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -23,6 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MissionRecordController {
 
     private final MissionRecordService missionRecordService;
+
+    @Operation(summary = "미션 참여", description = "미션 참여하기.")
+    @PostMapping("/start")
+    public MissionStartResponse startMission(@Valid @RequestBody MissionStartRequest request) {
+        return missionRecordService.startMission(request);
+    }
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
     @PostMapping

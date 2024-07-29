@@ -6,8 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum MissionStatus {
-    COMPLETED("COMPLETED"),
-    NOT_COMPLETED("NOT_COMPLETED");
+    NOT_COMPLETED("NOT_COMPLETED"),
+    IN_PROGRESS("IN_PROGRESS"),
+    COMPLETED("COMPLETED");
 
     private final String value;
 }

@@ -7,9 +7,11 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -36,6 +38,31 @@ public class MissionRecordService {
 
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public MissionStartResponse startMission(MissionStartRequest request) {
+        final Member member = memberUtil.getCurrentMember();
+
+        Mission mission =
+                missionRepository
+                        .findById(request.missionId())
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findByMemberAndMission(member, mission)
+                        .orElseGet(
+                                () ->
+                                        MissionRecord.builder()
+                                                .member(member)
+                                                .mission(mission)
+                                                .status(MissionStatus.IN_PROGRESS)
+                                                .build());
+
+        missionRecord.updateStatus(MissionStatus.IN_PROGRESS);
+        missionRecordRepository.save(missionRecord);
+
+        return MissionStartResponse.from(MissionStatus.IN_PROGRESS);
+    }
 
     public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
         Mission mission = findMissionById(request.missionId());
