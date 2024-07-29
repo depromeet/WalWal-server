@@ -5,7 +5,7 @@ import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
-import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
@@ -46,7 +46,7 @@ public class MissionRecordService {
                 MissionRecord.builder()
                         .member(member)
                         .mission(mission)
-                        .status(MissionStatus.COMPLETED)
+                        .status(MissionRecordStatus.COMPLETED)
                         .build();
 
         MissionRecord createRecord = missionRecordRepository.save(missionRecord);
@@ -108,5 +108,12 @@ public class MissionRecordService {
         MissionRecord lastRecord = records.get(records.size() - 1);
         LocalDate nextCursorDate = lastRecord.getCreatedAt().toLocalDate().plusDays(1);
         return nextCursorDate.format(DATE_FORMATTER);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getTotalMissionRecords() {
+        final Member member = memberUtil.getCurrentMember();
+        return missionRecordRepository.countByMemberIdAndStatus(
+                member.getId(), MissionRecordStatus.COMPLETED);
     }
 }
