@@ -11,9 +11,12 @@ import com.depromeet.stonebed.domain.image.domain.ImageFileExtension;
 import com.depromeet.stonebed.domain.image.domain.ImageType;
 import com.depromeet.stonebed.domain.image.dto.request.MemberProfileImageCreateRequest;
 import com.depromeet.stonebed.domain.image.dto.request.MemberProfileImageUploadCompleteRequest;
+import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageCreateRequest;
+import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageUploadRequest;
 import com.depromeet.stonebed.domain.image.dto.response.PresignedUrlResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.Profile;
+import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.global.common.constants.UrlConstants;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
@@ -37,6 +40,7 @@ public class ImageService {
     private final MemberUtil memberUtil;
     private final S3Properties s3Properties;
     private final SpringEnvironmentUtil springEnvironmentUtil;
+    private final MissionRecordService missionRecordService;
 
     public PresignedUrlResponse createMemberProfilePresignedUrl(
             MemberProfileImageCreateRequest request) {
@@ -81,6 +85,52 @@ public class ImageService {
                         image.getImageKey(),
                         request.imageFileExtension());
         currentMember.updateProfile(Profile.createProfile(request.nickname(), imageUrl));
+    }
+
+    public PresignedUrlResponse createMissionRecordPresignedUrl(
+            MissionRecordImageCreateRequest request) {
+        final Member currentMember = memberUtil.getCurrentMember();
+        validateImageFileExtension(request.imageFileExtension());
+        String imageKey = generateUUID();
+        String fileName =
+                createFileName(
+                        ImageType.MISSION_RECORD,
+                        currentMember.getId(),
+                        imageKey,
+                        request.imageFileExtension());
+        GeneratePresignedUrlRequest presignedUrlRequest =
+                createPreSignedUrlRequest(
+                        s3Properties.bucket(),
+                        fileName,
+                        request.imageFileExtension().getUploadExtension());
+
+        URL presignedUrl = amazonS3.generatePresignedUrl(presignedUrlRequest);
+        imageRepository.save(
+                Image.createImage(
+                        ImageType.MISSION_RECORD,
+                        currentMember.getId(),
+                        imageKey,
+                        request.imageFileExtension()));
+        return PresignedUrlResponse.from(presignedUrl.toString());
+    }
+
+    public void uploadCompleteMissionRecord(MissionRecordImageUploadRequest request) {
+        final Member currentMember = memberUtil.getCurrentMember();
+        validateImageFileExtension(request.imageFileExtension());
+
+        Image image =
+                findImage(
+                        ImageType.MISSION_RECORD,
+                        currentMember.getId(),
+                        request.imageFileExtension());
+        String imageUrl =
+                createReadImageUrl(
+                        ImageType.MISSION_RECORD,
+                        currentMember.getId(),
+                        image.getImageKey(),
+                        request.imageFileExtension());
+
+        missionRecordService.updateMissionRecordWithImage(request.missionId(), imageUrl);
     }
 
     private void validateImageFileExtension(ImageFileExtension imageFileExtension) {

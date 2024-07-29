@@ -3,18 +3,18 @@ package com.depromeet.stonebed.domain.missionRecord.api;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionCompleteRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionTabRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionCompleteResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,9 +51,9 @@ public class MissionRecordController {
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
     @PostMapping
-    public MissionRecordCreateResponse saveMission(
-            @Valid @RequestBody MissionRecordCreateRequest request) {
-        return missionRecordService.saveMission(request);
+    public ResponseEntity<Void> saveMission(@Valid @RequestBody MissionRecordSaveRequest request) {
+        missionRecordService.saveMission(request);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "미션 기록 삭제", description = "미션 기록을 삭제한다.")

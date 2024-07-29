@@ -62,4 +62,8 @@ public class MissionRecord extends BaseTimeEntity {
     public void updateStatus(MissionStatus status) {
         this.status = status;
     }
+
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

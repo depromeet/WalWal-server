@@ -7,13 +7,12 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionCompleteRequest;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionTabRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionCompleteResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
@@ -78,9 +77,8 @@ public class MissionRecordService {
         return MissionCompleteResponse.from(missionRecord.getImageUrl());
     }
 
-    public MissionRecordCreateResponse saveMission(MissionRecordCreateRequest request) {
+    public void saveMission(MissionRecordSaveRequest request) {
         Mission mission = findMissionById(request.missionId());
-
         final Member member = memberUtil.getCurrentMember();
 
         MissionRecord missionRecord =
@@ -90,9 +88,7 @@ public class MissionRecordService {
                         .status(MissionStatus.COMPLETED)
                         .build();
 
-        MissionRecord createRecord = missionRecordRepository.save(missionRecord);
-        return MissionRecordCreateResponse.from(
-                createRecord.getId(), createRecord.getMissionTitle());
+        missionRecordRepository.save(missionRecord);
     }
 
     public void deleteMissionRecord(Long recordId) {
@@ -164,5 +160,15 @@ public class MissionRecordService {
                 missionRecord != null ? missionRecord.getStatus() : MissionStatus.NOT_COMPLETED;
 
         return MissionTabResponse.from(missionStatus);
+    }
+
+    @Transactional
+    public void updateMissionRecordWithImage(Long missionId, String imageUrl) {
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        missionRecord.updateImageUrl(imageUrl);
     }
 }

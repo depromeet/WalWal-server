@@ -10,9 +10,12 @@ import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordServ
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionCompleteRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionStartRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionCompleteResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionStartResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -20,7 +23,6 @@ import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.util.List;
 import java.util.Optional;
-import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,8 +58,8 @@ public class MissionRecordServiceTest {
     @Test
     void 미션기록_성공() {
         // given
-        Long missionId = Arbitraries.longs().greaterOrEqual(1L).sample();
-        MissionRecordCreateRequest request = new MissionRecordCreateRequest(missionId);
+        Long missionId = 1L;
+        MissionRecordSaveRequest request = new MissionRecordSaveRequest(missionId);
 
         Mission mission = fixtureMonkey.giveMeOne(Mission.class);
         Member member = fixtureMonkey.giveMeOne(Member.class);
@@ -74,13 +76,9 @@ public class MissionRecordServiceTest {
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
         // when
-        MissionRecordCreateResponse response = missionRecordService.saveMission(request);
+        missionRecordService.saveMission(request);
 
         // then
-        then(response).isNotNull();
-        then(response.recordId()).isEqualTo(missionRecord.getId());
-        then(response.missionTitle()).isEqualTo(missionRecord.getMission().getTitle());
-
         verify(missionRepository).findById(request.missionId());
         verify(memberUtil).getCurrentMember();
         verify(missionRecordRepository).save(any(MissionRecord.class));
@@ -89,7 +87,7 @@ public class MissionRecordServiceTest {
     @Test
     void 미션기록삭제_성공() {
         // given
-        Long recordId = Arbitraries.longs().greaterOrEqual(1L).sample();
+        Long recordId = 1L;
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
 
         when(missionRecordRepository.findById(recordId)).thenReturn(Optional.of(missionRecord));
@@ -105,7 +103,7 @@ public class MissionRecordServiceTest {
     @Test
     void 미션기록삭제_실패() {
         // given
-        Long recordId = Arbitraries.longs().greaterOrEqual(1L).sample();
+        Long recordId = 1L;
 
         when(missionRecordRepository.findById(recordId)).thenReturn(Optional.empty());
 
@@ -147,5 +145,73 @@ public class MissionRecordServiceTest {
                 .findByMemberIdWithPagination(
                         member.getId(),
                         PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt")));
+    }
+
+    @Test
+    void 미션참여_성공() {
+        // given
+        Long missionId = 1L;
+        MissionStartRequest request = new MissionStartRequest(missionId);
+
+        Mission mission = fixtureMonkey.giveMeOne(Mission.class);
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("mission", mission)
+                        .set("member", member)
+                        .set("status", MissionStatus.IN_PROGRESS)
+                        .sample();
+
+        when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.findByMemberAndMission(member, mission))
+                .thenReturn(Optional.of(missionRecord));
+        when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
+
+        // when
+        MissionStartResponse response = missionRecordService.startMission(request);
+
+        // then
+        then(response).isNotNull();
+        then(response.status()).isEqualTo(MissionStatus.IN_PROGRESS);
+
+        verify(missionRepository).findById(request.missionId());
+        verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository).findByMemberAndMission(member, mission);
+        verify(missionRecordRepository).save(any(MissionRecord.class));
+    }
+
+    @Test
+    void 미션완료_성공() {
+        // given
+        Long missionId = 1L;
+        MissionCompleteRequest request = new MissionCompleteRequest(missionId);
+
+        Mission mission = fixtureMonkey.giveMeOne(Mission.class);
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("mission", mission)
+                        .set("member", member)
+                        .set("status", MissionStatus.COMPLETED)
+                        .sample();
+
+        when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.findByMemberAndMission(member, mission))
+                .thenReturn(Optional.of(missionRecord));
+
+        // when
+        MissionCompleteResponse response = missionRecordService.completeMission(request);
+
+        // then
+        then(response).isNotNull();
+        then(response.missionImageUrl()).isEqualTo(missionRecord.getImageUrl());
+
+        verify(missionRepository).findById(request.missionId());
+        verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository).findByMemberAndMission(member, mission);
     }
 }
