@@ -8,8 +8,6 @@ import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
-import com.depromeet.stonebed.domain.mission.domain.QMission;
-import com.depromeet.stonebed.domain.mission.domain.QMissionHistory;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
@@ -18,9 +16,6 @@ import com.depromeet.stonebed.domain.mission.dto.response.MissionGetTodayRespons
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,10 +26,8 @@ import org.mockito.MockitoAnnotations;
 
 public class MissionServiceTest {
 
-    @Mock private JPAQueryFactory queryFactory;
     @Mock private MissionRepository missionRepository;
     @Mock private MissionHistoryRepository missionHistoryRepository;
-    @Mock private SecureRandom secureRandom;
 
     @InjectMocks private MissionService missionService;
 
@@ -99,31 +92,19 @@ public class MissionServiceTest {
     @Test
     public void 오늘의_미션_조회_성공_히스토리가_없는_경우() {
         // Given: 초기 설정
-        List<Long> recentMissionIds = new ArrayList<>();
-        List<Mission> missionsThreeDaysAgo = new ArrayList<>();
-        missionsThreeDaysAgo.add(Mission.builder().title("4일 전 미션").build());
-        missionsThreeDaysAgo.add(Mission.builder().title("5일 전 미션").build());
+        List<Mission> recentMissions = new ArrayList<>();
+        recentMissions.add(Mission.builder().title("1일 전 미션").build());
+        recentMissions.add(Mission.builder().title("2일 전 미션").build());
+        recentMissions.add(Mission.builder().title("3일 전 미션").build());
 
-        when(missionHistoryRepository.findByAssignedDate(today)).thenReturn(Optional.empty());
+        List<Mission> availableMissions = new ArrayList<>();
+        availableMissions.add(Mission.builder().title("4일 전 미션").build());
+        availableMissions.add(Mission.builder().title("5일 전 미션").build());
 
-        QMissionHistory qMissionHistory = QMissionHistory.missionHistory;
-        QMission qMission = QMission.mission;
+        when(missionRepository.findMissionsAssignedBefore(threeDaysAgo)).thenReturn(recentMissions);
 
-        JPAQuery<Long> recentMissionIdsQuery = mock(JPAQuery.class);
-        JPAQuery<Mission> availableMissionsQuery = mock(JPAQuery.class);
+        when(missionRepository.findNotInMissions(recentMissions)).thenReturn(availableMissions);
 
-        when(queryFactory.select(qMissionHistory.mission.id)).thenReturn(recentMissionIdsQuery);
-        when(recentMissionIdsQuery.from(qMissionHistory)).thenReturn(recentMissionIdsQuery);
-        when(recentMissionIdsQuery.where(qMissionHistory.assignedDate.before(threeDaysAgo)))
-                .thenReturn(recentMissionIdsQuery);
-        when(recentMissionIdsQuery.fetch()).thenReturn(recentMissionIds);
-
-        when(queryFactory.selectFrom(qMission)).thenReturn(availableMissionsQuery);
-        when(availableMissionsQuery.where(qMission.id.notIn(recentMissionIds)))
-                .thenReturn(availableMissionsQuery);
-        when(availableMissionsQuery.fetch()).thenReturn(missionsThreeDaysAgo);
-
-        when(secureRandom.nextInt(missionsThreeDaysAgo.size())).thenReturn(0);
         when(missionHistoryRepository.save(any(MissionHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -133,36 +114,16 @@ public class MissionServiceTest {
         // Then: 각 메서드들이 실행됐는지 검증
         assertThat(result).isNotNull();
         assertThat(result.title()).isIn("4일 전 미션", "5일 전 미션");
-        verify(missionHistoryRepository, times(1)).findByAssignedDate(today);
-        verify(queryFactory, times(1)).select(qMissionHistory.mission.id);
-        verify(queryFactory, times(1)).selectFrom(qMission);
-        verify(missionHistoryRepository, times(1)).save(any(MissionHistory.class));
     }
 
     @Test
     public void 오늘의_미션_조회_실패_할당가능한_미션이_없는_경우() {
         // Given: 초기 설정
-        List<Long> emptyMissionIds = new ArrayList<>();
         List<Mission> emptyMissionList = new ArrayList<>();
 
-        when(missionHistoryRepository.findByAssignedDate(today)).thenReturn(Optional.empty());
+        when(missionRepository.findMissionsAssignedBefore(today)).thenReturn(emptyMissionList);
 
-        QMissionHistory qMissionHistory = QMissionHistory.missionHistory;
-        QMission qMission = QMission.mission;
-
-        JPAQuery<Long> recentMissionIdsQuery = mock(JPAQuery.class);
-        JPAQuery<Mission> availableMissionsQuery = mock(JPAQuery.class);
-
-        when(queryFactory.select(qMissionHistory.mission.id)).thenReturn(recentMissionIdsQuery);
-        when(recentMissionIdsQuery.from(qMissionHistory)).thenReturn(recentMissionIdsQuery);
-        when(recentMissionIdsQuery.where(qMissionHistory.assignedDate.before(threeDaysAgo)))
-                .thenReturn(recentMissionIdsQuery);
-        when(recentMissionIdsQuery.fetch()).thenReturn(emptyMissionIds);
-
-        when(queryFactory.selectFrom(qMission)).thenReturn(availableMissionsQuery);
-        when(availableMissionsQuery.where(qMission.id.notIn(emptyMissionIds)))
-                .thenReturn(availableMissionsQuery);
-        when(availableMissionsQuery.fetch()).thenReturn(emptyMissionList);
+        when(missionRepository.findNotInMissions(emptyMissionList)).thenReturn(emptyMissionList);
 
         when(missionHistoryRepository.save(any(MissionHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));

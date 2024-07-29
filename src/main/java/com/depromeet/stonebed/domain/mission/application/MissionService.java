@@ -4,8 +4,6 @@ import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
-import com.depromeet.stonebed.domain.mission.domain.QMission;
-import com.depromeet.stonebed.domain.mission.domain.QMissionHistory;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
@@ -14,7 +12,6 @@ import com.depromeet.stonebed.domain.mission.dto.response.MissionGetTodayRespons
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class MissionService {
-    private final JPAQueryFactory queryFactory;
     private final MissionRepository missionRepository;
     private final MissionHistoryRepository missionHistoryRepository;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -59,18 +55,11 @@ public class MissionService {
             return MissionGetTodayResponse.from(optionalMissionHistory.get().getMission());
         }
 
-        QMissionHistory missionHistory = QMissionHistory.missionHistory;
-        QMission mission = QMission.mission;
+        // 최근 3일 이전의 미션들 불러오기
+        List<Mission> recentMissions = missionRepository.findMissionsAssignedBefore(threeDaysAgo);
 
-        List<Long> recentMissionIds =
-                queryFactory
-                        .select(missionHistory.mission.id)
-                        .from(missionHistory)
-                        .where(missionHistory.assignedDate.before(threeDaysAgo))
-                        .fetch();
-
-        List<Mission> availableMissions =
-                queryFactory.selectFrom(mission).where(mission.id.notIn(recentMissionIds)).fetch();
+        // 최근 3일 이내의 미션은 제외하고 불러오기
+        List<Mission> availableMissions = missionRepository.findNotInMissions(recentMissions);
 
         if (availableMissions.isEmpty()) {
             throw new CustomException(ErrorCode.NO_AVAILABLE_TODAY_MISSION);
