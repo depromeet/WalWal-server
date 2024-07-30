@@ -39,9 +39,6 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private RaisePet raisePet;
 
-    @Enumerated(EnumType.STRING)
-    private MarketingAgreement marketingAgree;
-
     private LocalDateTime lastLoginAt;
 
     @Builder(access = AccessLevel.PRIVATE)
@@ -50,14 +47,12 @@ public class Member extends BaseTimeEntity {
             OauthInfo oauthInfo,
             MemberStatus status,
             MemberRole role,
-            RaisePet raisePet,
-            MarketingAgreement marketingAgree) {
+            RaisePet raisePet) {
         this.profile = profile;
         this.oauthInfo = oauthInfo;
         this.status = status;
         this.role = role;
         this.raisePet = raisePet;
-        this.marketingAgree = marketingAgree;
     }
 
     public static Member createMember(
@@ -65,15 +60,13 @@ public class Member extends BaseTimeEntity {
             OauthInfo oauthInfo,
             MemberStatus status,
             MemberRole role,
-            RaisePet raisePet,
-            MarketingAgreement marketingAgree) {
+            RaisePet raisePet) {
         return Member.builder()
                 .profile(profile)
                 .oauthInfo(oauthInfo)
                 .status(status)
                 .role(role)
                 .raisePet(raisePet)
-                .marketingAgree(marketingAgree)
                 .build();
     }
 
@@ -86,8 +79,7 @@ public class Member extends BaseTimeEntity {
                 oauthInfo,
                 MemberStatus.NORMAL,
                 MemberRole.USER,
-                null,
-                MarketingAgreement.DISAGREED);
+                null);
     }
 
     public void updateLastLoginAt() {
@@ -96,10 +88,6 @@ public class Member extends BaseTimeEntity {
 
     public void updateRaisePet(RaisePet raisePet) {
         this.raisePet = raisePet;
-    }
-
-    public void updateMarketingAgreement(MarketingAgreement marketingAgree) {
-        this.marketingAgree = marketingAgree;
     }
 
     public void updateProfile(Profile profile) {
