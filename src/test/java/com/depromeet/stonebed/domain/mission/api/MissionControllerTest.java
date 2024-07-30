@@ -9,6 +9,7 @@ import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionGetOneResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetTodayResponse;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.common.response.ApiResponseAdvice;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testCreateMission() throws Exception {
+    public void 미션_생성_성공() throws Exception {
         // Given
         MissionCreateResponse missionCreateResponse = new MissionCreateResponse(1L, "Test Mission");
         when(missionService.createMission(any(MissionCreateRequest.class)))
@@ -56,7 +57,20 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testGetMission() throws Exception {
+    public void 오늘의_미션_조회_성공() throws Exception {
+        // Given
+        MissionGetTodayResponse missionGetTodayResponse =
+                new MissionGetTodayResponse(1L, "Test Mission");
+        when(missionService.getOrCreateTodayMission()).thenReturn(missionGetTodayResponse);
+
+        // When & Then
+        mockMvc.perform(get("/missions/today"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title").value("Test Mission"));
+    }
+
+    @Test
+    public void 미션_조회_성공() throws Exception {
         // Given
         MissionGetOneResponse missionGetOneResponse = new MissionGetOneResponse(1L, "Test Mission");
         when(missionService.getMission(1L)).thenReturn(missionGetOneResponse);
@@ -68,7 +82,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testUpdateMission() throws Exception {
+    public void 미션_수정_성공() throws Exception {
         // Given
         when(missionService.updateMission(anyLong(), any(MissionUpdateRequest.class)))
                 .thenReturn(new MissionUpdateResponse(1L, "Updated Mission"));
@@ -83,7 +97,7 @@ public class MissionControllerTest {
     }
 
     @Test
-    public void testDeleteMission() throws Exception {
+    public void 미션_삭제_성공() throws Exception {
         // Given
         doNothing().when(missionService).deleteMission(anyLong());
 
