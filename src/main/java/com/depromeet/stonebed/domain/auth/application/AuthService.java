@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.auth.application;
 
 import com.depromeet.stonebed.domain.auth.application.apple.AppleClient;
+import com.depromeet.stonebed.domain.auth.application.kakao.KakaoClient;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.request.RefreshTokenRequest;
@@ -14,7 +15,6 @@ import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import java.security.InvalidParameterException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final AppleClient appleClient;
+    private final KakaoClient kakaoClient;
     private final MemberService memberService;
     private final JwtTokenService jwtTokenService;
     private final MemberUtil memberUtil;
@@ -39,9 +40,7 @@ public class AuthService {
          */
         return switch (provider) {
             case APPLE -> appleClient.authenticateFromApple(token);
-                // TODO: 추후 카카오 개발 예정
-                // case KAKAO -> authenticateFromKakao(accessToken);
-            default -> throw new InvalidParameterException();
+            case KAKAO -> kakaoClient.authenticateFromKakao(token);
         };
     }
 
