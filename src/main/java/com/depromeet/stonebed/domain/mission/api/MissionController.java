@@ -5,6 +5,7 @@ import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionUpdateRequest;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionCreateResponse;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionGetOneResponse;
+import com.depromeet.stonebed.domain.mission.dto.response.MissionGetTodayResponse;
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,6 +23,11 @@ public class MissionController {
     public MissionCreateResponse createMission(
             @Valid @RequestBody MissionCreateRequest missionCreateRequest) {
         return missionService.createMission(missionCreateRequest);
+    }
+
+    @GetMapping("/today")
+    public MissionGetTodayResponse getTodayMission() {
+        return missionService.getOrCreateTodayMission();
     }
 
     @GetMapping("/{missionId}")
