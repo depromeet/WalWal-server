@@ -31,9 +31,10 @@ public class MemberService {
     }
 
     public Member setMemberRegister(Member member, CreateMemberRequest request) {
-        member.updateProfile(Profile.createProfile(request.nickname(), request.profileImageUrl()));
+        member.updateProfile(
+                Profile.createProfile(
+                        request.nickname(), member.getProfile().getProfileImageUrl()));
         member.updateRaisePet(request.raisePet());
-        member.updateMarketingAgreement(request.marketingAgreement());
         return member;
     }
 

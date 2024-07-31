@@ -35,7 +35,7 @@ public class ImageController {
 
     @Operation(summary = "회원 프로필 이미지 업로드 완료", description = "회원 프로필 이미지 업로드 완료 업로드 상태를 변경합니다.")
     @PostMapping("/members/me/upload-complete")
-    public ResponseEntity<Void> memberProfileUploadedV2(
+    public ResponseEntity<Void> memberProfileUploaded(
             @Valid @RequestBody MemberProfileImageUploadCompleteRequest request) {
         imageService.uploadCompleteMemberProfile(request);
         return ResponseEntity.ok().build();

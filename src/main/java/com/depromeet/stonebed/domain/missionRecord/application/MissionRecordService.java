@@ -7,7 +7,7 @@ import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
-import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionCompleteResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
@@ -53,7 +53,7 @@ public class MissionRecordService {
                                         MissionRecord.builder()
                                                 .member(member)
                                                 .mission(mission)
-                                                .status(MissionStatus.IN_PROGRESS)
+                                                .status(MissionRecordStatus.IN_PROGRESS)
                                                 .build());
 
         missionRecordRepository.save(missionRecord);
@@ -87,7 +87,7 @@ public class MissionRecordService {
                 MissionRecord.builder()
                         .member(member)
                         .mission(mission)
-                        .status(MissionStatus.COMPLETED)
+                        .status(MissionRecordStatus.COMPLETED)
                         .imageUrl(imageUrl)
                         .build();
 
@@ -154,10 +154,12 @@ public class MissionRecordService {
     public MissionTabResponse getMissionTabStatus(Long recordId) {
         MissionRecord missionRecord = missionRecordRepository.findById(recordId).orElse(null);
 
-        MissionStatus missionStatus =
-                missionRecord != null ? missionRecord.getStatus() : MissionStatus.NOT_COMPLETED;
+        MissionRecordStatus missionRecordStatus =
+                missionRecord != null
+                        ? missionRecord.getStatus()
+                        : MissionRecordStatus.NOT_COMPLETED;
 
-        return MissionTabResponse.from(missionStatus);
+        return MissionTabResponse.from(missionRecordStatus);
     }
 
     @Transactional
@@ -168,5 +170,11 @@ public class MissionRecordService {
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
         missionRecord.updateImageUrl(imageUrl);
+    }
+
+    public Long getTotalMissionRecords() {
+        final Member member = memberUtil.getCurrentMember();
+        return missionRecordRepository.countByMemberIdAndStatus(
+                member.getId(), MissionRecordStatus.COMPLETED);
     }
 }
