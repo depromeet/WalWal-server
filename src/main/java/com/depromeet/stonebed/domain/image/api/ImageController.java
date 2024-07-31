@@ -44,14 +44,14 @@ public class ImageController {
     @Operation(
             summary = "미션 기록 이미지 Presigned URL 생성",
             description = "미션 기록 이미지 Presigned URL을 생성합니다.")
-    @PostMapping("/missionrecord/upload-url")
+    @PostMapping("/mission-record/upload-url")
     public PresignedUrlResponse missionRecordPresignedUrlCreate(
             @Valid @RequestBody MissionRecordImageCreateRequest request) {
         return imageService.createMissionRecordPresignedUrl(request);
     }
 
     @Operation(summary = "미션 기록 이미지 업로드 완료", description = "미션 기록 이미지 업로드 완료 업로드 상태를 변경합니다.")
-    @PostMapping("/missionrecord/upload-complete")
+    @PostMapping("/mission-record/upload-complete")
     public ResponseEntity<Void> missionRecordUploadedV2(
             @Valid @RequestBody MissionRecordImageUploadRequest request) {
         imageService.uploadCompleteMissionRecord(request);

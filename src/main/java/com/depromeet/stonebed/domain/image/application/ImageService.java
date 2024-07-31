@@ -92,10 +92,13 @@ public class ImageService {
         final Member currentMember = memberUtil.getCurrentMember();
         validateImageFileExtension(request.imageFileExtension());
         String imageKey = generateUUID();
+
+        Long missionRecordId = request.missionId();
+
         String fileName =
                 createFileName(
                         ImageType.MISSION_RECORD,
-                        currentMember.getId(),
+                        missionRecordId,
                         imageKey,
                         request.imageFileExtension());
         GeneratePresignedUrlRequest presignedUrlRequest =
@@ -108,7 +111,7 @@ public class ImageService {
         imageRepository.save(
                 Image.createImage(
                         ImageType.MISSION_RECORD,
-                        currentMember.getId(),
+                        missionRecordId,
                         imageKey,
                         request.imageFileExtension()));
         return PresignedUrlResponse.from(presignedUrl.toString());
@@ -130,7 +133,7 @@ public class ImageService {
                         image.getImageKey(),
                         request.imageFileExtension());
 
-        missionRecordService.updateMissionRecordWithImage(request.missionId(), imageUrl);
+        missionRecordService.updateMissionRecordWithImage(request.recordId(), imageUrl);
     }
 
     private void validateImageFileExtension(ImageFileExtension imageFileExtension) {
