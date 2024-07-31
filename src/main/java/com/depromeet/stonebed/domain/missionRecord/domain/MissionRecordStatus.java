@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum MissionStatus {
+public enum MissionRecordStatus {
     COMPLETED("COMPLETED"),
     NOT_COMPLETED("NOT_COMPLETED");
 
