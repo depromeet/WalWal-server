@@ -40,13 +40,14 @@ public class MissionRecord extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private MissionStatus status;
+    private MissionRecordStatus status;
 
     @Column(name = "booster_value")
     private int boosterValue;
 
     @Builder
-    public MissionRecord(Member member, Mission mission, String imageUrl, MissionStatus status) {
+    public MissionRecord(
+            Member member, Mission mission, String imageUrl, MissionRecordStatus status) {
         this.member = member;
         this.mission = mission;
         this.imageUrl = imageUrl;

@@ -9,7 +9,7 @@ import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
-import com.depromeet.stonebed.domain.missionRecord.domain.MissionStatus;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
@@ -66,7 +66,7 @@ public class MissionRecordServiceTest {
                         .giveMeBuilder(MissionRecord.class)
                         .set("mission", mission)
                         .set("member", member)
-                        .set("status", MissionStatus.COMPLETED)
+                        .set("status", MissionRecordStatus.COMPLETED)
                         .sample();
 
         when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
