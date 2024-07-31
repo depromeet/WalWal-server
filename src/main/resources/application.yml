@@ -1,6 +1,5 @@
 spring:
   profiles:
-    active: local
     group:
       test: "test"
       local: "local, datasource"
