@@ -1,7 +1,6 @@
 package com.depromeet.stonebed.domain.missionRecord.application;
 
 import com.depromeet.stonebed.domain.image.dao.ImageRepository;
-import com.depromeet.stonebed.domain.image.domain.Image;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
@@ -58,28 +57,24 @@ public class MissionRecordService {
         missionRecordRepository.save(missionRecord);
     }
 
-    public void saveMission(Long recordId, Long missionId) {
+    public void saveMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
-
-        Image image =
-                imageRepository
-                        .findByTargetId(recordId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_KEY_NOT_FOUND));
 
         Mission mission =
                 missionRepository
                         .findById(missionId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
 
-        String imageUrl = image.getImageKey();
-
         MissionRecord missionRecord =
-                MissionRecord.builder()
-                        .member(member)
-                        .mission(mission)
-                        .status(MissionRecordStatus.COMPLETED)
-                        .imageUrl(imageUrl)
-                        .build();
+                missionRecordRepository
+                        .findByMemberAndMission(member, mission)
+                        .orElseGet(
+                                () ->
+                                        MissionRecord.builder()
+                                                .member(member)
+                                                .mission(mission)
+                                                .status(MissionRecordStatus.COMPLETED)
+                                                .build());
 
         missionRecordRepository.save(missionRecord);
     }

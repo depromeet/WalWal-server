@@ -44,9 +44,6 @@ public class MissionRecord extends BaseTimeEntity {
     @Column(name = "status", nullable = false)
     private MissionRecordStatus status;
 
-    @Column(name = "booster_value")
-    private int boosterValue;
-
     @Builder
     public MissionRecord(
             Member member, Mission mission, String imageUrl, MissionRecordStatus status) {
@@ -54,10 +51,6 @@ public class MissionRecord extends BaseTimeEntity {
         this.mission = mission;
         this.imageUrl = imageUrl;
         this.status = status;
-    }
-
-    public String getMissionTitle() {
-        return mission.getTitle();
     }
 
     public void updateImageUrl(String imageUrl) {

@@ -89,7 +89,6 @@ public class ImageService {
 
     public PresignedUrlResponse createMissionRecordPresignedUrl(
             MissionRecordImageCreateRequest request) {
-        final Member currentMember = memberUtil.getCurrentMember();
         validateImageFileExtension(request.imageFileExtension());
         String imageKey = generateUUID();
 
