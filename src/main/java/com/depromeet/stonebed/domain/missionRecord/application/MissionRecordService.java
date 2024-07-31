@@ -8,7 +8,6 @@ import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionCompleteResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
@@ -57,15 +56,6 @@ public class MissionRecordService {
                                                 .build());
 
         missionRecordRepository.save(missionRecord);
-    }
-
-    public MissionCompleteResponse getMissionImageUrl(Long recordId) {
-        MissionRecord missionRecord =
-                missionRecordRepository
-                        .findById(recordId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
-
-        return MissionCompleteResponse.from(missionRecord.getImageUrl());
     }
 
     public void saveMission(Long recordId, Long missionId) {
@@ -150,16 +140,20 @@ public class MissionRecordService {
         return nextCursorDate.format(DATE_FORMATTER);
     }
 
-    @Transactional(readOnly = true)
     public MissionTabResponse getMissionTabStatus(Long recordId) {
         MissionRecord missionRecord = missionRecordRepository.findById(recordId).orElse(null);
 
-        MissionRecordStatus missionRecordStatus =
-                missionRecord != null
-                        ? missionRecord.getStatus()
-                        : MissionRecordStatus.NOT_COMPLETED;
+        if (missionRecord == null) {
+            return new MissionTabResponse(null, MissionRecordStatus.NOT_COMPLETED);
+        }
 
-        return MissionTabResponse.from(missionRecordStatus);
+        MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
+        String imageUrl =
+                missionRecordStatus == MissionRecordStatus.COMPLETED
+                        ? missionRecord.getImageUrl()
+                        : null;
+
+        return new MissionTabResponse(imageUrl, missionRecordStatus);
     }
 
     @Transactional
