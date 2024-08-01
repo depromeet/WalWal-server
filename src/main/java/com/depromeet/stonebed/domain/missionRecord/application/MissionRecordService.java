@@ -135,11 +135,20 @@ public class MissionRecordService {
         return nextCursorDate.format(DATE_FORMATTER);
     }
 
-    public MissionTabResponse getMissionTabStatus(Long recordId) {
-        MissionRecord missionRecord = missionRecordRepository.findById(recordId).orElse(null);
+    @Transactional(readOnly = true)
+    public MissionTabResponse getMissionTabStatus(Long missionId) {
+        final Member member = memberUtil.getCurrentMember();
+
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionRecord missionRecord =
+                missionRecordRepository.findByMemberAndMission(member, mission).orElse(null);
 
         if (missionRecord == null) {
-            return new MissionTabResponse(null, MissionRecordStatus.NOT_COMPLETED);
+            return new MissionTabResponse(null, null, MissionRecordStatus.NOT_COMPLETED);
         }
 
         MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
@@ -148,7 +157,7 @@ public class MissionRecordService {
                         ? missionRecord.getImageUrl()
                         : null;
 
-        return new MissionTabResponse(imageUrl, missionRecordStatus);
+        return new MissionTabResponse(missionRecord.getId(), imageUrl, missionRecordStatus);
     }
 
     @Transactional

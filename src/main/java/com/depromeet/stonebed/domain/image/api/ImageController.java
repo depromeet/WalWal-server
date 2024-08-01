@@ -52,7 +52,7 @@ public class ImageController {
 
     @Operation(summary = "미션 기록 이미지 업로드 완료", description = "미션 기록 이미지 업로드 완료 업로드 상태를 변경합니다.")
     @PostMapping("/mission-record/upload-complete")
-    public ResponseEntity<Void> missionRecordUploadedV2(
+    public ResponseEntity<Void> missionRecordUploaded(
             @Valid @RequestBody MissionRecordImageUploadRequest request) {
         imageService.uploadCompleteMissionRecord(request);
         return ResponseEntity.ok().build();

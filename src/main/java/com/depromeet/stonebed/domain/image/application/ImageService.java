@@ -92,7 +92,7 @@ public class ImageService {
         validateImageFileExtension(request.imageFileExtension());
         String imageKey = generateUUID();
 
-        Long missionRecordId = request.missionId();
+        Long missionRecordId = request.recordId();
 
         String fileName =
                 createFileName(

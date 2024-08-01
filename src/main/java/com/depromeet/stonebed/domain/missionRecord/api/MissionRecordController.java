@@ -20,9 +20,9 @@ public class MissionRecordController {
     private final MissionRecordService missionRecordService;
 
     @Operation(summary = "미션 탭 상태 조회", description = "미션 탭의 상태를 조회한다.")
-    @GetMapping("/{recordId}/status")
-    public MissionTabResponse getMissionTabStatus(@PathVariable("recordId") Long recordId) {
-        return missionRecordService.getMissionTabStatus(recordId);
+    @GetMapping("/{missionId}/status")
+    public MissionTabResponse getMissionTabStatus(@PathVariable("missionId") Long missionId) {
+        return missionRecordService.getMissionTabStatus(missionId);
     }
 
     @Operation(summary = "미션 참여", description = "미션 참여하기.")
