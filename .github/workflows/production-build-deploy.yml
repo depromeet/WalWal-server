@@ -4,6 +4,9 @@ on:
   push:
    branches: [ "chore/#65-prod-deploy" ]
 
+env:
+  DOCKERHUB_IMAGE_NAME: walwal-server
+
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
