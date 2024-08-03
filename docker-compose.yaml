@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  backend:
+    image: "olderstonebed/walwal-server:latest"
+    container_name: "walwal-server"
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+    network_mode: host
+    env_file:
+      - ~/.env
+    deploy:
+      resources:
+        limits:
+          memory: 640m
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - TZ=Asia/Seoul
+    network_mode: "host"
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+  nginx:
+    image: "nginx:alpine"
+    container_name: nginx
+    environment:
+      - TZ=Asia/Seoul
+    network_mode: host
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    deploy:
+      resources:
+        limits:
+          memory: 128m

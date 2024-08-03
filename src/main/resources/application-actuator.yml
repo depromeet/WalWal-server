@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: "actuator"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+      base-path: /walwal-actuator
+    jmx:
+      exposure:
+        exclude: "*"
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true

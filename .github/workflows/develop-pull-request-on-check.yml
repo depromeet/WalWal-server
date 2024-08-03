@@ -1,0 +1,56 @@
+name: Pull Request on Check
+on:
+  pull_request:
+    branches:
+      - develop
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ 17 ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'zulu'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: check
+          cache-read-only: false
+
+      ## slack 알람
+      - name: Slack Alarm
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: GitHub-Actions CI/CD
+          fields: repo,message,commit,author,ref,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
+
+  style-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3.0.2
+      - name: JDK install
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Checkstyle
+        run: |
+          ./gradlew spotlessCheck

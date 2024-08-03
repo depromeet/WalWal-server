@@ -1,0 +1,15 @@
+jwt:
+  access-token-secret: ${JWT_ACCESS_TOKEN_SECRET:}
+  refresh-token-secret: ${JWT_REFRESH_TOKEN_SECRET:}
+  access-token-expiration-time: ${JWT_ACCESS_TOKEN_EXPIRATION_TIME:7200}
+  refresh-token-expiration-time: ${JWT_REFRESH_TOKEN_EXPIRATION_TIME:604800}
+
+apple:
+  dev:
+    client-id: ${APPLE_DEV_CLIENT_ID:}
+    team-id: ${APPLE_DEV_TEAM_ID:}
+  prod:
+    client-id: ${APPLE_PROD_CLIENT_ID:}
+    team-id: ${APPLE_PROD_TEAM_ID:}
+  key-id: ${APPLE_KEY_ID:}
+  p8: ${APPLE_P8:}

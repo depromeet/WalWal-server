@@ -1,4 +1,19 @@
 spring:
+  profiles:
+    group:
+      test: "test"
+      local: "local, datasource"
+      dev: "dev, datasource"
+      prod: "prod, datasource"
+    include:
+      - redis
+      - actuator
+      - docs
+      - cloud
+      - security
   application:
     name: stonebed
 
+logging:
+  level:
+    com.depromeet.stonebed.*.api.*: debug

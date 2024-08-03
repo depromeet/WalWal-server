@@ -2,6 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.6'
 	id 'io.spring.dependency-management' version '1.1.5'
+    id 'com.diffplug.spotless' version '6.21.0'
+    id 'jacoco'
 }
 
 group = 'com.depromeet'
@@ -26,14 +28,133 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
+
+    // Database
+    runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Querydsl
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:6.0"
+    implementation "io.github.openfeign.querydsl:querydsl-core:6.0"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:6.0:jpa"
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+
+    // AWS
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Apple Login
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.72'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Test Lombok
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    // FixtureMonkey
+    testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:1.0.20")
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+    jvmArgs '-Xshare:off' // JVM 아규먼트 설정
+    finalizedBy jacocoTestReport
 }
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+def QDomains = []
+
+for (qPattern in '*/QA'..'*/QZ') {
+    QDomains.add(qPattern + '*')
+}
+
+def jacocoExcludePatterns = [
+        '**/*Application*',
+        '**/*Config/*',
+        '**/resources/**',
+        '**/test/**',
+]
+
+def jacocoDir = layout.buildDirectory.dir("reports/")
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(true)
+        html.destination jacocoDir.get().file("jacoco/html").asFile
+        xml.destination jacocoDir.get().file("jacoco/index.xml").asFile
+        csv.destination jacocoDir.get().file("jacoco/index.csv").asFile
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, excludes: jacocoExcludePatterns + QDomains)
+                })
+        )
+    }
+
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+            excludes = jacocoExcludePatterns + QDomains
+        }
+    }
+}
+
+spotless {
+    java {
+        target("**/*.java")
+        importOrder()
+        // 사용하지 않은 import문 제거
+        removeUnusedImports()
+        // 2개 이상 있거나 이제 앞뒤로 불필요한 공백이 있을 때 제거해주는 옵션
+        trimTrailingWhitespace()
+        // 줄은 공백으로 남아있을 수 있도록 항상 옵션을 걸어준다.
+        endWithNewline()
+        // google java format
+        googleJavaFormat().aosp()
+    }
+}
+
+// git pre-commit hook task 설정
+tasks.register("addGitPreCommitHook", Copy) {
+    from 'scripts/pre-commit'
+    into '.git/hooks'
+}
+
+compileJava.dependsOn addGitPreCommitHook
