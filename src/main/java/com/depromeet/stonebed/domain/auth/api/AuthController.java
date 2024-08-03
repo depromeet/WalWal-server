@@ -58,12 +58,7 @@ public class AuthController {
 
     @Operation(summary = "회원탈퇴 기능", description = "회원탈퇴를 진행합니다.")
     @PostMapping("/withdraw")
-    public ResponseEntity<Void> withdraw(
-            // @PathVariable(name = "provider")
-            // @Parameter(example = "apple", description = "OAuth 제공자")
-            // 		String provider
-            ) {
-        // OAuthProvider oAuthProvider = OAuthProvider.from(provider);
+    public ResponseEntity<Void> withdraw() {
         authService.withdraw();
         return ResponseEntity.ok().build();
     }
