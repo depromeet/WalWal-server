@@ -3,6 +3,8 @@ package com.depromeet.stonebed.domain.image.api;
 import com.depromeet.stonebed.domain.image.application.ImageService;
 import com.depromeet.stonebed.domain.image.dto.request.MemberProfileImageCreateRequest;
 import com.depromeet.stonebed.domain.image.dto.request.MemberProfileImageUploadCompleteRequest;
+import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageCreateRequest;
+import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageUploadRequest;
 import com.depromeet.stonebed.domain.image.dto.response.PresignedUrlResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +38,23 @@ public class ImageController {
     public ResponseEntity<Void> memberProfileUploaded(
             @Valid @RequestBody MemberProfileImageUploadCompleteRequest request) {
         imageService.uploadCompleteMemberProfile(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "미션 기록 이미지 Presigned URL 생성",
+            description = "미션 기록 이미지 Presigned URL을 생성합니다.")
+    @PostMapping("/mission-record/upload-url")
+    public PresignedUrlResponse missionRecordPresignedUrlCreate(
+            @Valid @RequestBody MissionRecordImageCreateRequest request) {
+        return imageService.createMissionRecordPresignedUrl(request);
+    }
+
+    @Operation(summary = "미션 기록 이미지 업로드 완료", description = "미션 기록 이미지 업로드 완료 업로드 상태를 변경합니다.")
+    @PostMapping("/mission-record/upload-complete")
+    public ResponseEntity<Void> missionRecordUploaded(
+            @Valid @RequestBody MissionRecordImageUploadRequest request) {
+        imageService.uploadCompleteMissionRecord(request);
         return ResponseEntity.ok().build();
     }
 }
