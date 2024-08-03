@@ -57,10 +57,7 @@ public class MemberService {
     }
 
     private boolean validateNicknameText(String nickname) {
-        return nickname == null
-                || nickname.trim().isEmpty()
-                || nickname.length() < 2
-                || nickname.length() > 14;
+        return nickname == null || nickname.length() < 2 || nickname.length() > 14;
     }
 
     private void validateNicknameNotDuplicate(String nickname) {
