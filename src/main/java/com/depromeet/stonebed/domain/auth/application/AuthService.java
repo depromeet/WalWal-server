@@ -107,4 +107,16 @@ public class AuthService {
     private TokenPairResponse getTemporaryLoginResponse(Member member) {
         return jwtTokenService.generateTokenPair(member.getId(), MemberRole.TEMPORARY);
     }
+
+    public void withdraw(
+            /** OAuthProvider provider */
+            ) {
+        Member member = memberUtil.getCurrentMember();
+        /**
+         * TODO: 런칭데이 이후 고도화 if (provider.equals(OAuthProvider.APPLE)) {
+         * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
+         */
+        jwtTokenService.deleteRefreshToken(member.getId());
+        member.withdrawal();
+    }
 }
