@@ -2,6 +2,8 @@ package com.depromeet.stonebed.domain.member.domain;
 
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
+import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -96,5 +98,12 @@ public class Member extends BaseTimeEntity {
 
     public void updateMemberRole(MemberRole memberRole) {
         this.role = memberRole;
+    }
+
+    public void withdrawal() {
+        if (this.status == MemberStatus.DELETED) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_DELETED);
+        }
+        this.status = MemberStatus.DELETED;
     }
 }

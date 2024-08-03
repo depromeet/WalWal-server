@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,5 +54,12 @@ public class AuthController {
     @PostMapping("/reissue")
     public AuthTokenResponse reissueTokenPair(@RequestBody @Valid RefreshTokenRequest request) {
         return authService.reissueTokenPair(request);
+    }
+
+    @Operation(summary = "회원탈퇴 기능", description = "회원탈퇴를 진행합니다.")
+    @PostMapping("/withdraw")
+    public ResponseEntity<Void> withdraw() {
+        authService.withdraw();
+        return ResponseEntity.ok().build();
     }
 }
