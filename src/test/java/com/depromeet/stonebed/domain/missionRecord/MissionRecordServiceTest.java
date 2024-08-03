@@ -4,8 +4,8 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
-import com.depromeet.stonebed.domain.mission.domain.Mission;
+import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
@@ -33,8 +33,8 @@ public class MissionRecordServiceTest {
 
     @InjectMocks private MissionRecordService missionRecordService;
 
-    @Mock private MissionRepository missionRepository;
     @Mock private MissionRecordRepository missionRecordRepository;
+    @Mock private MissionHistoryRepository missionHistoryRepository;
     @Mock private MemberUtil memberUtil;
 
     private FixtureMonkey fixtureMonkey;
@@ -53,17 +53,18 @@ public class MissionRecordServiceTest {
         // given
         Long missionId = 1L;
 
-        Mission mission = fixtureMonkey.giveMeOne(Mission.class);
+        MissionHistory missionHistory = fixtureMonkey.giveMeOne(MissionHistory.class);
         Member member = fixtureMonkey.giveMeOne(Member.class);
         MissionRecord missionRecord =
                 fixtureMonkey
                         .giveMeBuilder(MissionRecord.class)
-                        .set("mission", mission)
+                        .set("missionHistory", missionHistory)
                         .set("member", member)
                         .set("status", MissionRecordStatus.COMPLETED)
                         .sample();
 
-        when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
+        when(missionHistoryRepository.findLatestOneByMissionId(missionId))
+                .thenReturn(Optional.of(missionHistory));
         when(memberUtil.getCurrentMember()).thenReturn(member);
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
@@ -71,7 +72,7 @@ public class MissionRecordServiceTest {
         missionRecordService.saveMission(missionId);
 
         // then
-        verify(missionRepository).findById(missionId);
+        verify(missionHistoryRepository).findLatestOneByMissionId(missionId);
         verify(memberUtil).getCurrentMember();
         verify(missionRecordRepository).save(any(MissionRecord.class));
     }
@@ -144,19 +145,20 @@ public class MissionRecordServiceTest {
         // given
         Long missionId = 1L;
 
-        Mission mission = fixtureMonkey.giveMeOne(Mission.class);
+        MissionHistory missionHistory = fixtureMonkey.giveMeOne(MissionHistory.class);
         Member member = fixtureMonkey.giveMeOne(Member.class);
         MissionRecord missionRecord =
                 fixtureMonkey
                         .giveMeBuilder(MissionRecord.class)
-                        .set("mission", mission)
+                        .set("missionHistory", missionHistory)
                         .set("member", member)
                         .set("status", MissionRecordStatus.IN_PROGRESS)
                         .sample();
 
-        when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
         when(memberUtil.getCurrentMember()).thenReturn(member);
-        when(missionRecordRepository.findByMemberAndMission(member, mission))
+        when(missionHistoryRepository.findLatestOneByMissionId(missionId))
+                .thenReturn(Optional.of(missionHistory));
+        when(missionRecordRepository.findByMemberAndMissionHistory(member, missionHistory))
                 .thenReturn(Optional.of(missionRecord));
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
@@ -164,9 +166,9 @@ public class MissionRecordServiceTest {
         missionRecordService.startMission(missionId);
 
         // then
-        verify(missionRepository).findById(missionId);
         verify(memberUtil).getCurrentMember();
-        verify(missionRecordRepository).findByMemberAndMission(member, mission);
+        verify(missionHistoryRepository).findLatestOneByMissionId(missionId);
+        verify(missionRecordRepository).findByMemberAndMissionHistory(member, missionHistory);
         verify(missionRecordRepository).save(any(MissionRecord.class));
     }
 }
