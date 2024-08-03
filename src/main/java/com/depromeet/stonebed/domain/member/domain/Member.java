@@ -78,7 +78,7 @@ public class Member extends BaseTimeEntity {
                 Profile.createProfile("", ""),
                 oauthInfo,
                 MemberStatus.NORMAL,
-                MemberRole.USER,
+                MemberRole.TEMPORARY,
                 null);
     }
 
@@ -92,5 +92,9 @@ public class Member extends BaseTimeEntity {
 
     public void updateProfile(Profile profile) {
         this.profile = profile;
+    }
+
+    public void updateMemberRole(MemberRole memberRole) {
+        this.role = memberRole;
     }
 }
