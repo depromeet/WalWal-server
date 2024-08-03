@@ -3,9 +3,12 @@ name: Production Build & Deploy
 on:
   push:
    branches: [ "chore/#65-prod-deploy" ]
+   tags:
+     - v0.0.1
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
+  DOCKERHUB_IMAGE_FULL_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/walwal-server:latest
 
 jobs:
   build-deploy:
@@ -53,8 +56,6 @@ jobs:
       - name: Extract Docker metadata
         id: metadata
         uses: docker/metadata-action@v5.5.0
-        env:
-          DOCKERHUB_IMAGE_FULL_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
         with:
           images: ${{ env.DOCKERHUB_IMAGE_FULL_NAME }}
           tags: |
