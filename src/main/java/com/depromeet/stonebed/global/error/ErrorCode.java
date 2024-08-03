@@ -21,6 +21,9 @@ public enum ErrorCode {
     APPLE_TOKEN_CLIENT_FAILED(HttpStatus.BAD_REQUEST, "애플 토큰 생성에 실패했습니다."),
     APPLE_PRIVATE_KEY_ENCODING_FAILED(HttpStatus.BAD_REQUEST, "애플 개인키 인코딩에 실패했습니다."),
 
+    // kakao client
+    KAKAO_TOKEN_CLIENT_FAILED(HttpStatus.BAD_REQUEST, "카카오 통신에 실패했습니다."),
+
     // member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원을 찾을 수 없습니다."),
     ALREADY_EXISTS_MEMBER(HttpStatus.CONFLICT, "이미 존재하는 회원입니다."),

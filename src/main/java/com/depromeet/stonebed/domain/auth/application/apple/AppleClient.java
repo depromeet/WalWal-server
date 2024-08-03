@@ -50,14 +50,55 @@ public class AppleClient {
 
     private static final int APPLE_TOKEN_EXPIRE_MINUTES = 5;
 
+    /**
+     * Apple로부터 받은 idToken 검증하고 identifier를 추출합니다.
+     *
+     * @param authorizationCode
+     * @return
+     */
+    public SocialClientResponse authenticateFromApple(String authorizationCode) {
+        AppleTokenRequest tokenRequest =
+                AppleTokenRequest.of(
+                        authorizationCode,
+                        appleProperties.dev().clientId(),
+                        generateAppleClientSecret(),
+                        APPLE_GRANT_TYPE);
+        AppleTokenResponse appleTokenResponse = getAppleToken(tokenRequest);
+
+        AppleKeyResponse[] keys = retrieveAppleKeys();
+        try {
+            String[] tokenParts = appleTokenResponse.idToken().split("\\.");
+            String headerPart = new String(Base64.getDecoder().decode(tokenParts[0]));
+            JsonNode headerNode = objectMapper.readTree(headerPart);
+            String kid = headerNode.get("kid").asText();
+            String alg = headerNode.get("alg").asText();
+
+            AppleKeyResponse matchedKey =
+                    Arrays.stream(keys)
+                            .filter(key -> key.kid().equals(kid) && key.alg().equals(alg))
+                            .findFirst()
+                            // 일치하는 키가 없음 => 만료된 토큰 or 이상한 토큰 => throw
+                            .orElseThrow(InvalidParameterException::new);
+
+            Claims claims = parseIdentifierFromAppleToken(matchedKey, appleTokenResponse.idToken());
+
+            String oauthId = claims.get("sub", String.class);
+            String email = claims.get("email", String.class);
+
+            return new SocialClientResponse(email, oauthId);
+        } catch (Exception ex) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     // apple server에서 받아온 id_token
     private AppleTokenResponse getAppleToken(AppleTokenRequest appleTokenRequest) {
         // Prepare form data
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("client_id", appleTokenRequest.client_id());
-        formData.add("client_secret", appleTokenRequest.client_secret());
+        formData.add("client_id", appleTokenRequest.clientId());
+        formData.add("client_secret", appleTokenRequest.clientSecret());
         formData.add("code", appleTokenRequest.code());
-        formData.add("grant_type", appleTokenRequest.grant_type());
+        formData.add("grant_type", appleTokenRequest.grantType());
 
         return restClient
                 .post()
@@ -104,48 +145,6 @@ public class AppleClient {
             return converter.getPrivateKey(privateKeyInfo);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.APPLE_PRIVATE_KEY_ENCODING_FAILED);
-        }
-    }
-
-    /**
-     * Apple로부터 받은 idToken 검증하고 identifier를 추출합니다.
-     *
-     * @param authorizationCode
-     * @return
-     */
-    public SocialClientResponse authenticateFromApple(String authorizationCode) {
-        AppleTokenRequest tokenRequest =
-                AppleTokenRequest.of(
-                        authorizationCode,
-                        appleProperties.dev().clientId(),
-                        generateAppleClientSecret(),
-                        APPLE_GRANT_TYPE);
-        AppleTokenResponse appleTokenResponse = getAppleToken(tokenRequest);
-
-        AppleKeyResponse[] keys = retrieveAppleKeys();
-        try {
-            String[] tokenParts = appleTokenResponse.id_token().split("\\.");
-            String headerPart = new String(Base64.getDecoder().decode(tokenParts[0]));
-            JsonNode headerNode = objectMapper.readTree(headerPart);
-            String kid = headerNode.get("kid").asText();
-            String alg = headerNode.get("alg").asText();
-
-            AppleKeyResponse matchedKey =
-                    Arrays.stream(keys)
-                            .filter(key -> key.kid().equals(kid) && key.alg().equals(alg))
-                            .findFirst()
-                            // 일치하는 키가 없음 => 만료된 토큰 or 이상한 토큰 => throw
-                            .orElseThrow(InvalidParameterException::new);
-
-            Claims claims =
-                    parseIdentifierFromAppleToken(matchedKey, appleTokenResponse.id_token());
-
-            String oauthId = claims.get("sub", String.class);
-            String email = claims.get("email", String.class);
-
-            return new SocialClientResponse(email, oauthId);
-        } catch (Exception ex) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

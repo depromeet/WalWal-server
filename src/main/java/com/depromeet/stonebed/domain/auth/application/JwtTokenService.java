@@ -70,7 +70,7 @@ public class JwtTokenService {
 
     public RefreshTokenDto retrieveRefreshToken(String refreshTokenValue) {
         RefreshTokenDto refreshTokenDto = parseRefreshToken(refreshTokenValue);
-        System.out.println("refreshTokenDto: " + refreshTokenDto);
+
         if (refreshTokenDto == null) {
             return null;
         }
