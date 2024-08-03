@@ -36,7 +36,9 @@ public enum ErrorCode {
     // image
     IMAGE_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지 파일 확장자를 찾을 수 없습니다."),
-    INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다.");
+    INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다."),
+    MEMBER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 회원입니다."),
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
