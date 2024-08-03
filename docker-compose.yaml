@@ -13,7 +13,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512m
+          memory: 640m
   redis:
     image: "redis:alpine"
     container_name: redis
