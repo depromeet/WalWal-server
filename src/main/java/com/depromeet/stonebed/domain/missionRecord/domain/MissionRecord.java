@@ -2,17 +2,9 @@ package com.depromeet.stonebed.domain.missionRecord.domain;
 
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.domain.Mission;
+import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +13,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "mission_record",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uk_member_mission_history",
+                    columnNames = {"member_id", "mission_history_id"})
+        })
 public class MissionRecord extends BaseTimeEntity {
 
     @Id
@@ -29,8 +28,8 @@ public class MissionRecord extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "mission_id", nullable = false)
-    private Mission mission;
+    @JoinColumn(name = "mission_history_id", nullable = false)
+    private MissionHistory missionHistory;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
@@ -46,9 +45,12 @@ public class MissionRecord extends BaseTimeEntity {
 
     @Builder
     public MissionRecord(
-            Member member, Mission mission, String imageUrl, MissionRecordStatus status) {
+            Member member,
+            MissionHistory missionHistory,
+            String imageUrl,
+            MissionRecordStatus status) {
         this.member = member;
-        this.mission = mission;
+        this.missionHistory = missionHistory;
         this.imageUrl = imageUrl;
         this.status = status;
     }
