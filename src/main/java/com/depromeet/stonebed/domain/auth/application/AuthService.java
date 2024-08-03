@@ -116,6 +116,7 @@ public class AuthService {
          * if (provider.equals(OAuthProvider.APPLE)) {
          * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
          */
+        jwtTokenService.deleteRefreshToken(member.getId());
         member.withdrawal();
     }
 }
