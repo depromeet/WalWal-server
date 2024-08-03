@@ -2,9 +2,8 @@ name: Production Build & Deploy
 
 on:
   push:
-   branches: [ "chore/#65-prod-deploy" ]
-   tags:
-     - "v0.0.1"
+    tags:
+      - v*.*.*
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
