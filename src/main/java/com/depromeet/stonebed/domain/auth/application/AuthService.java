@@ -113,7 +113,7 @@ public class AuthService {
             ) {
         Member member = memberUtil.getCurrentMember();
         /**
-         * if (provider.equals(OAuthProvider.APPLE)) {
+         * TODO: 런칭데이 이후 고도화 if (provider.equals(OAuthProvider.APPLE)) {
          * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
          */
         jwtTokenService.deleteRefreshToken(member.getId());
