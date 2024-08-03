@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.member.application;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -30,11 +31,12 @@ public class MemberService {
                 oAuthProvider.getValue(), oauthId);
     }
 
-    public Member setMemberRegister(Member member, CreateMemberRequest request) {
+    public Member registerMember(Member member, CreateMemberRequest request) {
         member.updateProfile(
                 Profile.createProfile(
                         request.nickname(), member.getProfile().getProfileImageUrl()));
         member.updateRaisePet(request.raisePet());
+        member.updateMemberRole(MemberRole.USER);
         return member;
     }
 
