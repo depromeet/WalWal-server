@@ -2,8 +2,8 @@ package com.depromeet.stonebed.domain.missionRecord.application;
 
 import com.depromeet.stonebed.domain.image.dao.ImageRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
-import com.depromeet.stonebed.domain.mission.domain.Mission;
+import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
@@ -30,8 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class MissionRecordService {
 
-    private final MissionRepository missionRepository;
     private final MissionRecordRepository missionRecordRepository;
+    private final MissionHistoryRepository missionHistoryRepository;
     private final ImageRepository imageRepository;
     private final MemberUtil memberUtil;
 
@@ -41,16 +41,16 @@ public class MissionRecordService {
     public void startMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
 
-        Mission mission = findMissionById(missionId);
+        MissionHistory missionHistory = findMissionHistoryById(missionId);
 
         MissionRecord missionRecord =
                 missionRecordRepository
-                        .findByMemberAndMission(member, mission)
+                        .findByMemberAndMissionHistory(member, missionHistory)
                         .orElseGet(
                                 () ->
                                         MissionRecord.builder()
                                                 .member(member)
-                                                .mission(mission)
+                                                .missionHistory(missionHistory)
                                                 .status(MissionRecordStatus.IN_PROGRESS)
                                                 .build());
 
@@ -60,19 +60,16 @@ public class MissionRecordService {
     public void saveMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
 
-        Mission mission =
-                missionRepository
-                        .findById(missionId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+        MissionHistory missionHistory = findMissionHistoryById(missionId);
 
         MissionRecord missionRecord =
                 missionRecordRepository
-                        .findByMemberAndMission(member, mission)
+                        .findByMemberAndMissionHistory(member, missionHistory)
                         .orElseGet(
                                 () ->
                                         MissionRecord.builder()
                                                 .member(member)
-                                                .mission(mission)
+                                                .missionHistory(missionHistory)
                                                 .status(MissionRecordStatus.COMPLETED)
                                                 .build());
 
@@ -88,10 +85,10 @@ public class MissionRecordService {
         missionRecordRepository.delete(missionRecord);
     }
 
-    private Mission findMissionById(Long missionId) {
-        return missionRepository
-                .findById(missionId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+    private MissionHistory findMissionHistoryById(Long missionId) {
+        return missionHistoryRepository
+                .findLatestOneByMissionId(missionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MISSION_HISTORY_NOT_FOUNT));
     }
 
     @Transactional(readOnly = true)
@@ -139,13 +136,12 @@ public class MissionRecordService {
     public MissionTabResponse getMissionTabStatus(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
 
-        Mission mission =
-                missionRepository
-                        .findById(missionId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+        MissionHistory missionHistory = findMissionHistoryById(missionId);
 
         MissionRecord missionRecord =
-                missionRecordRepository.findByMemberAndMission(member, mission).orElse(null);
+                missionRecordRepository
+                        .findByMemberAndMissionHistory(member, missionHistory)
+                        .orElse(null);
 
         if (missionRecord == null) {
             return new MissionTabResponse(null, null, MissionRecordStatus.NOT_COMPLETED);
