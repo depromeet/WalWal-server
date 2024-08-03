@@ -7,8 +7,10 @@ import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntr
 import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class TestFixtureMonkey {
 
     @Test

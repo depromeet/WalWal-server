@@ -1,15 +1,15 @@
 package com.depromeet.stonebed.domain.missionRecord.application;
 
+import com.depromeet.stonebed.domain.image.dao.ImageRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCreateRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
-import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCreateResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -32,26 +32,51 @@ public class MissionRecordService {
 
     private final MissionRepository missionRepository;
     private final MissionRecordRepository missionRecordRepository;
+    private final ImageRepository imageRepository;
     private final MemberUtil memberUtil;
 
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public MissionRecordCreateResponse completeMission(MissionRecordCreateRequest request) {
-        Mission mission = findMissionById(request.missionId());
-
+    public void startMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
 
-        MissionRecord missionRecord =
-                MissionRecord.builder()
-                        .member(member)
-                        .mission(mission)
-                        .status(MissionRecordStatus.COMPLETED)
-                        .build();
+        Mission mission = findMissionById(missionId);
 
-        MissionRecord createRecord = missionRecordRepository.save(missionRecord);
-        return MissionRecordCreateResponse.from(
-                createRecord.getId(), createRecord.getMissionTitle());
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findByMemberAndMission(member, mission)
+                        .orElseGet(
+                                () ->
+                                        MissionRecord.builder()
+                                                .member(member)
+                                                .mission(mission)
+                                                .status(MissionRecordStatus.IN_PROGRESS)
+                                                .build());
+
+        missionRecordRepository.save(missionRecord);
+    }
+
+    public void saveMission(Long missionId) {
+        final Member member = memberUtil.getCurrentMember();
+
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findByMemberAndMission(member, mission)
+                        .orElseGet(
+                                () ->
+                                        MissionRecord.builder()
+                                                .member(member)
+                                                .mission(mission)
+                                                .status(MissionRecordStatus.COMPLETED)
+                                                .build());
+
+        missionRecordRepository.save(missionRecord);
     }
 
     public void deleteMissionRecord(Long recordId) {
@@ -111,6 +136,40 @@ public class MissionRecordService {
     }
 
     @Transactional(readOnly = true)
+    public MissionTabResponse getMissionTabStatus(Long missionId) {
+        final Member member = memberUtil.getCurrentMember();
+
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionRecord missionRecord =
+                missionRecordRepository.findByMemberAndMission(member, mission).orElse(null);
+
+        if (missionRecord == null) {
+            return new MissionTabResponse(null, null, MissionRecordStatus.NOT_COMPLETED);
+        }
+
+        MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
+        String imageUrl =
+                missionRecordStatus == MissionRecordStatus.COMPLETED
+                        ? missionRecord.getImageUrl()
+                        : null;
+
+        return new MissionTabResponse(missionRecord.getId(), imageUrl, missionRecordStatus);
+    }
+
+    @Transactional
+    public void updateMissionRecordWithImage(Long recordId, String imageUrl) {
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findById(recordId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        missionRecord.updateImageUrl(imageUrl);
+    }
+
     public Long getTotalMissionRecords() {
         final Member member = memberUtil.getCurrentMember();
         return missionRecordRepository.countByMemberIdAndStatus(
