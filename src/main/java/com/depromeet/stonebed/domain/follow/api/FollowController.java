@@ -2,7 +2,6 @@ package com.depromeet.stonebed.domain.follow.api;
 
 import com.depromeet.stonebed.domain.follow.application.FollowService;
 import com.depromeet.stonebed.domain.follow.dto.request.FollowCreateRequest;
-import com.depromeet.stonebed.domain.follow.dto.request.FollowDeleteRequest;
 import com.depromeet.stonebed.domain.follow.dto.response.FollowRelationMemberResponse;
 import com.depromeet.stonebed.domain.follow.dto.response.FollowerDeletedResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,14 +33,13 @@ public class FollowController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{targetId}")
     @Operation(summary = "팔로우 취소", description = "팔로우를 취소합니다.")
-    public ResponseEntity<FollowerDeletedResponse> followDelete(
-            @Valid @RequestBody FollowDeleteRequest request) {
-        return ResponseEntity.ok(followService.deleteFollow(request));
+    public ResponseEntity<FollowerDeletedResponse> followDelete(@PathVariable Long targetId) {
+        return ResponseEntity.ok(followService.deleteFollow(targetId));
     }
 
-    @GetMapping("/members/{targetId}")
+    @GetMapping("/{targetId}")
     @Operation(summary = "팔로우 상태 확인", description = "팔로우 한 유저와의 팔로우 관계를 조회합니다.")
     public FollowRelationMemberResponse followedUserFindAll(@PathVariable Long targetId) {
         return followService.findFollowRelationByTargetId(targetId);

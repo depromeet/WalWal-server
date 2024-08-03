@@ -3,7 +3,6 @@ package com.depromeet.stonebed.domain.follow.application;
 import com.depromeet.stonebed.domain.follow.dao.FollowRepository;
 import com.depromeet.stonebed.domain.follow.domain.Follow;
 import com.depromeet.stonebed.domain.follow.dto.request.FollowCreateRequest;
-import com.depromeet.stonebed.domain.follow.dto.request.FollowDeleteRequest;
 import com.depromeet.stonebed.domain.follow.dto.response.FollowRelationMemberResponse;
 import com.depromeet.stonebed.domain.follow.dto.response.FollowStatus;
 import com.depromeet.stonebed.domain.follow.dto.response.FollowerDeletedResponse;
@@ -43,9 +42,9 @@ public class FollowService {
         followRepository.save(follow);
     }
 
-    public FollowerDeletedResponse deleteFollow(FollowDeleteRequest request) {
+    public FollowerDeletedResponse deleteFollow(Long targetId) {
         final Member currentMember = memberUtil.getCurrentMember();
-        Member targetMember = getTargetMember(request.targetId());
+        Member targetMember = getTargetMember(targetId);
 
         Follow follow =
                 followRepository
