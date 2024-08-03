@@ -1,0 +1,124 @@
+name: Production Build & Deploy
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+env:
+  DOCKERHUB_IMAGE_NAME: walwal-server
+  DOCKERHUB_IMAGE_FULL_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/walwal-server
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment: PROD
+    strategy:
+      matrix:
+        java-version: [ 17 ]
+        distribution: [ 'temurin' ]
+
+    steps:
+      # 기본 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # JDK를 17 버전으로 세팅
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: ${{ matrix.distribution }}
+
+      # Gradlew 실행 허용
+      - name: Run chmod to make gradlew executable
+        run: chmod +x ./gradlew
+
+      # Gradle 빌드
+      - name: Build with Gradle
+        id: gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            build
+            --scan
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
+      # Dockerhub 로그인
+      - name: Login to Dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Docker 메타데이터 추출
+      - name: Extract Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v5.5.0
+        with:
+          images: ${{ env.DOCKERHUB_IMAGE_FULL_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+          flavor: |
+            latest=false
+
+      # 멀티 아키텍처 지원을 위한 QEMU 설정
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # 도커 확장 빌드를 위한 Buildx 설정
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Docker 이미지 빌드 및 도커허브로 푸시
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/arm64/v8
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+
+      - name: Current Time
+        uses: gerred/current-time@v1.0.0
+        id: current-time
+
+      - name: Replace string
+        uses: frabert/replace-string-action@v2.1
+        id: format-time
+        with:
+          pattern: '[:\.]+'
+          string: "${{ steps.current-time.outputs.time }}"
+          replace-with: '-'
+          flags: 'g'
+
+      - name: Prepare deployment package
+        run: |
+          zip -r deployment-package.zip docker-compose.yaml nginx/default.conf
+
+      - name: Beanstalk Deploy
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          existing_bucket_name: "walwal-server-prod-deployment"
+          application_name: "walwal-prod"
+          environment_name: "Walwal-prod-env"
+          version_label: "walwal-prod-${{ steps.format-time.outputs.replaced }}"
+          region: ap-northeast-2
+          deployment_package: deployment-package.zip
+          wait_for_environment_recovery: 180
+
+      # Slack 알림
+      - name: Send Deploy Result to Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: 왈왈봇
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: "Deploy Summary - Production"
+          SLACK_MESSAGE: |
+            - image tag: `${{ steps.metadata.outputs.tags }}`
+            - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
+            - deploy status: ${{ job.status }}
+            - deploy time: ${{ steps.current-time.outputs.time }}
