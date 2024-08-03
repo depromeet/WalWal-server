@@ -24,6 +24,12 @@ public class Mission extends BaseTimeEntity {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
+    @Column(name = "illustration_url")
+    private String illustrationUrl;
+
+    @Column(name = "hex_color")
+    private String hexColor;
+
     @Builder
     public Mission(String title) {
         this.title = title;

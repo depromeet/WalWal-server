@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.missionRecord.domain;
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,15 +36,13 @@ public class MissionRecord extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @Schema(description = "미션 이미지 URL", example = "./missionRecord.jpg")
     @Column(name = "image_url")
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private MissionRecordStatus status;
-
-    @Column(name = "booster_value")
-    private int boosterValue;
 
     @Builder
     public MissionRecord(
@@ -54,7 +53,7 @@ public class MissionRecord extends BaseTimeEntity {
         this.status = status;
     }
 
-    public String getMissionTitle() {
-        return mission.getTitle();
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
