@@ -33,7 +33,7 @@ public class MissionRecordController {
     }
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
-    @PostMapping
+    @PostMapping("/{missionId}")
     public ResponseEntity<Void> saveMission(@PathVariable("missionId") Long missionId) {
         missionRecordService.saveMission(missionId);
         return ResponseEntity.ok().build();
