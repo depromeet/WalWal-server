@@ -55,7 +55,7 @@ jobs:
           remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
           path: docker-compose.yaml
           # root path
-          remote_path: /root
+          remote_path: /home/ec2-user/
 
       - name: Copy default.conf to EC2
         uses: burnett01/rsync-deployments@7.0.1
@@ -65,7 +65,7 @@ jobs:
           remote_user: ${{ secrets.EC2_USERNAME }}
           remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
           path: ./nginx
-          remote_path: /root
+          remote_path: /home/ec2-user/
 
       - name: Current Time
         uses: gerred/current-time@v1.0.0
@@ -86,6 +86,7 @@ jobs:
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
+        run: cd ../home/ec2-user
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
