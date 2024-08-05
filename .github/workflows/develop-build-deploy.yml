@@ -67,10 +67,6 @@ jobs:
           path: ./nginx
           remote_path: /home/ec2-user/
 
-      - name: ec2-user move
-        run: |
-          cd ../home/ec2-user
-
       - name: Current Time
         uses: gerred/current-time@v1.0.0
         id: current-time
