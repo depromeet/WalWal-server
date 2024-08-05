@@ -92,7 +92,7 @@ jobs:
           existing_bucket_name: "walwal-server-dev-deployment"
           application_name: "walwal-dev"
           environment_name: "Walwal-dev-env"
-          version_label: "walwal-dev-${{ steps.format-time.outputs.replaced }}"
+          version_label: "walwal-dev-${{ github.run_id }}-${{ steps.format-time.outputs.replaced }}"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
           wait_for_environment_recovery: 180
