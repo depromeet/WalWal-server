@@ -45,16 +45,24 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
 
+      # SSH 키 파일 생성
+      - name: Create SSH key file
+        run: echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key.pem
+
+      # SSH 키 파일 권한 변경
+      - name: Set SSH key permissions
+        run: chmod 600 private_key.pem
+
       # 서버로 docker-compose 파일 전송
       - name: Copy docker-compose file to EC2
         run: |
-          rsync -avzr --delete -e "ssh -i ${{ secrets.EC2_PRIVATE_KEY }}" docker-compose.yaml ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
-          ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/docker-compose.yaml /root/"
+          rsync -avzr --delete -e "ssh -i private_key.pem" docker-compose.yaml ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
+          ssh -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/docker-compose.yaml /root/"
 
       - name: Copy default.conf to EC2
         run: |
-          rsync -avzr --delete -e "ssh -i ${{ secrets.EC2_PRIVATE_KEY }}" ./nginx ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
-          ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/nginx /root/"
+          rsync -avzr --delete -e "ssh -i private_key.pem" ./nginx ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
+          ssh -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/nginx /root/"
 
       - name: Current Time
         uses: gerred/current-time@v1.0.0
@@ -99,3 +107,7 @@ jobs:
             - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
             - deploy status: ${{ job.status }}
             - deploy time: ${{ steps.current-time.outputs.time }}
+
+      # SSH 키 파일 삭제
+      - name: Delete SSH key file
+        run: rm private_key.pem
