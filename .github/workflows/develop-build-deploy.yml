@@ -67,10 +67,6 @@ jobs:
           path: ./nginx
           remote_path: /home/ec2-user/
 
-      - name: ec2-user permission change
-        run: |
-          ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo chown -R ec2-user:ec2-user /home/ec2-user"
-
       - name: ec2-user move
         run: |
           cd ../home/ec2-user
