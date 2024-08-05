@@ -9,6 +9,7 @@ import com.depromeet.stonebed.domain.auth.dto.response.AppleTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
+import com.depromeet.stonebed.global.util.SpringEnvironmentUtil;
 import com.depromeet.stonebed.infra.properties.AppleProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,6 +48,7 @@ public class AppleClient {
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
     private final AppleProperties appleProperties;
+    private final SpringEnvironmentUtil springEnvironmentUtil;
 
     private static final int APPLE_TOKEN_EXPIRE_MINUTES = 5;
 
@@ -60,7 +62,9 @@ public class AppleClient {
         AppleTokenRequest tokenRequest =
                 AppleTokenRequest.of(
                         authorizationCode,
-                        appleProperties.dev().clientId(),
+                        springEnvironmentUtil.isProdProfile()
+                                ? appleProperties.prod().clientId()
+                                : appleProperties.dev().clientId(),
                         generateAppleClientSecret(),
                         APPLE_GRANT_TYPE);
         AppleTokenResponse appleTokenResponse = getAppleToken(tokenRequest);
@@ -122,15 +126,24 @@ public class AppleClient {
                                 .plusMinutes(APPLE_TOKEN_EXPIRE_MINUTES)
                                 .atZone(ZoneId.systemDefault())
                                 .toInstant());
+
+        String teamId =
+                springEnvironmentUtil.isProdProfile()
+                        ? appleProperties.prod().teamId()
+                        : appleProperties.dev().teamId();
+        String clientId =
+                springEnvironmentUtil.isProdProfile()
+                        ? appleProperties.prod().clientId()
+                        : appleProperties.dev().clientId();
         return Jwts.builder()
                 .setHeaderParam("kid", appleProperties.keyId())
                 .setHeaderParam("alg", "ES256")
                 // TODO: dev, prod 환경분리 필요
-                .setIssuer(appleProperties.dev().teamId().split("\\.")[0])
+                .setIssuer(teamId.split("\\.")[0])
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expirationDate)
                 .setAudience(APPLE_ISSUER)
-                .setSubject(appleProperties.dev().clientId())
+                .setSubject(clientId)
                 .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
                 .compact();
     }
