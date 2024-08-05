@@ -2,7 +2,7 @@ name: Develop Build & Deploy
 
 on:
   push:
-    branches: [ "fix/#88-docker-deploy-platform" ]
+    branches: [ "develop" ]
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
