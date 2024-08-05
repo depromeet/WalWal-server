@@ -53,6 +53,10 @@ jobs:
       - name: Set SSH key permissions
         run: chmod 600 private_key.pem
 
+      # Add EC2 host key to known_hosts
+      - name: Add EC2 host key to known_hosts
+        run: ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
       # 서버로 docker-compose 파일 전송
       - name: Copy docker-compose file to EC2
         run: |
