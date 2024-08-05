@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 17 ]
-        distribution: [ 'zulu' ]
+        distribution: [ 'temurin' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -47,25 +47,14 @@ jobs:
 
       # 서버로 docker-compose 파일 전송
       - name: Copy docker-compose file to EC2
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: -avzr --delete
-          remote_host: ${{ secrets.EC2_HOST }}
-          remote_user: ${{ secrets.EC2_USERNAME }}
-          remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
-          path: docker-compose.yaml
-          # root path
-          remote_path: /home/ec2-user/
+        run: |
+          rsync -avzr --delete -e "ssh -i ${{ secrets.EC2_PRIVATE_KEY }}" docker-compose.yaml ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
+          ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/docker-compose.yaml /root/"
 
       - name: Copy default.conf to EC2
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: -avzr --delete
-          remote_host: ${{ secrets.EC2_HOST }}
-          remote_user: ${{ secrets.EC2_USERNAME }}
-          remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
-          path: ./nginx
-          remote_path: /home/ec2-user/
+        run: |
+          rsync -avzr --delete -e "ssh -i ${{ secrets.EC2_PRIVATE_KEY }}" ./nginx ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
+          ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/nginx /root/"
 
       - name: Current Time
         uses: gerred/current-time@v1.0.0
