@@ -2,7 +2,7 @@ name: Develop Build & Deploy
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "fix/#88-docker-deploy-platform" ]
 
 env:
   DOCKERHUB_IMAGE_NAME: walwal-server
@@ -38,69 +38,70 @@ jobs:
             --scan
           cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
 
-      # Docker 이미지 빌드 및 도커 허브 푸시
-      - name: Docker build & push
-        run: |
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
+      # Dockerhub 로그인
+      - name: Login to Dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # SSH 키 파일 생성
-      - name: Create SSH key file
-        run: echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key.pem
+      # Docker 메타데이터 추출
+      - name: Extract Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v5.5.0
+        env:
+          DOCKERHUB_IMAGE_FULL_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
+        with:
+          images: ${{ env.DOCKERHUB_IMAGE_FULL_NAME }}
+          tags: |
+            type=sha,prefix=
 
-      # SSH 키 파일 권한 변경
-      - name: Set SSH key permissions
-        run: chmod 600 private_key.pem
-
-      # Ensure the .ssh directory exists
-      - name: Ensure .ssh directory exists
-        run: mkdir -p ~/.ssh
-
-      # Add EC2 host key to known_hosts
-      - name: Add EC2 host key to known_hosts
-        run: ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      # Docker 이미지 빌드 및 도커허브로 푸시
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
 
       # 서버로 docker-compose 파일 전송
       - name: Copy docker-compose file to EC2
-        run: |
-          rsync -avzr --delete -e "ssh -i private_key.pem" docker-compose.yaml ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
-          ssh -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/docker-compose.yaml /root/"
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete
+          remote_host: ${{ secrets.EC2_HOST }}
+          remote_user: ${{ secrets.EC2_USERNAME }}
+          remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
+          path: docker-compose.yaml
+          remote_path: /home/ec2-user/
 
       - name: Copy default.conf to EC2
-        run: |
-          rsync -avzr --delete -e "ssh -i private_key.pem" ./nginx ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
-          ssh -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/nginx /root/"
-
-      - name: Current Time
-        uses: gerred/current-time@v1.0.0
-        id: current-time
-
-      - name: Replace string
-        uses: frabert/replace-string-action@v2.1
-        id: format-time
+        uses: burnett01/rsync-deployments@7.0.1
         with:
-          pattern: '[:\.]+'
-          string: "${{ steps.current-time.outputs.time }}"
-          replace-with: '-'
-          flags: 'g'
+          switches: -avzr --delete
+          remote_host: ${{ secrets.EC2_HOST }}
+          remote_user: ${{ secrets.EC2_USERNAME }}
+          remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
+          path: ./nginx
+          remote_path: /home/ec2-user/
 
-      - name: Prepare deployment package
-        run: |
-          zip -r deployment-package.zip docker-compose.yaml nginx/default.conf
-
-      - name: Beanstalk Deploy
-        uses: einaregilsson/beanstalk-deploy@v22
+      # EC2로 배포
+      - name: Deploy to EC2 Server
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
+          DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          existing_bucket_name: "walwal-server-dev-deployment"
-          application_name: "walwal-dev"
-          environment_name: "Walwal-dev-env"
-          version_label: "walwal-dev-${{ github.run_id }}-${{ steps.format-time.outputs.replaced }}"
-          region: ap-northeast-2
-          deployment_package: deployment-package.zip
-          wait_for_environment_recovery: 180
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME # docker-compose.yml 에서 사용할 환경 변수
+          debug: true
+          script: |
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            docker compose up -d
+            docker exec -d nginx nginx -s reload
+            docker image prune -a -f
 
       # Slack 알림
       - name: Send Deploy Result to Slack
@@ -115,7 +116,3 @@ jobs:
             - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
             - deploy status: ${{ job.status }}
             - deploy time: ${{ steps.current-time.outputs.time }}
-
-      # SSH 키 파일 삭제
-      - name: Delete SSH key file
-        run: rm private_key.pem
