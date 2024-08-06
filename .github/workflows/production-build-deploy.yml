@@ -17,7 +17,6 @@ jobs:
       matrix:
         java-version: [ 17 ]
         distribution: [ 'temurin' ]
-
     steps:
       # 기본 체크아웃
       - name: Checkout
@@ -75,9 +74,36 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/arm64/v8
+          platforms: linux/arm64
           push: true
           tags: ${{ steps.metadata.outputs.tags }}
+
+          # SSH 키 파일 생성
+      - name: Create SSH key file
+        run: echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key.pem
+
+      # SSH 키 파일 권한 변경
+      - name: Set SSH key permissions
+        run: chmod 600 private_key.pem
+
+      # Ensure the .ssh directory exists
+      - name: Ensure .ssh directory exists
+        run: mkdir -p ~/.ssh
+
+      # Add EC2 host key to known_hosts
+      - name: Add EC2 host key to known_hosts
+        run: ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      # 서버로 docker-compose 파일 전송
+      - name: Copy docker-compose file to EC2
+        run: |
+          rsync -avzr --delete -e "ssh -i private_key.pem" docker-compose.yaml ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
+          ssh -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/docker-compose.yaml /root/"
+
+      - name: Copy default.conf to EC2
+        run: |
+          rsync -avzr --delete -e "ssh -i private_key.pem" ./nginx ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ec2-user/
+          ssh -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo mv /home/ec2-user/nginx /root/"
 
       - name: Current Time
         uses: gerred/current-time@v1.0.0
@@ -104,7 +130,7 @@ jobs:
           existing_bucket_name: "walwal-server-prod-deployment"
           application_name: "walwal-prod"
           environment_name: "Walwal-prod-env"
-          version_label: "walwal-prod-${{ steps.format-time.outputs.replaced }}"
+          version_label: "walwal-prod-${{ github.run_id }}-${{ steps.format-time.outputs.replaced }}"
           region: ap-northeast-2
           deployment_package: deployment-package.zip
           wait_for_environment_recovery: 180
@@ -122,3 +148,7 @@ jobs:
             - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
             - deploy status: ${{ job.status }}
             - deploy time: ${{ steps.current-time.outputs.time }}
+
+      # SSH 키 파일 삭제
+      - name: Delete SSH key file
+        run: rm private_key.pem
