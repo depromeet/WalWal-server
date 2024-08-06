@@ -167,8 +167,8 @@ public class FcmService {
                 .toList();
     }
 
-    // 매월 1일 0시 0분에 실행
-    @Scheduled(cron = "0 0 0 1 * ?")
+    // 매일 0시 0분에 실행
+    @Scheduled(cron = "0 0 0 * * ?")
     public void removeInactiveTokens() {
         LocalDateTime cutoffDate = LocalDateTime.now().minusMonths(2);
         List<FcmToken> inactiveTokens =
