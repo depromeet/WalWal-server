@@ -85,17 +85,23 @@ jobs:
           path: ./nginx
           remote_path: /home/ec2-user/
 
+      # Firebase JSON 파일 생성
+      - name: Decode Firebase config
+        id: firebase_config
+        run: echo "${{ secrets.FIREBASE_CONFIG }}" > $GITHUB_WORKSPACE/firebase-config.json
+
       # EC2로 배포
       - name: Deploy to EC2 Server
         uses: appleboy/ssh-action@v1.0.3
         env:
           IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
           DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
+          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME # docker-compose.yml 에서 사용할 환경 변수
+          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME, FIREBASE_KEY # docker-compose.yml 에서 사용할 환경 변수
           debug: true
           script: |
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin

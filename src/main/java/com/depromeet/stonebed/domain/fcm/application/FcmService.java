@@ -13,6 +13,7 @@ import com.depromeet.stonebed.global.util.MemberUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -20,13 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @RequiredArgsConstructor
 public class FcmService {
-    private static final String FIREBASE_CONFIG_PATH = "firebase/walwal-dev-firebase.json";
     private static final String FIREBASE_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
     private static final String FCM_API_URL =
             "https://fcm.googleapis.com/v1/projects/walwal-dev-fad47/messages:send";
@@ -88,9 +82,11 @@ public class FcmService {
     }
 
     private String getAccessToken() throws IOException {
+        String firebaseCredentials = System.getenv("FIREBASE_KEY");
+
         GoogleCredentials googleCredentials =
                 GoogleCredentials.fromStream(
-                                new ClassPathResource(FIREBASE_CONFIG_PATH).getInputStream())
+                                new ByteArrayInputStream(firebaseCredentials.getBytes()))
                         .createScoped(List.of(FIREBASE_SCOPE));
 
         googleCredentials.refreshIfExpired();
@@ -171,6 +167,7 @@ public class FcmService {
                 .toList();
     }
 
+    // 매월 1일 0시 0분에 실행
     @Scheduled(cron = "0 0 0 1 * ?")
     public void removeInactiveTokens() {
         LocalDateTime cutoffDate = LocalDateTime.now().minusMonths(2);
@@ -184,6 +181,7 @@ public class FcmService {
         }
     }
 
+    // 매일 12시 0분에 실행
     @Scheduled(cron = "0 0 12 * * ?")
     public void sendDailyNotification() {
         String title = "정규 메세지 제목!";
@@ -191,6 +189,7 @@ public class FcmService {
         sendMessageToAll(title, body);
     }
 
+    // 매일 18시 0분에 실행
     @Scheduled(cron = "0 0 18 * * ?")
     public void sendReminderToIncompleteMissions() {
         List<String> tokens = getIncompleteMissionTokens();
