@@ -41,6 +41,12 @@ public enum ErrorCode {
     IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지 파일 확장자를 찾을 수 없습니다."),
     INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다."),
     MEMBER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 회원입니다."),
+
+    // follow
+    FOLLOW_SELF_NOT_ALLOWED(HttpStatus.CONFLICT, "본인은 팔로우 할 수 없습니다."),
+    FOLLOW_TARGET_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "타겟 유저를 찾을 수 없습니다."),
+    FOLLOW_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 팔로우 중인 회원입니다."),
+    FOLLOW_NOT_EXIST(HttpStatus.NOT_FOUND, "팔로우 관계가 존재하지 않습니다."),
     ;
 
     private final HttpStatus httpStatus;
