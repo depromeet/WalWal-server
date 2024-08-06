@@ -26,24 +26,21 @@ public class FollowService {
     private final FollowRepository followRepository;
 
     public void createFollow(FollowCreateRequest request) {
-        final Member currentMember = memberUtil.getCurrentMember();
-        validateSelfFollow(currentMember.getId(), request.targetId());
-        Member targetMember = getTargetMember(request.targetId());
-        boolean existFollowRelation =
-                followRepository.existsBySourceIdAndTargetId(
-                        currentMember.getId(), targetMember.getId());
+        Member currentMember = memberUtil.getCurrentMember();
+        Long targetId = request.targetId();
+        validateSelfFollow(currentMember.getId(), targetId);
 
-        if (existFollowRelation) {
+        Member targetMember = getTargetMember(targetId);
+        if (isFollowRelationExist(currentMember, targetMember)) {
             throw new CustomException(ErrorCode.FOLLOW_ALREADY_EXIST);
         }
 
         Follow follow = Follow.createFollowRelation(currentMember, targetMember);
-
         followRepository.save(follow);
     }
 
     public FollowerDeletedResponse deleteFollow(Long targetId) {
-        final Member currentMember = memberUtil.getCurrentMember();
+        Member currentMember = memberUtil.getCurrentMember();
         Member targetMember = getTargetMember(targetId);
 
         Follow follow =
@@ -52,31 +49,30 @@ public class FollowService {
                         .orElseThrow(() -> new CustomException(ErrorCode.FOLLOW_NOT_EXIST));
 
         followRepository.delete(follow);
-
         return FollowerDeletedResponse.from(FollowStatus.NOT_FOLLOWING);
     }
 
     @Transactional(readOnly = true)
     public FollowRelationMemberResponse findFollowRelationByTargetId(Long targetId) {
-        final Member currentMember = memberUtil.getCurrentMember();
+        Member currentMember = memberUtil.getCurrentMember();
         Member targetMember = getTargetMember(targetId);
-        Optional<Follow> bySourceAndTarget =
+        Optional<Follow> followRelation =
                 followRepository.findBySourceAndTarget(currentMember, targetMember);
 
         FollowStatus followStatus =
-                bySourceAndTarget.isPresent() ? FollowStatus.FOLLOWING : FollowStatus.NOT_FOLLOWING;
+                followRelation.isPresent() ? FollowStatus.FOLLOWING : FollowStatus.NOT_FOLLOWING;
         return FollowRelationMemberResponse.from(followStatus);
     }
 
+    private boolean isFollowRelationExist(Member currentMember, Member targetMember) {
+        return followRepository.existsBySourceIdAndTargetId(
+                currentMember.getId(), targetMember.getId());
+    }
+
     private Member getTargetMember(Long targetId) {
-        Member targetMember =
-                memberRepository
-                        .findById(targetId)
-                        .orElseThrow(
-                                () ->
-                                        new CustomException(
-                                                ErrorCode.FOLLOW_TARGET_MEMBER_NOT_FOUND));
-        return targetMember;
+        return memberRepository
+                .findById(targetId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FOLLOW_TARGET_MEMBER_NOT_FOUND));
     }
 
     private void validateSelfFollow(Long expectedId, Long actualId) {
