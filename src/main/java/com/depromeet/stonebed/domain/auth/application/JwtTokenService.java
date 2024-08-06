@@ -111,4 +111,8 @@ public class JwtTokenService {
             return createAccessTokenDto(memberId, memberRole);
         }
     }
+
+    public void deleteRefreshToken(Long memberId) {
+        refreshTokenRepository.deleteById(memberId);
+    }
 }
