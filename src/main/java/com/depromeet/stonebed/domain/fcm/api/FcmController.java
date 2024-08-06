@@ -5,7 +5,6 @@ import com.depromeet.stonebed.domain.fcm.dto.request.FcmSendRequest;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmTokenRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +24,7 @@ public class FcmController {
     @Operation(summary = "푸시 메시지 전송", description = "저장된 모든 토큰에 푸시 메시지를 전송합니다.")
     @PostMapping("/send")
     public ResponseEntity<Void> pushMessageToAll(
-            @RequestBody @Validated FcmSendRequest fcmSendRequest) throws IOException {
+            @RequestBody @Validated FcmSendRequest fcmSendRequest) {
         fcmService.sendMessageToAll(fcmSendRequest.title(), fcmSendRequest.body());
         return ResponseEntity.ok().build();
     }
