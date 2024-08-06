@@ -6,6 +6,9 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
+import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
+import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +46,23 @@ public class MemberService {
     public Member socialSignUp(OAuthProvider oAuthProvider, String oauthId, String email) {
         Member member = Member.createOAuthMember(oAuthProvider, oauthId, email);
         return memberRepository.save(member);
+    }
+
+    @Transactional(readOnly = true)
+    public void checkNickname(NicknameCheckRequest request) {
+        validateNicknameNotDuplicate(request.nickname());
+        if (validateNicknameText(request.nickname())) {
+            throw new CustomException(ErrorCode.MEMBER_INVALID_NICKNAME);
+        }
+    }
+
+    private boolean validateNicknameText(String nickname) {
+        return nickname == null || nickname.length() < 2 || nickname.length() > 14;
+    }
+
+    private void validateNicknameNotDuplicate(String nickname) {
+        if (memberRepository.existsByProfileNickname(nickname)) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_NICKNAME);
+        }
     }
 }
