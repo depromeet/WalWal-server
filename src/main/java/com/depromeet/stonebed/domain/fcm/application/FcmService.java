@@ -130,11 +130,11 @@ public class FcmService {
                 });
     }
 
-    public void refreshTokenTimestamp(String token) {
-        Optional<FcmToken> existingToken = fcmRepository.findByToken(token);
+    public void refreshTokenTimestampForCurrentUser() {
+        final Member member = memberUtil.getCurrentMember();
+        Optional<FcmToken> existingToken = fcmRepository.findByMember(member);
         existingToken.ifPresentOrElse(
                 fcmToken -> {
-                    fcmToken.updateToken(token);
                     fcmRepository.save(fcmToken);
                 },
                 () -> {

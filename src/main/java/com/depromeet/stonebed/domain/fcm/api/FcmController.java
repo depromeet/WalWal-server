@@ -47,9 +47,8 @@ public class FcmController {
 
     @Operation(summary = "앱 실행 시 FCM 토큰 타임스탬프 갱신", description = "앱 실행 시 FCM 토큰의 타임스탬프를 갱신합니다.")
     @PostMapping("/token/refresh")
-    public ResponseEntity<Void> refreshTokenTimestamp(
-            @RequestBody @Validated FcmTokenRequest fcmTokenRequest) {
-        fcmService.refreshTokenTimestamp(fcmTokenRequest.token());
+    public ResponseEntity<Void> refreshTokenTimestamp() {
+        fcmService.refreshTokenTimestampForCurrentUser();
         return ResponseEntity.ok().build();
     }
 }
