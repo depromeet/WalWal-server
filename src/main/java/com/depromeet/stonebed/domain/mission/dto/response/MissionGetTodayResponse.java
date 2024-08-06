@@ -9,15 +9,11 @@ public record MissionGetTodayResponse(
         @Schema(description = "미션 제목", example = "산책하기")
                 @NotBlank(message = "Title cannot be blank")
                 String title,
-        @Schema(description = "일러스트 이미지 URL", example = "https://example.com/image.jpeg")
-                String illustrationUrl,
-        @Schema(description = "Hex 색상 값", example = "#FFFFFF") String hexColor) {
+        @Schema(description = "일러스트 이미지 URL", example = "https://image.walwal.life/image.jpeg")
+                String illustrationUrl) {
 
     public static MissionGetTodayResponse from(Mission mission) {
         return new MissionGetTodayResponse(
-                mission.getId(),
-                mission.getTitle(),
-                mission.getIllustrationUrl(),
-                mission.getHexColor());
+                mission.getId(), mission.getTitle(), mission.getIllustrationUrl());
     }
 }
