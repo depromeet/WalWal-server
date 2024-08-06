@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.fcm.application;
 
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
+import com.depromeet.stonebed.domain.fcm.domain.FcmResponseErrorType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmMessageRequest;
 import com.depromeet.stonebed.domain.member.domain.Member;
@@ -35,6 +36,11 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @RequiredArgsConstructor
 public class FcmService {
+    private static final String FIREBASE_CONFIG_PATH = "firebase/walwal-dev-firebase.json";
+    private static final String FIREBASE_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
+    private static final String FCM_API_URL =
+            "https://fcm.googleapis.com/v1/projects/walwal-dev-fad47/messages:send";
+
     private final FcmRepository fcmRepository;
     private final MissionRecordRepository missionRecordRepository;
     private final MemberUtil memberUtil;
@@ -45,7 +51,6 @@ public class FcmService {
             try {
                 sendMessageTo(token, title, body);
             } catch (IOException e) {
-                // 여기서는 개별적으로 오류가 발생해도 전체 전송이 중단되지 않도록 처리합니다.
                 log.error("다음 token이 FCM 메세지 전송에 실패했습니다: {}", token, e);
             }
         }
@@ -61,15 +66,14 @@ public class FcmService {
         HttpHeaders headers = createFcmHeaders();
         HttpEntity<String> entity = new HttpEntity<>(message, headers);
 
-        String API_URL = "https://fcm.googleapis.com/v1/projects/walwal-dev-fad47/messages:send";
         ResponseEntity<String> response =
-                restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
+                restTemplate.exchange(FCM_API_URL, HttpMethod.POST, entity, String.class);
 
         if (response.getStatusCode() != HttpStatus.OK) {
             String responseBody = response.getBody();
-            if (responseBody != null
-                    && (responseBody.contains("NotRegistered")
-                            || responseBody.contains("InvalidRegistration"))) {
+            if (FcmResponseErrorType.contains(responseBody, FcmResponseErrorType.NOT_REGISTERED)
+                    || FcmResponseErrorType.contains(
+                            responseBody, FcmResponseErrorType.INVALID_REGISTRATION)) {
                 deleteTokenByToken(token);
             }
             throw new CustomException(ErrorCode.FAILED_TO_SEND_FCM_MESSAGE);
@@ -84,12 +88,10 @@ public class FcmService {
     }
 
     private String getAccessToken() throws IOException {
-        String firebaseConfigPath = "firebase/walwal-dev-firebase.json";
-
         GoogleCredentials googleCredentials =
                 GoogleCredentials.fromStream(
-                                new ClassPathResource(firebaseConfigPath).getInputStream())
-                        .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+                                new ClassPathResource(FIREBASE_CONFIG_PATH).getInputStream())
+                        .createScoped(List.of(FIREBASE_SCOPE));
 
         googleCredentials.refreshIfExpired();
         return googleCredentials.getAccessToken().getTokenValue();
@@ -169,7 +171,6 @@ public class FcmService {
                 .toList();
     }
 
-    // 매월 1일에 실행
     @Scheduled(cron = "0 0 0 1 * ?")
     public void removeInactiveTokens() {
         LocalDateTime cutoffDate = LocalDateTime.now().minusMonths(2);
@@ -183,7 +184,6 @@ public class FcmService {
         }
     }
 
-    // 매일 오후 12시에 전체 알림 전송
     @Scheduled(cron = "0 0 12 * * ?")
     public void sendDailyNotification() {
         String title = "정규 메세지 제목!";
@@ -191,7 +191,6 @@ public class FcmService {
         sendMessageToAll(title, body);
     }
 
-    // 매일 오후 6시에 미션 레코드가 COMPLETED가 아닌 사람들에게 알림 전송
     @Scheduled(cron = "0 0 18 * * ?")
     public void sendReminderToIncompleteMissions() {
         List<String> tokens = getIncompleteMissionTokens();
