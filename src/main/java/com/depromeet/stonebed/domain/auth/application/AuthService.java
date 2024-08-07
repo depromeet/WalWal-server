@@ -52,9 +52,13 @@ public class AuthService {
                 .map(
                         member -> {
                             // 사용자 로그인 토큰 생성
-                            TokenPairResponse tokenPair = getLoginResponse(member);
+                            TokenPairResponse tokenPair =
+                                    member.getRole() == MemberRole.TEMPORARY
+                                            ? getTemporaryLoginResponse(member)
+                                            : getLoginResponse(member);
                             member.updateLastLoginAt();
-                            return AuthTokenResponse.of(tokenPair, false);
+                            return AuthTokenResponse.of(
+                                    tokenPair, member.getRole() == MemberRole.TEMPORARY);
                         })
                 .orElseGet(
                         () -> {
@@ -74,7 +78,7 @@ public class AuthService {
         Member currentMember = memberUtil.getCurrentMember();
         // 사용자 회원가입
         if (memberUtil.getMemberRole().equals(MemberRole.TEMPORARY.getValue())) {
-            Member member = memberService.setMemberRegister(currentMember, request);
+            Member member = memberService.registerMember(currentMember, request);
             // 새 토큰 생성
             TokenPairResponse tokenPair = getLoginResponse(member);
             return AuthTokenResponse.of(tokenPair, false);
@@ -98,5 +102,21 @@ public class AuthService {
 
     private TokenPairResponse getLoginResponse(Member member) {
         return jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER);
+    }
+
+    private TokenPairResponse getTemporaryLoginResponse(Member member) {
+        return jwtTokenService.generateTokenPair(member.getId(), MemberRole.TEMPORARY);
+    }
+
+    public void withdraw(
+            /** OAuthProvider provider */
+            ) {
+        Member member = memberUtil.getCurrentMember();
+        /**
+         * TODO: 런칭데이 이후 고도화 if (provider.equals(OAuthProvider.APPLE)) {
+         * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
+         */
+        jwtTokenService.deleteRefreshToken(member.getId());
+        member.withdrawal();
     }
 }

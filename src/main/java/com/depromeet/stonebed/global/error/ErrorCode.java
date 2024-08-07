@@ -27,16 +27,27 @@ public enum ErrorCode {
     // member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원을 찾을 수 없습니다."),
     ALREADY_EXISTS_MEMBER(HttpStatus.CONFLICT, "이미 존재하는 회원입니다."),
+    MEMBER_INVALID_NICKNAME(HttpStatus.BAD_REQUEST, "올바르지 않는 닉네임입니다."),
+    MEMBER_ALREADY_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
 
     // mission
     MISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션을 찾을 수 없습니다."),
+    MISSION_HISTORY_NOT_FOUNT(HttpStatus.NOT_FOUND, "해당 일별 미션 정보를 찾을 수 없습니다."),
     MISSION_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션 기록을 찾을 수 없습니다."),
     NO_AVAILABLE_TODAY_MISSION(HttpStatus.INTERNAL_SERVER_ERROR, "할당 가능한 오늘의 미션이 없습니다."),
 
     // image
     IMAGE_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지 파일 확장자를 찾을 수 없습니다."),
-    INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다.");
+    INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다."),
+    MEMBER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 회원입니다."),
+
+    // follow
+    FOLLOW_SELF_NOT_ALLOWED(HttpStatus.CONFLICT, "본인은 팔로우 할 수 없습니다."),
+    FOLLOW_TARGET_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "타겟 유저를 찾을 수 없습니다."),
+    FOLLOW_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 팔로우 중인 회원입니다."),
+    FOLLOW_NOT_EXIST(HttpStatus.NOT_FOUND, "팔로우 관계가 존재하지 않습니다."),
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
