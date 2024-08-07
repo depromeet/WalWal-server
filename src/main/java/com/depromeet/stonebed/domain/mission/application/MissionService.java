@@ -1,7 +1,7 @@
 package com.depromeet.stonebed.domain.mission.application;
 
-import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
-import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
+import com.depromeet.stonebed.domain.mission.dao.mission.MissionRepository;
+import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import com.depromeet.stonebed.domain.mission.dto.request.MissionCreateRequest;

@@ -28,7 +28,11 @@ public class MemberUtil {
     }
 
     public String getMemberRole() {
-        return securityUtil.getCurrentMemberRole();
+        String role = securityUtil.getCurrentMemberRole();
+        if (role == null) {
+            throw new CustomException(ErrorCode.AUTH_NOT_FOUND);
+        }
+        return role;
     }
 
     public void checkNickname(NicknameCheckRequest request) {

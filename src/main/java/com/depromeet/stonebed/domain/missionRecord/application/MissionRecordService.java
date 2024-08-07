@@ -2,7 +2,7 @@ package com.depromeet.stonebed.domain.missionRecord.application;
 
 import com.depromeet.stonebed.domain.image.dao.ImageRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
