@@ -96,12 +96,12 @@ jobs:
         env:
           IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
           DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
-          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME, FIREBASE_KEY # docker-compose.yml 에서 사용할 환경 변수
+          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME, FIREBASE_CONFIG # docker-compose.yml 에서 사용할 환경 변수
           debug: true
           script: |
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
