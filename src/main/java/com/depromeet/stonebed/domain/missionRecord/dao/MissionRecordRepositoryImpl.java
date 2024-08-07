@@ -3,7 +3,6 @@ package com.depromeet.stonebed.domain.missionRecord.dao;
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
 
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
-import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
@@ -38,14 +37,6 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    @Override
-    public List<MissionRecord> findAllByStatus(MissionRecordStatus status) {
-        return queryFactory
-                .selectFrom(missionRecord)
-                .where(missionRecord.status.eq(status))
                 .fetch();
     }
 
