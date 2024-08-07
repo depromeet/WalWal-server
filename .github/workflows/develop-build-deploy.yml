@@ -85,10 +85,17 @@ jobs:
           path: ./nginx
           remote_path: /home/ec2-user/
 
-      # Firebase JSON 파일 생성
-      - name: Decode Firebase config
-        id: firebase_config
-        run: echo "${{ secrets.FIREBASE_CONFIG }}" > $GITHUB_WORKSPACE/firebase-config.json
+      # secrets에서 JSON 파일 생성
+      - name: Create JSON from secrets
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "firebase-config.json"
+          json: ${{ secrets.FIREBASE_CONFIG }}
+
+      # FIREBASE_CONFIG 환경 변수 설정
+      - name: Set FIREBASE_CONFIG environment variable
+        run: echo "FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }}" >> $GITHUB_ENV
 
       # EC2로 배포
       - name: Deploy to EC2 Server
@@ -122,3 +129,4 @@ jobs:
             - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
             - deploy status: ${{ job.status }}
             - deploy time: ${{ steps.current-time.outputs.time }}
+

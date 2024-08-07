@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -34,6 +35,7 @@ public class FcmService {
     private final FcmRepository fcmRepository;
     private final MemberUtil memberUtil;
 
+    @Transactional(readOnly = true)
     public void sendMessageToAll(String title, String body) {
         List<String> tokens = getAllTokens();
         for (String token : tokens) {
@@ -45,6 +47,7 @@ public class FcmService {
         }
     }
 
+    @Transactional
     public void sendMessageTo(String token, String title, String body) throws IOException {
         String message = createFcmMessage(token, title, body);
         RestTemplate restTemplate = new RestTemplate();
@@ -77,11 +80,17 @@ public class FcmService {
     }
 
     private String getAccessToken() throws IOException {
-        String firebaseCredentials = System.getenv("FIREBASE_KEY");
+        String firebaseCredentials = System.getenv("FIREBASE_CONFIG");
+
+        if (firebaseCredentials == null || firebaseCredentials.isEmpty()) {
+            log.error("FIREBASE_CONFIG 환경 변수가 설정되지 않았습니다.");
+            throw new CustomException(ErrorCode.FIREBASE_CONFIG_NOT_FOUND);
+        }
 
         GoogleCredentials googleCredentials =
                 GoogleCredentials.fromStream(
-                                new ByteArrayInputStream(firebaseCredentials.getBytes()))
+                                new ByteArrayInputStream(
+                                        firebaseCredentials.getBytes(StandardCharsets.UTF_8)))
                         .createScoped(List.of(FIREBASE_SCOPE));
 
         googleCredentials.refreshIfExpired();
@@ -109,6 +118,7 @@ public class FcmService {
         return om.writeValueAsString(fcmMessageRequest);
     }
 
+    @Transactional
     public void storeOrUpdateToken(String token) {
         final Member member = memberUtil.getCurrentMember();
         Optional<FcmToken> existingToken = fcmRepository.findByMember(member);
@@ -123,11 +133,13 @@ public class FcmService {
                 });
     }
 
+    @Transactional
     public void refreshTokenTimestampForCurrentUser() {
         final Member member = memberUtil.getCurrentMember();
         Optional<FcmToken> existingToken = fcmRepository.findByMember(member);
         existingToken.ifPresentOrElse(
                 fcmToken -> {
+                    fcmToken.updateToken(fcmToken.getToken());
                     fcmRepository.save(fcmToken);
                 },
                 () -> {
@@ -135,15 +147,18 @@ public class FcmService {
                 });
     }
 
+    @Transactional
     public void deleteToken() {
         final Member member = memberUtil.getCurrentMember();
         fcmRepository.deleteByMember(member);
     }
 
+    @Transactional
     public void deleteTokenByToken(String token) {
         fcmRepository.deleteByToken(token);
     }
 
+    @Transactional(readOnly = true)
     public List<String> getAllTokens() {
         return fcmRepository.findAll().stream().map(FcmToken::getToken).toList();
     }
