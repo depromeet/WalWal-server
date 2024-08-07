@@ -11,6 +11,7 @@ spring:
       - docs
       - cloud
       - security
+      - fcm
   application:
     name: stonebed
 

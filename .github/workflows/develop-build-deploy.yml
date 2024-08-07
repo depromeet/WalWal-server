@@ -85,30 +85,17 @@ jobs:
           path: ./nginx
           remote_path: /home/ec2-user/
 
-      # secrets에서 JSON 파일 생성
-      - name: Create JSON from secrets
-        id: create-json
-        uses: jsdaniell/create-json@1.1.2
-        with:
-          name: "firebase-config.json"
-          json: ${{ secrets.FIREBASE_CONFIG }}
-
-      # FIREBASE_CONFIG 환경 변수 설정
-      - name: Set FIREBASE_CONFIG environment variable
-        run: echo "FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }}" >> $GITHUB_ENV
-
       # EC2로 배포
       - name: Deploy to EC2 Server
         uses: appleboy/ssh-action@v1.0.3
         env:
           IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
           DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
-          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME, FIREBASE_CONFIG # docker-compose.yml 에서 사용할 환경 변수
+          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME # docker-compose.yml 에서 사용할 환경 변수
           debug: true
           script: |
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin

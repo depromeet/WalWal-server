@@ -7,7 +7,6 @@ services:
     restart: always
     environment:
       - TZ=Asia/Seoul
-      - FIREBASE_CONFIG=${FIREBASE_CONFIG}
     network_mode: host
     env_file:
       - .env
