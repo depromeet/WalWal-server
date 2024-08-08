@@ -57,7 +57,7 @@ public class MissionRecordService {
         missionRecordRepository.save(missionRecord);
     }
 
-    public void saveMission(Long missionId) {
+    public void saveMission(Long missionId, String text) {
         final Member member = memberUtil.getCurrentMember();
 
         MissionHistory missionHistory = findMissionHistoryById(missionId);
@@ -65,13 +65,10 @@ public class MissionRecordService {
         MissionRecord missionRecord =
                 missionRecordRepository
                         .findByMemberAndMissionHistory(member, missionHistory)
-                        .orElseGet(
-                                () ->
-                                        MissionRecord.builder()
-                                                .member(member)
-                                                .missionHistory(missionHistory)
-                                                .status(MissionRecordStatus.COMPLETED)
-                                                .build());
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        missionRecord.updateText(text);
+        missionRecord.updateStatus(MissionRecordStatus.COMPLETED);
 
         missionRecordRepository.save(missionRecord);
     }
