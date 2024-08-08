@@ -66,7 +66,7 @@ public class FcmService {
             if (FcmResponseErrorType.contains(responseBody, FcmResponseErrorType.NOT_REGISTERED)
                     || FcmResponseErrorType.contains(
                             responseBody, FcmResponseErrorType.INVALID_REGISTRATION)) {
-                deleteTokenByToken(token);
+                invalidateToken(token);
             }
             throw new CustomException(ErrorCode.FAILED_TO_SEND_FCM_MESSAGE);
         }
@@ -143,18 +143,23 @@ public class FcmService {
     }
 
     @Transactional
-    public void deleteToken() {
-        final Member member = memberUtil.getCurrentMember();
-        fcmRepository.deleteByMember(member);
-    }
-
-    @Transactional
-    public void deleteTokenByToken(String token) {
-        fcmRepository.deleteByToken(token);
+    public void invalidateToken(String token) {
+        Optional<FcmToken> existingToken = fcmRepository.findByToken(token);
+        existingToken.ifPresentOrElse(
+                fcmToken -> {
+                    fcmToken.updateToken("");
+                    fcmRepository.save(fcmToken);
+                },
+                () -> {
+                    throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
+                });
     }
 
     @Transactional(readOnly = true)
     public List<String> getAllTokens() {
-        return fcmRepository.findAll().stream().map(FcmToken::getToken).toList();
+        return fcmRepository.findAll().stream()
+                .map(FcmToken::getToken)
+                .filter(token -> !token.isEmpty())
+                .toList();
     }
 }
