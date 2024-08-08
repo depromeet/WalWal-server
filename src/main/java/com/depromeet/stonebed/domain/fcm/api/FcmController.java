@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.fcm.api;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmService;
+import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmSendRequest;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmTokenRequest;
 import com.depromeet.stonebed.global.util.FcmNotificationUtil;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class FcmController {
     private final FcmService fcmService;
+    private final FcmTokenService fcmTokenService;
 
     @Operation(summary = "푸시 메시지 전송", description = "저장된 모든 토큰에 푸시 메시지를 전송합니다.")
     @PostMapping("/send")
@@ -38,7 +40,7 @@ public class FcmController {
     @PostMapping("/token")
     public ResponseEntity<Void> storeToken(
             @RequestBody @Validated FcmTokenRequest fcmTokenRequest) {
-        fcmService.storeOrUpdateToken(fcmTokenRequest.token());
+        fcmTokenService.storeOrUpdateToken(fcmTokenRequest.token());
         return ResponseEntity.ok().build();
     }
 
@@ -46,14 +48,14 @@ public class FcmController {
     @DeleteMapping("/token")
     public ResponseEntity<Void> deleteToken(
             @RequestBody @Validated FcmTokenRequest fcmTokenRequest) {
-        fcmService.invalidateToken(fcmTokenRequest.token());
+        fcmTokenService.invalidateToken(fcmTokenRequest.token());
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "앱 실행 시 FCM 토큰 타임스탬프 갱신", description = "앱 실행 시 FCM 토큰의 타임스탬프를 갱신합니다.")
     @PostMapping("/token/refresh")
     public ResponseEntity<Void> refreshTokenTimestamp() {
-        fcmService.refreshTokenTimestampForCurrentUser();
+        fcmTokenService.refreshTokenTimestampForCurrentUser();
         return ResponseEntity.ok().build();
     }
 }
