@@ -38,7 +38,7 @@ public class MemberService {
         member.updateProfile(
                 Profile.createProfile(
                         request.nickname(),
-                        request.profileImageUrl() == null
+                        (request.profileImageUrl() == null || request.profileImageUrl().isEmpty())
                                 ? member.getProfile().getProfileImageUrl()
                                 : request.profileImageUrl()));
         member.updateRaisePet(request.raisePet());
