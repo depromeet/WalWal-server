@@ -58,7 +58,7 @@ public class FcmScheduledService {
         }
     }
 
-    public List<String> getIncompleteMissionTokens() {
+    private List<String> getIncompleteMissionTokens() {
         return missionRecordRepository.findAllByStatus(MissionRecordStatus.NOT_COMPLETED).stream()
                 .map(
                         missionRecord -> {

@@ -8,7 +8,6 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import com.depromeet.stonebed.infra.properties.FirebaseProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -35,7 +34,6 @@ public class FcmService {
 
     private final FcmRepository fcmRepository;
     private final MemberUtil memberUtil;
-    private final FirebaseProperties firebaseProperties;
 
     @Transactional(readOnly = true)
     public void sendMessageToAll(String title, String body) {
@@ -82,32 +80,7 @@ public class FcmService {
     }
 
     private String getAccessToken() throws IOException {
-        String firebaseCredentials =
-                String.format(
-                        "{\n"
-                                + "  \"type\": \"%s\",\n"
-                                + "  \"project_id\": \"%s\",\n"
-                                + "  \"private_key_id\": \"%s\",\n"
-                                + "  \"private_key\": \"%s\",\n"
-                                + "  \"client_email\": \"%s\",\n"
-                                + "  \"client_id\": \"%s\",\n"
-                                + "  \"auth_uri\": \"%s\",\n"
-                                + "  \"token_uri\": \"%s\",\n"
-                                + "  \"auth_provider_x509_cert_url\": \"%s\",\n"
-                                + "  \"client_x509_cert_url\": \"%s\",\n"
-                                + "  \"universe_domain\": \"%s\"\n"
-                                + "}",
-                        firebaseProperties.type(),
-                        firebaseProperties.projectId(),
-                        firebaseProperties.privateKeyId(),
-                        firebaseProperties.privateKey().replace("\\n", "\n"),
-                        firebaseProperties.clientEmail(),
-                        firebaseProperties.clientId(),
-                        firebaseProperties.authUri(),
-                        firebaseProperties.tokenUri(),
-                        firebaseProperties.authProviderX509CertUrl(),
-                        firebaseProperties.clientX509CertUrl(),
-                        firebaseProperties.universeDomain());
+        String firebaseCredentials = System.getenv("FCM_CREDENTIAL");
 
         GoogleCredentials googleCredentials =
                 GoogleCredentials.fromStream(
