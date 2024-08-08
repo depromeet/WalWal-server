@@ -46,13 +46,11 @@ public class FcmService {
     }
 
     private MulticastMessage buildMulticastMessage(Notification notification, List<String> tokens) {
+        HashMap<String, String> data = new HashMap<>();
+        data.put("time", LocalDateTime.now().toString());
+
         return MulticastMessage.builder()
-                .putAllData(
-                        new HashMap<>() {
-                            {
-                                put("time", LocalDateTime.now().toString());
-                            }
-                        })
+                .putAllData(data)
                 .setNotification(notification)
                 .addAllTokens(tokens)
                 .build();
