@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Configuration;
     S3Properties.class,
     JwtProperties.class,
     AppleProperties.class,
-    SwaggerProperties.class
+    SwaggerProperties.class,
+    FcmProperties.class
 })
 @Configuration
 public class PropertiesConfig {}
