@@ -69,6 +69,8 @@ public class MissionRecordServiceTest {
         when(missionHistoryRepository.findLatestOneByMissionId(missionId))
                 .thenReturn(Optional.of(missionHistory));
         when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.findByMemberAndMissionHistory(eq(member), eq(missionHistory)))
+                .thenReturn(Optional.of(missionRecord)); // 모킹 추가
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
         MissionRecordSaveRequest request = new MissionRecordSaveRequest(text);
@@ -79,6 +81,8 @@ public class MissionRecordServiceTest {
         // then
         verify(missionHistoryRepository).findLatestOneByMissionId(missionId);
         verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository)
+                .findByMemberAndMissionHistory(eq(member), eq(missionHistory));
         verify(missionRecordRepository).save(any(MissionRecord.class));
     }
 
