@@ -29,10 +29,6 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: ${{ matrix.distribution }}
 
-      # test 활용 목적의 container 실행
-      - name: Start test docker container
-        run: docker compose -f ./docker-compose-test.yaml up -d
-
       # Gradlew 실행 허용
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
