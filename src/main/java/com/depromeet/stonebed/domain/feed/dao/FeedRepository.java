@@ -1,10 +1,6 @@
 package com.depromeet.stonebed.domain.feed.dao;
 
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface FeedRepository {
-    List<MissionRecord> getFeedContentsUsingCursor(Long missionRecordId, Long memberId, int limit);
-
-    List<MissionRecord> getFeedContents(Long memberId, int limit);
-}
+public interface FeedRepository extends JpaRepository<MissionRecord, Long>, FeedRepositoryCustom {}

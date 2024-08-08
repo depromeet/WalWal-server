@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class FeedRepositoryImpl implements FeedRepository {
+public class FeedRepositoryImpl implements FeedRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
@@ -18,8 +18,7 @@ public class FeedRepositoryImpl implements FeedRepository {
             Long missionRecordId, Long memberId, int limit) {
         return queryFactory
                 .select(missionRecord)
-                .join(missionRecord.missionHistory.mission)
-                .join(missionRecord.member)
+                .from(missionRecord)
                 .where(
                         missionRecord
                                 .id
@@ -34,8 +33,7 @@ public class FeedRepositoryImpl implements FeedRepository {
     public List<MissionRecord> getFeedContents(Long memberId, int limit) {
         return queryFactory
                 .select(missionRecord)
-                .join(missionRecord.missionHistory.mission)
-                .join(missionRecord.member)
+                .from(missionRecord)
                 .where(missionRecord.member.id.eq(memberId))
                 .orderBy(missionRecord.id.desc())
                 .limit(limit)
