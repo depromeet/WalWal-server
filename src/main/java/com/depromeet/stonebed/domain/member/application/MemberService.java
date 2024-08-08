@@ -37,7 +37,10 @@ public class MemberService {
     public Member registerMember(Member member, CreateMemberRequest request) {
         member.updateProfile(
                 Profile.createProfile(
-                        request.nickname(), member.getProfile().getProfileImageUrl()));
+                        request.nickname(),
+                        request.profileImageUrl() == null
+                                ? member.getProfile().getProfileImageUrl()
+                                : request.profileImageUrl()));
         member.updateRaisePet(request.raisePet());
         member.updateMemberRole(MemberRole.USER);
         return member;
