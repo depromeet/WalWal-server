@@ -4,6 +4,8 @@ import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.global.util.FcmNotificationUtil;
+import com.google.firebase.messaging.Notification;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,38 +26,27 @@ public class FcmScheduledService {
     @Scheduled(cron = "0 0 0 * * ?")
     public void removeInactiveTokens() {
         LocalDateTime cutoffDate = LocalDateTime.now().minusMonths(2);
-        List<FcmToken> inactiveTokens =
-                fcmRepository.findAll().stream()
-                        .filter(token -> token.getUpdatedAt().isBefore(cutoffDate))
-                        .toList();
-
-        for (FcmToken token : inactiveTokens) {
-            fcmRepository.delete(token);
-        }
+        List<FcmToken> inactiveTokens = fcmRepository.findAllByUpdatedAtBefore(cutoffDate);
+        fcmRepository.deleteAll(inactiveTokens);
+        log.info("비활성 토큰 {}개 삭제 완료", inactiveTokens.size());
     }
 
     // 매일 12시 0분에 실행
     @Scheduled(cron = "0 0 12 * * ?")
     public void sendDailyNotification() {
-        String title = "정규 메세지 제목!";
-        String body = "정규 메세지 내용!";
-        fcmService.sendMessageToAll(title, body);
+        Notification notification = FcmNotificationUtil.buildNotification("정규 메세지 제목", "정규 메세지 내용");
+        fcmService.sendMulticastMessageToAll(notification);
+        log.info("모든 사용자에게 정규 알림 전송 완료");
     }
 
     // 매일 18시 0분에 실행
     @Scheduled(cron = "0 0 18 * * ?")
-    public void sendReminderToIncompleteMissions() {
+    public void sendReminderToIncompleteMissions() throws IOException {
+        Notification notification =
+                FcmNotificationUtil.buildNotification("리마인드 메세지 제목", "리마인드 메세지 내용");
         List<String> tokens = getIncompleteMissionTokens();
-        String title = "리마인더 메세지 제목!";
-        String body = "리마인더 메세지 내용!";
-
-        for (String token : tokens) {
-            try {
-                fcmService.sendMessageTo(token, title, body);
-            } catch (IOException e) {
-                log.error("다음 token이 FCM 리마인더 전송에 실패했습니다: {}", token, e);
-            }
-        }
+        fcmService.sendMulticastMessage(notification, tokens);
+        log.info("미완료 미션 사용자에게 리마인더 전송 완료. 총 토큰 수: {}", tokens.size());
     }
 
     private List<String> getIncompleteMissionTokens() {

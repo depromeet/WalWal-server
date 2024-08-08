@@ -3,114 +3,120 @@ package com.depromeet.stonebed.domain.fcm.application;
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmResponseErrorType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
-import com.depromeet.stonebed.domain.fcm.dto.request.FcmMessageRequest;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.auth.oauth2.GoogleCredentials;
-import java.io.ByteArrayInputStream;
+import com.google.firebase.messaging.*;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FcmService {
-    private static final String FIREBASE_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
-    private static final String FCM_API_URL =
-            "https://fcm.googleapis.com/v1/projects/walwal-dev-fad47/messages:send";
+    private static final int BATCH_SIZE = 500;
 
     private final FcmRepository fcmRepository;
     private final MemberUtil memberUtil;
 
     @Transactional(readOnly = true)
-    public void sendMessageToAll(String title, String body) {
+    public void sendMulticastMessageToAll(Notification notification) {
         List<String> tokens = getAllTokens();
-        for (String token : tokens) {
-            try {
-                sendMessageTo(token, title, body);
-            } catch (IOException e) {
-                log.error("다음 token이 FCM 메세지 전송에 실패했습니다: {}", token, e);
-            }
+        int totalTokens = tokens.size();
+
+        for (int i = 0; i < totalTokens; i += BATCH_SIZE) {
+            List<String> batchTokens = tokens.subList(i, Math.min(i + BATCH_SIZE, totalTokens));
+            MulticastMessage message = buildMulticastMessage(notification, batchTokens);
+            sendMessage(message, batchTokens);
         }
+        log.info("전체 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
     }
 
     @Transactional
-    public void sendMessageTo(String token, String title, String body) throws IOException {
-        String message = createFcmMessage(token, title, body);
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate
-                .getMessageConverters()
-                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    public void sendMulticastMessage(Notification notification, List<String> tokens)
+            throws IOException {
+        int totalTokens = tokens.size();
 
-        HttpHeaders headers = createFcmHeaders();
-        HttpEntity<String> entity = new HttpEntity<>(message, headers);
+        for (int i = 0; i < totalTokens; i += BATCH_SIZE) {
+            List<String> batchTokens = tokens.subList(i, Math.min(i + BATCH_SIZE, totalTokens));
+            MulticastMessage message = buildMulticastMessage(notification, batchTokens);
+            sendMessage(message, batchTokens);
+        }
+        log.info("리마인드 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
+    }
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(FCM_API_URL, HttpMethod.POST, entity, String.class);
+    private MulticastMessage buildMulticastMessage(Notification notification, List<String> tokens) {
+        return MulticastMessage.builder()
+                .putAllData(
+                        new HashMap<>() {
+                            {
+                                put("time", LocalDateTime.now().toString());
+                            }
+                        })
+                .setNotification(notification)
+                .addAllTokens(tokens)
+                .build();
+    }
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            String responseBody = response.getBody();
-            if (FcmResponseErrorType.contains(responseBody, FcmResponseErrorType.NOT_REGISTERED)
-                    || FcmResponseErrorType.contains(
-                            responseBody, FcmResponseErrorType.INVALID_REGISTRATION)) {
-                invalidateToken(token);
-            }
-            throw new CustomException(ErrorCode.FAILED_TO_SEND_FCM_MESSAGE);
+    private void sendMessage(MulticastMessage message, List<String> tokens) {
+        try {
+            BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+            handleBatchResponse(response, tokens);
+        } catch (FirebaseMessagingException e) {
+            log.error("FCM 메시지 전송에 실패했습니다: ", e);
         }
     }
 
-    private HttpHeaders createFcmHeaders() throws IOException {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + getAccessToken());
-        return headers;
+    private void handleBatchResponse(BatchResponse response, List<String> tokens) {
+        response.getResponses().stream()
+                .filter(sendResponse -> !sendResponse.isSuccessful())
+                .forEach(
+                        sendResponse -> {
+                            String token =
+                                    tokens.get(response.getResponses().indexOf(sendResponse));
+                            if (isInvalidOrNotRegistered(sendResponse)) {
+                                invalidateToken(token);
+                            }
+                        });
     }
 
-    private String getAccessToken() throws IOException {
-        String firebaseCredentials = System.getenv("FCM_CREDENTIAL");
-
-        GoogleCredentials googleCredentials =
-                GoogleCredentials.fromStream(
-                                new ByteArrayInputStream(
-                                        firebaseCredentials.getBytes(StandardCharsets.UTF_8)))
-                        .createScoped(List.of(FIREBASE_SCOPE));
-
-        googleCredentials.refreshIfExpired();
-        return googleCredentials.getAccessToken().getTokenValue();
+    private boolean isInvalidOrNotRegistered(SendResponse sendResponse) {
+        String errorMessage = sendResponse.getException().getMessage();
+        return FcmResponseErrorType.contains(errorMessage, FcmResponseErrorType.NOT_REGISTERED)
+                || FcmResponseErrorType.contains(
+                        errorMessage, FcmResponseErrorType.INVALID_REGISTRATION);
     }
 
-    private String createFcmMessage(String token, String title, String body)
-            throws JsonProcessingException {
-        ObjectMapper om = new ObjectMapper();
-        FcmMessageRequest fcmMessageRequest =
-                FcmMessageRequest.builder()
-                        .message(
-                                FcmMessageRequest.Message.builder()
-                                        .token(token)
-                                        .notification(
-                                                FcmMessageRequest.Notification.builder()
-                                                        .title(title)
-                                                        .body(body)
-                                                        .image(null)
-                                                        .build())
-                                        .build())
-                        .validateOnly(false)
-                        .build();
+    @Transactional
+    public void invalidateToken(String token) {
+        fcmRepository
+                .findByToken(token)
+                .ifPresentOrElse(
+                        fcmToken -> updateToken(fcmToken, ""),
+                        () -> {
+                            throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
+                        });
+    }
 
-        return om.writeValueAsString(fcmMessageRequest);
+    private void updateToken(FcmToken fcmToken, String token) {
+        fcmToken.updateToken(token);
+        fcmRepository.save(fcmToken);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAllTokens() {
+        return fcmRepository.findAll().stream()
+                .map(FcmToken::getToken)
+                .filter(token -> !token.isEmpty())
+                .toList();
     }
 
     @Transactional
@@ -130,36 +136,13 @@ public class FcmService {
 
     @Transactional
     public void refreshTokenTimestampForCurrentUser() {
-        final Member member = memberUtil.getCurrentMember();
-        Optional<FcmToken> existingToken = fcmRepository.findByMember(member);
-        existingToken.ifPresentOrElse(
-                fcmToken -> {
-                    fcmToken.updateToken(fcmToken.getToken());
-                    fcmRepository.save(fcmToken);
-                },
-                () -> {
-                    throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
-                });
-    }
-
-    @Transactional
-    public void invalidateToken(String token) {
-        Optional<FcmToken> existingToken = fcmRepository.findByToken(token);
-        existingToken.ifPresentOrElse(
-                fcmToken -> {
-                    fcmToken.updateToken("");
-                    fcmRepository.save(fcmToken);
-                },
-                () -> {
-                    throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
-                });
-    }
-
-    @Transactional(readOnly = true)
-    public List<String> getAllTokens() {
-        return fcmRepository.findAll().stream()
-                .map(FcmToken::getToken)
-                .filter(token -> !token.isEmpty())
-                .toList();
+        Member member = memberUtil.getCurrentMember();
+        fcmRepository
+                .findByMember(member)
+                .ifPresentOrElse(
+                        fcmToken -> updateToken(fcmToken, fcmToken.getToken()),
+                        () -> {
+                            throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
+                        });
     }
 }

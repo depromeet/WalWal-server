@@ -3,6 +3,8 @@ package com.depromeet.stonebed.domain.fcm.api;
 import com.depromeet.stonebed.domain.fcm.application.FcmService;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmSendRequest;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmTokenRequest;
+import com.depromeet.stonebed.global.util.FcmNotificationUtil;
+import com.google.firebase.messaging.Notification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,10 @@ public class FcmController {
     @PostMapping("/send")
     public ResponseEntity<Void> pushMessageToAll(
             @RequestBody @Validated FcmSendRequest fcmSendRequest) {
-        fcmService.sendMessageToAll(fcmSendRequest.title(), fcmSendRequest.body());
+        Notification notification =
+                FcmNotificationUtil.buildNotification(
+                        fcmSendRequest.title(), fcmSendRequest.body());
+        fcmService.sendMulticastMessageToAll(notification);
         return ResponseEntity.ok().build();
     }
 
