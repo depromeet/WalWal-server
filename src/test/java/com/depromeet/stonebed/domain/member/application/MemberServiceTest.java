@@ -10,13 +10,14 @@ import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
 
     @InjectMocks private MemberService memberService;
@@ -35,7 +36,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void findMemberInfo_성공() {
+    void 사용자_정보를_조회한다() {
         // given
         Member member = fixtureMonkey.giveMeOne(Member.class);
         when(memberUtil.getCurrentMember()).thenReturn(member);
@@ -50,7 +51,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void checkNickname_성공() {
+    void 닉네임을_검증한다() {
         // given
         NicknameCheckRequest request = fixtureMonkey.giveMeOne(NicknameCheckRequest.class);
 

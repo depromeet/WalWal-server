@@ -14,39 +14,44 @@ import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntr
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
     @InjectMocks private AuthService authService;
 
     @Mock private JwtTokenService jwtTokenService;
+
     @Mock private MemberRepository memberRepository;
 
-    private FixtureMonkey fixtureMonkey;
+    private String oauthId;
+    private String email;
+    private Member member;
 
     @BeforeEach
     void setUp() {
-        fixtureMonkey =
+        FixtureMonkey fixtureMonkey =
                 FixtureMonkey.builder()
                         .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
                         .defaultNotNull(true)
                         .build();
+
+        oauthId = fixtureMonkey.giveMeOne(String.class);
+        email = fixtureMonkey.giveMeOne(String.class);
+        member = fixtureMonkey.giveMeOne(Member.class);
+        member.updateMemberRole(MemberRole.USER);
     }
 
     @Test
-    void 소셜로그인_KAKAO_성공() {
+    void 소셜로그인_KAKAO_로그인을_시도합니다() {
         // given
         OAuthProvider provider = OAuthProvider.KAKAO;
-        String oauthId = fixtureMonkey.giveMeOne(String.class);
-        String email = fixtureMonkey.giveMeOne(String.class);
-        Member member = fixtureMonkey.giveMeOne(Member.class);
-        member.updateMemberRole(MemberRole.USER);
 
         when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
                         provider.getValue(), oauthId))
@@ -58,19 +63,13 @@ class AuthServiceTest {
         AuthTokenResponse response = authService.socialLogin(provider, oauthId, email);
 
         // then
-        assertNotNull(response);
-        assertEquals("accessToken", response.accessToken());
-        assertEquals("refreshToken", response.refreshToken());
+        assertCommonAssertions(response, "accessToken", "refreshToken");
     }
 
     @Test
-    void 소셜로그인_APPLE_성공() {
+    void 소셜로그인_APPLE_로그인을_시도합니다() {
         // given
         OAuthProvider provider = OAuthProvider.APPLE;
-        String oauthId = fixtureMonkey.giveMeOne(String.class);
-        String email = fixtureMonkey.giveMeOne(String.class);
-        Member member = fixtureMonkey.giveMeOne(Member.class);
-        member.updateMemberRole(MemberRole.USER);
 
         when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
                         provider.getValue(), oauthId))
@@ -82,19 +81,15 @@ class AuthServiceTest {
         AuthTokenResponse response = authService.socialLogin(provider, oauthId, email);
 
         // then
-        assertNotNull(response);
-        assertEquals("accessToken", response.accessToken());
-        assertEquals("refreshToken", response.refreshToken());
+        assertCommonAssertions(response, "accessToken", "refreshToken");
     }
 
     @Test
-    void 소셜로그인_임시_회원가입_성공() {
+    void 소셜로그인_임시_회원가입을_시도합니다() {
         // given
         OAuthProvider provider = OAuthProvider.KAKAO;
-        String oauthId = fixtureMonkey.giveMeOne(String.class);
-        String email = fixtureMonkey.giveMeOne(String.class);
-        Member newMember = Member.createOAuthMember(provider, oauthId, email);
         TokenPairResponse temporaryTokenPair = new TokenPairResponse("accessToken", "refreshToken");
+        Member newMember = Member.createOAuthMember(provider, oauthId, email);
 
         when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
                         provider.getValue(), oauthId))
@@ -113,5 +108,12 @@ class AuthServiceTest {
         assertTrue(response.isTemporaryToken());
         verify(memberRepository).save(any(Member.class));
         verify(jwtTokenService).generateTemporaryTokenPair(any(Member.class));
+    }
+
+    private void assertCommonAssertions(
+            AuthTokenResponse response, String expectedAccessToken, String expectedRefreshToken) {
+        assertNotNull(response);
+        assertEquals(expectedAccessToken, response.accessToken());
+        assertEquals(expectedRefreshToken, response.refreshToken());
     }
 }
