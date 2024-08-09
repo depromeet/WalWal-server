@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.domain.mission.dao;
+package com.depromeet.stonebed.domain.mission.dao.missionHistory;
 
 import static com.depromeet.stonebed.domain.mission.domain.QMissionHistory.missionHistory;
 
