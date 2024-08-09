@@ -14,6 +14,7 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
@@ -29,6 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 class FollowServiceTest {
 
     @InjectMocks private FollowService followService;
+    @MockBean private FirebaseMessaging firebaseMessaging;
 
     @Mock private MemberUtil memberUtil;
     @Mock private FollowRepository followRepository;
