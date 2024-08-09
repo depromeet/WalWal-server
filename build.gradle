@@ -28,6 +28,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -77,6 +78,10 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
     // FixtureMonkey
     testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:1.0.20")
+
+    // FCM
+    implementation 'com.google.firebase:firebase-admin:9.3.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
 }
 
 tasks.named('test') {

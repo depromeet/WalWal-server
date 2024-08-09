@@ -2,16 +2,20 @@ package com.depromeet.stonebed.fixtureMonkeyTest;
 
 import static org.assertj.core.api.BDDAssertions.*;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
 class TestFixtureMonkey {
+
+    @MockBean private FirebaseMessaging firebaseMessaging;
 
     @Test
     void checkPerson() {

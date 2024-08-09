@@ -17,3 +17,6 @@ spring:
 logging:
   level:
     com.depromeet.stonebed.*.api.*: debug
+
+fcm:
+  credential: ${FCM_CREDENTIAL}

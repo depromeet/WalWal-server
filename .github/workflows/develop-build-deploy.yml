@@ -26,6 +26,10 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: ${{ matrix.distribution }}
 
+      # test 활용 목적의 container 실행
+      - name: Start test docker container
+        run: docker compose -f ./docker-compose-test.yaml up -d
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
@@ -116,3 +120,4 @@ jobs:
             - build scan report: ${{ steps.gradle.outputs.build-scan-url }}
             - deploy status: ${{ job.status }}
             - deploy time: ${{ steps.current-time.outputs.time }}
+
