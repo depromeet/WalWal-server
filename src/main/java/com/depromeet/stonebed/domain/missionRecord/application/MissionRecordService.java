@@ -2,7 +2,7 @@ package com.depromeet.stonebed.domain.missionRecord.application;
 
 import com.depromeet.stonebed.domain.image.dao.ImageRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
@@ -57,7 +57,7 @@ public class MissionRecordService {
         missionRecordRepository.save(missionRecord);
     }
 
-    public void saveMission(Long missionId) {
+    public void saveMission(Long missionId, String text) {
         final Member member = memberUtil.getCurrentMember();
 
         MissionHistory missionHistory = findMissionHistoryById(missionId);
@@ -65,13 +65,10 @@ public class MissionRecordService {
         MissionRecord missionRecord =
                 missionRecordRepository
                         .findByMemberAndMissionHistory(member, missionHistory)
-                        .orElseGet(
-                                () ->
-                                        MissionRecord.builder()
-                                                .member(member)
-                                                .missionHistory(missionHistory)
-                                                .status(MissionRecordStatus.COMPLETED)
-                                                .build());
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        missionRecord.updateText(text);
+        missionRecord.updateStatus(MissionRecordStatus.COMPLETED);
 
         missionRecordRepository.save(missionRecord);
     }
