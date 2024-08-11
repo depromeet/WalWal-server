@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class FeedController {
     private final FeedService feedService;
 
-    @GetMapping("/")
+    @GetMapping
     public FeedGetResponse getFeed(
             @RequestParam(required = false) String cursor, @RequestParam int limit) {
         FeedGetRequest request = new FeedGetRequest(cursor, limit);
