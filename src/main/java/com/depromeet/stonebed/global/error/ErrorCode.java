@@ -27,6 +27,8 @@ public enum ErrorCode {
     // member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원을 찾을 수 없습니다."),
     ALREADY_EXISTS_MEMBER(HttpStatus.CONFLICT, "이미 존재하는 회원입니다."),
+    MEMBER_INVALID_NICKNAME(HttpStatus.BAD_REQUEST, "올바르지 않는 닉네임입니다."),
+    MEMBER_ALREADY_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
 
     // mission
     MISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션을 찾을 수 없습니다."),
@@ -39,8 +41,17 @@ public enum ErrorCode {
     IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지 파일 확장자를 찾을 수 없습니다."),
     INVALID_IMAGE_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 이미지 확장자가 아닙니다."),
     MEMBER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 회원입니다."),
-    ;
 
+    // follow
+    FOLLOW_SELF_NOT_ALLOWED(HttpStatus.CONFLICT, "본인은 팔로우 할 수 없습니다."),
+    FOLLOW_TARGET_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "타겟 유저를 찾을 수 없습니다."),
+    FOLLOW_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 팔로우 중인 회원입니다."),
+    FOLLOW_NOT_EXIST(HttpStatus.NOT_FOUND, "팔로우 관계가 존재하지 않습니다."),
+
+    // fcm
+    FAILED_TO_SEND_FCM_MESSAGE(HttpStatus.BAD_REQUEST, "FCM 메세지 전송에 실패했습니다."),
+    FAILED_TO_FIND_FCM_TOKEN(HttpStatus.NOT_FOUND, "해당 FCM 토큰을 찾을 수 없습니다."),
+    FIREBASE_CONFIG_NOT_FOUND(HttpStatus.NOT_FOUND, "FIREBASE_CONFIG를 찾을 수 없습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }

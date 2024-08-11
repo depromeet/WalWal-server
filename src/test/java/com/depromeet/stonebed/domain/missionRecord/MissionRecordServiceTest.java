@@ -4,12 +4,13 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.dao.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
@@ -52,6 +53,7 @@ public class MissionRecordServiceTest {
     void 미션기록_성공() {
         // given
         Long missionId = 1L;
+        String text = "미션 완료 소감";
 
         MissionHistory missionHistory = fixtureMonkey.giveMeOne(MissionHistory.class);
         Member member = fixtureMonkey.giveMeOne(Member.class);
@@ -61,19 +63,26 @@ public class MissionRecordServiceTest {
                         .set("missionHistory", missionHistory)
                         .set("member", member)
                         .set("status", MissionRecordStatus.COMPLETED)
+                        .set("text", text)
                         .sample();
 
         when(missionHistoryRepository.findLatestOneByMissionId(missionId))
                 .thenReturn(Optional.of(missionHistory));
         when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.findByMemberAndMissionHistory(eq(member), eq(missionHistory)))
+                .thenReturn(Optional.of(missionRecord)); // 모킹 추가
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
+        MissionRecordSaveRequest request = new MissionRecordSaveRequest(text);
+
         // when
-        missionRecordService.saveMission(missionId);
+        missionRecordService.saveMission(missionId, request.text());
 
         // then
         verify(missionHistoryRepository).findLatestOneByMissionId(missionId);
         verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository)
+                .findByMemberAndMissionHistory(eq(member), eq(missionHistory));
         verify(missionRecordRepository).save(any(MissionRecord.class));
     }
 

@@ -43,19 +43,33 @@ public class MissionRecord extends BaseTimeEntity {
     @Column(name = "status", nullable = false)
     private MissionRecordStatus status;
 
+    @Schema(description = "미션 기록 텍스트", example = "미션 완료 소감")
+    @Column(name = "text", nullable = true)
+    private String text;
+
     @Builder
     public MissionRecord(
             Member member,
             MissionHistory missionHistory,
             String imageUrl,
-            MissionRecordStatus status) {
+            MissionRecordStatus status,
+            String text) {
         this.member = member;
         this.missionHistory = missionHistory;
         this.imageUrl = imageUrl;
         this.status = status;
+        this.text = text;
     }
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void updateText(String text) {
+        this.text = text;
+    }
+
+    public void updateStatus(MissionRecordStatus status) {
+        this.status = status;
     }
 }

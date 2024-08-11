@@ -60,8 +60,7 @@ public class MissionControllerTest {
     public void 오늘의_미션_조회_성공() throws Exception {
         // Given
         MissionGetTodayResponse missionGetTodayResponse =
-                new MissionGetTodayResponse(
-                        1L, "Test Mission", "https://example.com/image.png", "#FFFFFF");
+                new MissionGetTodayResponse(1L, "Test Mission", "https://example.com/image.png");
         when(missionService.getOrCreateTodayMission()).thenReturn(missionGetTodayResponse);
 
         // When & Then

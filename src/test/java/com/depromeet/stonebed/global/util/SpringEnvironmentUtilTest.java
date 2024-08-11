@@ -25,8 +25,10 @@ class SpringEnvironmentUtilTest {
         given(environment.getActiveProfiles()).willReturn(PROD_ARRAY);
 
         // when
+        boolean result = springEnvironmentUtil.isProdProfile();
+
         // then
-        assertTrue(springEnvironmentUtil.isProdProfile());
+        assertTrue(result);
     }
 
     @Test
@@ -35,8 +37,10 @@ class SpringEnvironmentUtilTest {
         given(environment.getActiveProfiles()).willReturn(DEV_ARRAY);
 
         // when
+        boolean result = springEnvironmentUtil.isProdProfile();
+
         // then
-        assertFalse(springEnvironmentUtil.isProdProfile());
+        assertFalse(result);
     }
 
     @Test
@@ -45,8 +49,10 @@ class SpringEnvironmentUtilTest {
         given(environment.getActiveProfiles()).willReturn(DEV_ARRAY);
 
         // when
+        boolean result = springEnvironmentUtil.isDevProfile();
+
         // then
-        assertTrue(springEnvironmentUtil.isDevProfile());
+        assertTrue(result);
     }
 
     @Test
@@ -55,28 +61,34 @@ class SpringEnvironmentUtilTest {
         given(environment.getActiveProfiles()).willReturn(LOCAL_ARRAY);
 
         // when
+        boolean result = springEnvironmentUtil.isDevProfile();
+
         // then
-        assertFalse(springEnvironmentUtil.isDevProfile());
+        assertFalse(result);
     }
 
     @Test
-    void 로컬_환경이라면_isProdAndDevProfile은_false를_반환한다() {
+    void 상용_또는_테스트_환경이라면_isProdAndDevProfile은_true를_반환한다() {
+        // given
+        given(environment.getActiveProfiles()).willReturn(new String[] {PROD_ENV, DEV_ENV});
+
+        // when
+        boolean result = springEnvironmentUtil.isProdAndDevProfile();
+
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void 상용_또는_테스트_환경이_아니라면_isProdAndDevProfile은_false를_반환한다() {
         // given
         given(environment.getActiveProfiles()).willReturn(LOCAL_ARRAY);
 
         // when
-        // then
-        assertFalse(springEnvironmentUtil.isProdAndDevProfile());
-    }
+        boolean result = springEnvironmentUtil.isProdAndDevProfile();
 
-    @Test
-    void 로컬_환경이_아니라면_isProdAndDevProfile은_true를_반환한다() {
-        // given
-        given(environment.getActiveProfiles()).willReturn(DEV_ARRAY);
-
-        // when
         // then
-        assertTrue(springEnvironmentUtil.isProdAndDevProfile());
+        assertFalse(result);
     }
 
     @Test

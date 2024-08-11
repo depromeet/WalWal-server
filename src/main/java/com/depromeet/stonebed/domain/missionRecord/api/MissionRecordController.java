@@ -2,6 +2,7 @@ package com.depromeet.stonebed.domain.missionRecord.api;
 
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "3. 미션 기록", description = "미션 기록 관련 API입니다.")
+@Tag(name = "4. [미션 기록]", description = "미션 기록 관련 API입니다.")
 @RestController
 @RequestMapping("/records")
 @RequiredArgsConstructor
@@ -33,9 +34,11 @@ public class MissionRecordController {
     }
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
-    @PostMapping
-    public ResponseEntity<Void> saveMission(@PathVariable("missionId") Long missionId) {
-        missionRecordService.saveMission(missionId);
+    @PostMapping("/{missionId}")
+    public ResponseEntity<Void> saveMission(
+            @PathVariable("missionId") Long missionId,
+            @Valid @RequestBody MissionRecordSaveRequest request) {
+        missionRecordService.saveMission(missionId, request.text());
         return ResponseEntity.ok().build();
     }
 
