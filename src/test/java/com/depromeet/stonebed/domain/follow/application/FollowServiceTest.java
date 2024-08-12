@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.follow.application;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.follow.dao.FollowRepository;
 import com.depromeet.stonebed.domain.follow.domain.Follow;
 import com.depromeet.stonebed.domain.follow.dto.request.FollowCreateRequest;
@@ -14,39 +15,23 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
 @ActiveProfiles("test")
-class FollowServiceTest {
+@ExtendWith(MockitoExtension.class)
+class FollowServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private FollowService followService;
-    @MockBean private FirebaseMessaging firebaseMessaging;
 
     @Mock private MemberUtil memberUtil;
     @Mock private FollowRepository followRepository;
     @Mock private MemberRepository memberRepository;
-
-    private FixtureMonkey fixtureMonkey;
-
-    @BeforeEach
-    void setUp() {
-        fixtureMonkey =
-                FixtureMonkey.builder()
-                        .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
-                        .defaultNotNull(true)
-                        .build();
-    }
 
     @Test
     void 팔로우를_진행합니다() {

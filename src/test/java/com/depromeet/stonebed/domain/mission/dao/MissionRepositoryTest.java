@@ -9,15 +9,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
+@ActiveProfiles("test")
 @Import(TestQuerydslConfig.class)
-public class MissionRepositoryTest {
+class MissionRepositoryTest {
 
     @Autowired private MissionRepository missionRepository;
 
     @Test
-    public void 미션_생성_성공() {
+    void 미션_생성_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
 
@@ -30,7 +32,7 @@ public class MissionRepositoryTest {
     }
 
     @Test
-    public void 고유번호로_미션_조회_성공() {
+    void 고유번호로_미션_조회_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         missionRepository.save(mission);
@@ -44,7 +46,7 @@ public class MissionRepositoryTest {
     }
 
     @Test
-    public void 미션_삭제_성공() {
+    void 미션_삭제_성공() {
         // Given
         Mission mission = Mission.builder().title("Test Mission").build();
         mission = missionRepository.save(mission);

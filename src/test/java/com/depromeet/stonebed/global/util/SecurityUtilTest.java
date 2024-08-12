@@ -14,7 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class SecurityUtilTest {
 

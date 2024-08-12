@@ -23,8 +23,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ActiveProfiles;
 
-public class MissionServiceTest {
+@ActiveProfiles("test")
+class MissionServiceTest {
 
     @Mock private MissionRepository missionRepository;
     @Mock private MissionHistoryRepository missionHistoryRepository;
@@ -46,7 +48,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 미션_생성_성공() {
+    void 미션_생성_성공() {
         // Given
         when(missionRepository.save(any(Mission.class))).thenReturn(mission);
         MissionCreateRequest missionCreateRequest = new MissionCreateRequest("Test Mission");
@@ -61,7 +63,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 미션_단일_조회_성공() {
+    void 미션_단일_조회_성공() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.of(mission));
 
@@ -74,7 +76,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 오늘의_미션_조회_성공_히스토리가_이미_존재하는_경우() {
+    void 오늘의_미션_조회_성공_히스토리가_이미_존재하는_경우() {
         // Given
         when(missionHistoryRepository.findByAssignedDate(today))
                 .thenReturn(Optional.of(missionHistory));
@@ -90,7 +92,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 오늘의_미션_조회_성공_히스토리가_없는_경우() {
+    void 오늘의_미션_조회_성공_히스토리가_없는_경우() {
         // Given: 초기 설정
         List<Mission> recentMissions = new ArrayList<>();
         recentMissions.add(Mission.builder().title("1일 전 미션").build());
@@ -117,7 +119,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 오늘의_미션_조회_실패_할당가능한_미션이_없는_경우() {
+    void 오늘의_미션_조회_실패_할당가능한_미션이_없는_경우() {
         // Given: 초기 설정
         List<Mission> emptyMissionList = new ArrayList<>();
 
@@ -137,7 +139,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 미션_조회_미션이_없는_경우() {
+    void 미션_조회_미션이_없는_경우() {
         // Given
 
         // When
@@ -149,7 +151,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 미션_수정_성공() {
+    void 미션_수정_성공() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.of(mission));
 
@@ -164,7 +166,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 미션_수정_실패_미션이_없는_경우() {
+    void 미션_수정_실패_미션이_없는_경우() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.empty());
         MissionUpdateRequest updateRequest = new MissionUpdateRequest("Test Mission");
@@ -174,7 +176,7 @@ public class MissionServiceTest {
     }
 
     @Test
-    public void 미션_삭제_성공() {
+    void 미션_삭제_성공() {
         // Given
         doNothing().when(missionRepository).deleteById(anyLong());
 

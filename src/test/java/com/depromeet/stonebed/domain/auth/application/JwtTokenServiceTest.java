@@ -4,6 +4,7 @@ import static com.depromeet.stonebed.global.common.constants.SecurityConstants.*
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.auth.dao.RefreshTokenRepository;
 import com.depromeet.stonebed.domain.auth.domain.RefreshToken;
 import com.depromeet.stonebed.domain.auth.dto.AccessTokenDto;
@@ -12,11 +13,8 @@ import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.global.util.JwtUtil;
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,23 +24,12 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class JwtTokenServiceTest {
+class JwtTokenServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private JwtTokenService jwtTokenService;
 
     @Mock private JwtUtil jwtUtil;
     @Mock private RefreshTokenRepository refreshTokenRepository;
-
-    private FixtureMonkey fixtureMonkey;
-
-    @BeforeEach
-    void setUp() {
-        fixtureMonkey =
-                FixtureMonkey.builder()
-                        .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
-                        .defaultNotNull(true)
-                        .build();
-    }
 
     @Test
     void 토큰_PAIR를_생성합니다() {
