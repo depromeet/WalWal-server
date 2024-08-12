@@ -39,7 +39,7 @@ public class FeedServiceTest {
     }
 
     @Test
-    public void 피드_조회_성공() {
+    void 피드_조회_성공() {
         // Given
         Member member = fixtureMonkey.giveMeOne(Member.class);
         List<MissionRecord> missionRecords = new ArrayList<>();
@@ -63,7 +63,7 @@ public class FeedServiceTest {
     }
 
     @Test
-    public void 피드_조회_커서_사용_성공() {
+    void 피드_조회_커서_사용_성공() {
         // Given
         Member member = fixtureMonkey.giveMeOne(Member.class);
         List<MissionRecord> missionRecords = new ArrayList<>();
@@ -90,7 +90,7 @@ public class FeedServiceTest {
     }
 
     @Test
-    public void 피드_조회_커서_사용_마지막_성공() {
+    void 피드_조회_커서_사용_마지막_성공() {
         // Given
         Member member = fixtureMonkey.giveMeOne(Member.class);
         List<MissionRecord> missionRecords = new ArrayList<>();
