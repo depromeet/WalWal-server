@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.missionRecord;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
@@ -15,11 +16,8 @@ import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCal
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,26 +26,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class MissionRecordServiceTest {
+class MissionRecordServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private MissionRecordService missionRecordService;
 
     @Mock private MissionRecordRepository missionRecordRepository;
     @Mock private MissionHistoryRepository missionHistoryRepository;
     @Mock private MemberUtil memberUtil;
-
-    private FixtureMonkey fixtureMonkey;
-
-    @BeforeEach
-    void setUp() {
-        fixtureMonkey =
-                FixtureMonkey.builder()
-                        .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
-                        .defaultNotNull(true)
-                        .build();
-    }
 
     @Test
     void 미션기록_성공() {

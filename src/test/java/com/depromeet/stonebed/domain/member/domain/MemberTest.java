@@ -2,29 +2,16 @@ package com.depromeet.stonebed.domain.member.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
-class MemberTest {
-
-    private FixtureMonkey fixtureMonkey;
-
-    @BeforeEach
-    void setUp() {
-        fixtureMonkey =
-                FixtureMonkey.builder()
-                        .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
-                        .defaultNotNull(true)
-                        .build();
-    }
+class MemberTest extends FixtureMonkeySetUp {
 
     @Test
     void createMember_성공() {

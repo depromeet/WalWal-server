@@ -14,18 +14,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @Import(TestQuerydslConfig.class)
-public class MissionHistoryRepositoryTest {
+class MissionHistoryRepositoryTest {
 
     @Autowired private MissionRepository missionRepository;
     @Autowired private MissionHistoryRepository missionHistoryRepository;
 
     @Test
-    public void 미션_히스토리_생성_성공() {
+    void 미션_히스토리_생성_성공() {
         // Given: 오늘 날짜를 기준으로 미션 히스토리가 있다 (생성할 예정)
         Mission mission = Mission.builder().title("Test Mission").build();
         missionRepository.save(mission);
@@ -44,7 +46,7 @@ public class MissionHistoryRepositoryTest {
     }
 
     @Test
-    public void 미션_히스토리_특정_날짜_조회_성공() {
+    void 미션_히스토리_특정_날짜_조회_성공() {
         // Given: 오늘 날짜를 기준으로 저장된 객체가 있다
         Mission mission = Mission.builder().title("Test Mission").build();
         missionRepository.save(mission);

@@ -1,42 +1,32 @@
 package com.depromeet.stonebed.domain.feed.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.feed.dao.FeedRepository;
 import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
 import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
-public class FeedServiceTest {
-    @Mock private FeedRepository feedRepository;
-
-    @Mock private MemberUtil memberUtil;
+@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
+class FeedServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private FeedService feedService;
 
-    private FixtureMonkey fixtureMonkey;
-
-    @BeforeEach
-    void setUp() {
-        fixtureMonkey =
-                FixtureMonkey.builder()
-                        .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
-                        .defaultNotNull(true)
-                        .build();
-        MockitoAnnotations.openMocks(this);
-    }
+    @Mock private FeedRepository feedRepository;
+    @Mock private MemberUtil memberUtil;
 
     @Test
     void 피드_조회_성공() {

@@ -3,14 +3,13 @@ package com.depromeet.stonebed.domain.auth.application;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class AuthServiceTest {
+class AuthServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private AuthService authService;
 
@@ -36,12 +35,6 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        FixtureMonkey fixtureMonkey =
-                FixtureMonkey.builder()
-                        .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
-                        .defaultNotNull(true)
-                        .build();
-
         oauthId = fixtureMonkey.giveMeOne(String.class);
         email = fixtureMonkey.giveMeOne(String.class);
         member = fixtureMonkey.giveMeOne(Member.class);

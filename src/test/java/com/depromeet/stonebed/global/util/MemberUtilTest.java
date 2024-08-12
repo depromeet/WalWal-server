@@ -3,15 +3,13 @@ package com.depromeet.stonebed.global.util;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,24 +19,13 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class MemberUtilTest {
+class MemberUtilTest extends FixtureMonkeySetUp {
 
     @InjectMocks private MemberUtil memberUtil;
 
     @Mock private SecurityUtil securityUtil;
 
     @Mock private MemberRepository memberRepository;
-
-    private FixtureMonkey fixtureMonkey;
-
-    @BeforeEach
-    void setUp() {
-        fixtureMonkey =
-                FixtureMonkey.builder()
-                        .objectIntrospector(FieldReflectionArbitraryIntrospector.INSTANCE)
-                        .defaultNotNull(true)
-                        .build();
-    }
 
     @Test
     void getCurrentMember_성공() {
