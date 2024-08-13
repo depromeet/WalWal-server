@@ -1,6 +1,5 @@
 package com.depromeet.stonebed.domain.missionRecord.application;
 
-import com.depromeet.stonebed.domain.image.dao.ImageRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
@@ -32,11 +31,12 @@ public class MissionRecordService {
 
     private final MissionRecordRepository missionRecordRepository;
     private final MissionHistoryRepository missionHistoryRepository;
-    private final ImageRepository imageRepository;
     private final MemberUtil memberUtil;
 
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final LocalDateTime endOfYesterday =
+            LocalDate.now().minusDays(1).atTime(23, 59, 59);
 
     public void startMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
@@ -167,5 +167,9 @@ public class MissionRecordService {
         final Member member = memberUtil.getCurrentMember();
         return missionRecordRepository.countByMemberIdAndStatus(
                 member.getId(), MissionRecordStatus.COMPLETED);
+    }
+
+    public void updateExpiredMissionsToNotCompleted() {
+        missionRecordRepository.updateExpiredMissionsToNotCompleted(endOfYesterday);
     }
 }
