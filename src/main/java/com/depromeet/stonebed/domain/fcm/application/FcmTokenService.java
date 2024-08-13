@@ -57,16 +57,4 @@ public class FcmTokenService {
                     fcmRepository.save(fcmToken);
                 });
     }
-
-    @Transactional
-    public void refreshTokenTimestampForCurrentUser() {
-        final Member member = memberUtil.getCurrentMember();
-        fcmRepository
-                .findByMember(member)
-                .ifPresentOrElse(
-                        fcmToken -> updateToken(fcmToken, fcmToken.getToken()),
-                        () -> {
-                            throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
-                        });
-    }
 }
