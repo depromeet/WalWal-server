@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.missionRecord.dao;
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
 
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
@@ -38,6 +39,19 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
+
+    @Override
+    public long updateExpiredMissionsToNotCompleted(LocalDateTime endOfYesterday) {
+        return queryFactory
+                .update(missionRecord)
+                .set(missionRecord.status, MissionRecordStatus.NOT_COMPLETED)
+                .where(
+                        missionRecord
+                                .status
+                                .eq(MissionRecordStatus.IN_PROGRESS)
+                                .and(missionRecord.createdAt.before(endOfYesterday)))
+                .execute();
     }
 
     private BooleanExpression isMemberId(Long memberId) {
