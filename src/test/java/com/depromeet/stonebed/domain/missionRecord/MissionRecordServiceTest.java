@@ -62,7 +62,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(Optional.of(missionRecord)); // 모킹 추가
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
-        MissionRecordSaveRequest request = new MissionRecordSaveRequest(text);
+        MissionRecordSaveRequest request = new MissionRecordSaveRequest(missionId, text);
 
         // when
         missionRecordService.saveMission(missionId, request.text());
