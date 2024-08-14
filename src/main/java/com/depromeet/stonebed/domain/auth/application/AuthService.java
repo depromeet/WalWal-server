@@ -127,6 +127,7 @@ public class AuthService {
          */
         jwtTokenService.deleteRefreshToken(member.getId());
         member.withdrawal();
+        memberRepository.deleteById(member.getId());
     }
 
     private Member registerMember(Member member, CreateMemberRequest request) {

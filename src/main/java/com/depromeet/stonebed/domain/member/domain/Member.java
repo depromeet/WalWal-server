@@ -17,10 +17,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE member SET status = 'DELETED' WHERE member_id = ?")
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -104,7 +106,6 @@ public class Member extends BaseTimeEntity {
         if (this.status == MemberStatus.DELETED) {
             throw new CustomException(ErrorCode.MEMBER_ALREADY_DELETED);
         }
-        this.status = MemberStatus.DELETED;
         this.role = MemberRole.TEMPORARY;
     }
 }
