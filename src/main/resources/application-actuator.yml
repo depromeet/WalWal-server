@@ -7,7 +7,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, prometheus
       base-path: /walwal-actuator
     jmx:
       exposure:
@@ -15,4 +15,6 @@ management:
     enabled-by-default: false
   endpoint:
     health:
+      enabled: true
+    prometheus:
       enabled: true
