@@ -105,5 +105,6 @@ public class Member extends BaseTimeEntity {
             throw new CustomException(ErrorCode.MEMBER_ALREADY_DELETED);
         }
         this.status = MemberStatus.DELETED;
+        this.role = MemberRole.TEMPORARY;
     }
 }
