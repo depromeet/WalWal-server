@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.missionRecord.api;
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,24 +22,23 @@ public class MissionRecordController {
     private final MissionRecordService missionRecordService;
 
     @Operation(summary = "미션 탭 상태 조회", description = "미션 탭의 상태를 조회한다.")
-    @GetMapping("/{missionId}/status")
-    public MissionTabResponse getMissionTabStatus(@PathVariable("missionId") Long missionId) {
+    @GetMapping("/status")
+    public MissionTabResponse getMissionTabStatus(@RequestParam Long missionId) {
         return missionRecordService.getMissionTabStatus(missionId);
     }
 
     @Operation(summary = "미션 참여", description = "미션 참여하기.")
-    @PostMapping("/{missionId}/start")
-    public ResponseEntity<Void> startMission(@PathVariable("missionId") Long missionId) {
-        missionRecordService.startMission(missionId);
+    @PostMapping("/start")
+    public ResponseEntity<Void> startMission(
+            @Valid @RequestBody MissionRecordStartRequest request) {
+        missionRecordService.startMission(request.missionId());
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
-    @PostMapping("/{missionId}")
-    public ResponseEntity<Void> saveMission(
-            @PathVariable("missionId") Long missionId,
-            @Valid @RequestBody MissionRecordSaveRequest request) {
-        missionRecordService.saveMission(missionId, request.text());
+    @PostMapping
+    public ResponseEntity<Void> saveMission(@Valid @RequestBody MissionRecordSaveRequest request) {
+        missionRecordService.saveMission(request.missionId(), request.text());
         return ResponseEntity.ok().build();
     }
 
