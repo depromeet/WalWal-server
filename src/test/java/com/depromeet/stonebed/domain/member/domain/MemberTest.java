@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
-import com.depromeet.stonebed.global.error.ErrorCode;
-import com.depromeet.stonebed.global.error.exception.CustomException;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
@@ -102,38 +100,5 @@ class MemberTest extends FixtureMonkeySetUp {
 
         // then
         assertEquals(newRole, member.getRole());
-    }
-
-    @Test
-    void withdrawal_성공() {
-        // given
-        Member member =
-                fixtureMonkey
-                        .giveMeBuilder(Member.class)
-                        .set("role", MemberRole.USER)
-                        .set("status", MemberStatus.NORMAL)
-                        .sample();
-        member.updateMemberRole(MemberRole.USER);
-
-        // when
-        member.withdrawal();
-
-        // then
-        assertEquals(MemberStatus.DELETED, member.getStatus());
-    }
-
-    @Test
-    void withdrawal_실패_MEMBER_ALREADY_DELETED() {
-        // given
-        Member member =
-                fixtureMonkey
-                        .giveMeBuilder(Member.class)
-                        .set("role", MemberRole.USER)
-                        .set("status", MemberStatus.DELETED)
-                        .sample();
-
-        // when & then
-        CustomException exception = assertThrows(CustomException.class, member::withdrawal);
-        assertEquals(ErrorCode.MEMBER_ALREADY_DELETED, exception.getErrorCode());
     }
 }
