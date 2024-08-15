@@ -11,6 +11,7 @@ import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
 import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
@@ -125,8 +126,16 @@ public class AuthService {
          * TODO: 런칭데이 이후 고도화 if (provider.equals(OAuthProvider.APPLE)) {
          * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
          */
+        validateMemberStatusDelete(member.getStatus());
         jwtTokenService.deleteRefreshToken(member.getId());
-        member.withdrawal();
+        member.updateMemberRole(MemberRole.TEMPORARY);
+        memberRepository.deleteById(member.getId());
+    }
+
+    private void validateMemberStatusDelete(MemberStatus status) {
+        if (status == MemberStatus.DELETED) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_DELETED);
+        }
     }
 
     private Member registerMember(Member member, CreateMemberRequest request) {

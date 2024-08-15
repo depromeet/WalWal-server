@@ -2,8 +2,6 @@ package com.depromeet.stonebed.domain.member.domain;
 
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
-import com.depromeet.stonebed.global.error.ErrorCode;
-import com.depromeet.stonebed.global.error.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -17,10 +15,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE member SET status = 'DELETED' WHERE member_id = ?")
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -98,12 +98,5 @@ public class Member extends BaseTimeEntity {
 
     public void updateMemberRole(MemberRole memberRole) {
         this.role = memberRole;
-    }
-
-    public void withdrawal() {
-        if (this.status == MemberStatus.DELETED) {
-            throw new CustomException(ErrorCode.MEMBER_ALREADY_DELETED);
-        }
-        this.status = MemberStatus.DELETED;
     }
 }
