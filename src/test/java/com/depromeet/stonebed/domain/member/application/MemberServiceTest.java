@@ -5,6 +5,8 @@ import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.domain.member.domain.Profile;
+import com.depromeet.stonebed.domain.member.dto.request.MemberProfileUpdateRequest;
 import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import org.junit.jupiter.api.Test;
@@ -47,5 +49,27 @@ class MemberServiceTest extends FixtureMonkeySetUp {
 
         // then
         verify(memberUtil).checkNickname(request);
+    }
+
+    @Test
+    void 사용자_프로필을_수정한다() {
+        // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+
+        String nickname = fixtureMonkey.giveMeOne(String.class);
+        String profileImageUrl = fixtureMonkey.giveMeOne(String.class);
+        MemberProfileUpdateRequest request =
+                new MemberProfileUpdateRequest(nickname, profileImageUrl);
+
+        // when
+        memberService.modifyMemberProfile(request);
+
+        // then
+        verify(memberUtil).getCurrentMember();
+
+        Profile updatedProfile = member.getProfile();
+        assertEquals(nickname, updatedProfile.getNickname());
+        assertEquals(profileImageUrl, updatedProfile.getProfileImageUrl());
     }
 }
