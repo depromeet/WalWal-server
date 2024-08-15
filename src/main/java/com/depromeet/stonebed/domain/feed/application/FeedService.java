@@ -1,7 +1,7 @@
 package com.depromeet.stonebed.domain.feed.application;
 
 import com.depromeet.stonebed.domain.feed.dao.FeedRepository;
-import com.depromeet.stonebed.domain.feed.dto.FeedDTO;
+import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
 import com.depromeet.stonebed.domain.feed.dto.response.FeedContentGetResponse;
 import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
@@ -31,7 +31,8 @@ public class FeedService {
     public FeedGetResponse getFeed(FeedGetRequest request) {
         Member currentMember = memberUtil.getCurrentMember();
 
-        List<FeedDTO> feeds = getFeeds(request.cursor(), currentMember.getId(), request.limit());
+        List<FindFeedDto> feeds =
+                getFeeds(request.cursor(), currentMember.getId(), request.limit());
 
         List<FeedContentGetResponse> feedContentList =
                 feeds.stream().map(FeedContentGetResponse::from).toList();
@@ -58,17 +59,17 @@ public class FeedService {
         missionRecordBoostRepository.save(missionRecordBoost);
     }
 
-    private String getNextCursor(List<FeedDTO> records, int limit) {
+    private String getNextCursor(List<FindFeedDto> records, int limit) {
         if (records.size() < limit) {
             return null;
         }
 
-        FeedDTO lastRecord = records.get(records.size() - 1);
+        FindFeedDto lastRecord = records.get(records.size() - 1);
         Long lastId = lastRecord.missionRecord().getId();
         return String.valueOf(lastId);
     }
 
-    private List<FeedDTO> getFeeds(String cursor, Long memberId, int limit) {
+    private List<FindFeedDto> getFeeds(String cursor, Long memberId, int limit) {
         if (cursor == null || cursor.isEmpty()) {
             return feedRepository.getFeedContents(memberId, limit);
         }

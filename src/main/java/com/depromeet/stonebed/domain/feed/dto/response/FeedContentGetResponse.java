@@ -1,6 +1,6 @@
 package com.depromeet.stonebed.domain.feed.dto.response;
 
-import com.depromeet.stonebed.domain.feed.dto.FeedDTO;
+import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 
@@ -12,7 +12,7 @@ public record FeedContentGetResponse(
                 String missionRecordImageUrl,
         @Schema(description = "미션 기록 생성일") LocalDate createdDate,
         @Schema(description = "부스트") Long totalBoostCount) {
-    public static FeedContentGetResponse from(FeedDTO missionRecord) {
+    public static FeedContentGetResponse from(FindFeedDto missionRecord) {
         return new FeedContentGetResponse(
                 missionRecord.mission().getId(),
                 missionRecord.missionRecord().getId(),

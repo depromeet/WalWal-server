@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.feed.dao.FeedRepository;
-import com.depromeet.stonebed.domain.feed.dto.FeedDTO;
+import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
 import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
@@ -41,11 +41,11 @@ class FeedServiceTest extends FixtureMonkeySetUp {
     void 피드_조회_성공() {
         // Given
         Member member = fixtureMonkey.giveMeOne(Member.class);
-        List<FeedDTO> feeds = new ArrayList<>();
+        List<FindFeedDto> feeds = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
             feeds.add(
-                    new FeedDTO(
+                    FindFeedDto.from(
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
@@ -70,12 +70,12 @@ class FeedServiceTest extends FixtureMonkeySetUp {
     void 피드_조회_커서_사용_성공() {
         // Given
         Member member = fixtureMonkey.giveMeOne(Member.class);
-        List<FeedDTO> feeds = new ArrayList<>();
+        List<FindFeedDto> feeds = new ArrayList<>();
         String cursor = "5";
 
         for (int i = 0; i < 5; i++) {
             feeds.add(
-                    new FeedDTO(
+                    FindFeedDto.from(
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
@@ -102,12 +102,12 @@ class FeedServiceTest extends FixtureMonkeySetUp {
     void 피드_조회_커서_사용_마지막_성공() {
         // Given
         Member member = fixtureMonkey.giveMeOne(Member.class);
-        List<FeedDTO> feeds = new ArrayList<>();
+        List<FindFeedDto> feeds = new ArrayList<>();
         String cursor = "5";
 
         for (int i = 0; i < 3; i++) {
             feeds.add(
-                    new FeedDTO(
+                    FindFeedDto.from(
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),

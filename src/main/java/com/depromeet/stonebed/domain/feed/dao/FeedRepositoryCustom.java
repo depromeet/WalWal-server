@@ -1,10 +1,10 @@
 package com.depromeet.stonebed.domain.feed.dao;
 
-import com.depromeet.stonebed.domain.feed.dto.FeedDTO;
+import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import java.util.List;
 
 public interface FeedRepositoryCustom {
-    List<FeedDTO> getFeedContentsUsingCursor(Long missionRecordId, Long memberId, int limit);
+    List<FindFeedDto> getFeedContentsUsingCursor(Long missionRecordId, Long memberId, int limit);
 
-    List<FeedDTO> getFeedContents(Long memberId, int limit);
+    List<FindFeedDto> getFeedContents(Long memberId, int limit);
 }

@@ -6,7 +6,7 @@ import static com.depromeet.stonebed.domain.mission.domain.QMissionHistory.missi
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecordBoost.missionRecordBoost;
 
-import com.depromeet.stonebed.domain.feed.dto.FeedDTO;
+import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -20,11 +20,11 @@ import org.springframework.stereotype.Repository;
 public class FeedRepositoryImpl implements FeedRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
-    private JPAQuery<FeedDTO> getFeedBaseQuery() {
+    private JPAQuery<FindFeedDto> getFeedBaseQuery() {
         return queryFactory
                 .select(
                         Projections.constructor(
-                                FeedDTO.class,
+                                FindFeedDto.class,
                                 mission,
                                 missionRecord,
                                 member,
@@ -43,7 +43,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
     }
 
     @Override
-    public List<FeedDTO> getFeedContentsUsingCursor(
+    public List<FindFeedDto> getFeedContentsUsingCursor(
             Long missionRecordId, Long memberId, int limit) {
         return getFeedBaseQuery()
                 .where(
@@ -58,7 +58,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
     }
 
     @Override
-    public List<FeedDTO> getFeedContents(Long memberId, int limit) {
+    public List<FindFeedDto> getFeedContents(Long memberId, int limit) {
         return getFeedBaseQuery()
                 .where(missionRecord.member.id.eq(memberId))
                 .groupBy(missionRecord.id, member.id, mission.id, missionHistory.id)
