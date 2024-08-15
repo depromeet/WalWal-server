@@ -1,14 +1,16 @@
 package com.depromeet.stonebed.domain.missionRecord.api;
 
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
-import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,10 +51,24 @@ public class MissionRecordController {
     }
 
     @Operation(summary = "캘린더 형식의 미션 기록 조회", description = "회원의 미션 기록을 페이징하여 조회한다.")
-    @PostMapping("/calendar")
+    @GetMapping("/calendar")
     public MissionRecordCalendarResponse getMissionRecordsForCalendar(
-            @Valid @RequestBody MissionRecordCalendarRequest request) {
-        return missionRecordService.getMissionRecordsForCalendar(request.cursor(), request.limit());
+            @Parameter(description = "커서 위치", example = "2024-01-01")
+                    @Valid
+                    @RequestParam(required = false)
+                    String cursor,
+            @Parameter(description = "페이지 당 항목 수", example = "30")
+                    @Valid
+                    @RequestParam
+                    @NotNull
+                    @Min(1)
+                    int limit,
+            @Parameter(description = "조회할 memberId", example = "1")
+                    @Valid
+                    @RequestParam(required = false)
+                    Long memberId) {
+
+        return missionRecordService.getMissionRecordsForCalendar(cursor, limit, memberId);
     }
 
     @Operation(summary = "수행한 총 미션 기록 수", description = "회원이 수행한 총 미션 기록 수를 조회한다.")
