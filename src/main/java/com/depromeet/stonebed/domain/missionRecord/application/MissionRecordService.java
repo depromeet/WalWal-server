@@ -164,6 +164,7 @@ public class MissionRecordService {
         missionRecord.updateImageUrl(imageUrl);
     }
 
+    @Transactional(readOnly = true)
     public MissionRecordCompleteTotal getTotalMissionRecords() {
         final Member member = memberUtil.getCurrentMember();
         Long totalCount =
