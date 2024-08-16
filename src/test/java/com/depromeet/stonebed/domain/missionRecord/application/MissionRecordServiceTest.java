@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.domain.missionRecord;
+package com.depromeet.stonebed.domain.missionRecord.application;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.*;
@@ -7,9 +7,10 @@ import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
-import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
@@ -37,13 +38,14 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
 
     @Mock private MissionRecordRepository missionRecordRepository;
     @Mock private MissionHistoryRepository missionHistoryRepository;
+    @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
     @Mock private MemberUtil memberUtil;
 
     @Test
     void 미션기록_성공() {
         // given
         Long missionId = 1L;
-        String text = "미션 완료 소감";
+        String content = "미션 완료 소감";
 
         MissionHistory missionHistory = fixtureMonkey.giveMeOne(MissionHistory.class);
         Member member = fixtureMonkey.giveMeOne(Member.class);
@@ -53,7 +55,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
                         .set("missionHistory", missionHistory)
                         .set("member", member)
                         .set("status", MissionRecordStatus.COMPLETED)
-                        .set("text", text)
+                        .set("content", content)
                         .sample();
 
         when(missionHistoryRepository.findLatestOneByMissionId(missionId))
@@ -63,7 +65,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(Optional.of(missionRecord)); // 모킹 추가
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
-        MissionRecordSaveRequest request = new MissionRecordSaveRequest(missionId, text);
+        MissionRecordSaveRequest request = new MissionRecordSaveRequest(missionId, content);
 
         // when
         missionRecordService.saveMission(missionId, request.content());
@@ -226,5 +228,25 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         verify(memberUtil).getCurrentMember();
         verify(missionRecordRepository)
                 .countByMemberIdAndStatus(member.getId(), MissionRecordStatus.COMPLETED);
+    }
+
+    @Test
+    void 부스트_성공() {
+        // Given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
+
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.findById(missionRecord.getId()))
+                .thenReturn(Optional.of(missionRecord));
+        when(missionRecordBoostRepository.save(any(MissionRecordBoost.class))).thenReturn(null);
+
+        // When
+        missionRecordService.createBoost(missionRecord.getId(), 10L);
+
+        // Then
+        verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository).findById(missionRecord.getId());
+        verify(missionRecordBoostRepository).save(any(MissionRecordBoost.class));
     }
 }

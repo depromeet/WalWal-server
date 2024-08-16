@@ -3,8 +3,10 @@ package com.depromeet.stonebed.domain.missionRecord.application;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
@@ -33,6 +35,7 @@ public class MissionRecordService {
 
     private final MissionRecordRepository missionRecordRepository;
     private final MissionHistoryRepository missionHistoryRepository;
+    private final MissionRecordBoostRepository missionRecordBoostRepository;
     private final MemberUtil memberUtil;
 
     private static final DateTimeFormatter DATE_FORMATTER =
@@ -59,7 +62,7 @@ public class MissionRecordService {
         missionRecordRepository.save(missionRecord);
     }
 
-    public void saveMission(Long missionId, String text) {
+    public void saveMission(Long missionId, String content) {
         final Member member = memberUtil.getCurrentMember();
 
         MissionHistory missionHistory = findMissionHistoryById(missionId);
@@ -69,7 +72,7 @@ public class MissionRecordService {
                         .findByMemberAndMissionHistory(member, missionHistory)
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
-        missionRecord.updateText(text);
+        missionRecord.updateContent(content);
         missionRecord.updateStatus(MissionRecordStatus.COMPLETED);
 
         missionRecordRepository.save(missionRecord);
@@ -82,6 +85,23 @@ public class MissionRecordService {
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
         missionRecordRepository.delete(missionRecord);
+    }
+
+    public void createBoost(Long missionRecordId, Long boostCount) {
+        Member currentMember = memberUtil.getCurrentMember();
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findById(missionRecordId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        MissionRecordBoost missionRecordBoost =
+                MissionRecordBoost.builder()
+                        .missionRecord(missionRecord)
+                        .member(currentMember)
+                        .count(boostCount)
+                        .build();
+
+        missionRecordBoostRepository.save(missionRecordBoost);
     }
 
     private MissionHistory findMissionHistoryById(Long missionId) {
