@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
                     type = FilterType.ASSIGNABLE_TYPE,
                     classes = AuthenticationEntryPoint.class)
         })
+@ActiveProfiles("test")
 public class FeedControllerTest {
     @Autowired private MockMvc mockMvc;
 
