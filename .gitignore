@@ -40,3 +40,4 @@ out/
 *.env
 *.DS_Store
 /src/main/generated
+.*-database
