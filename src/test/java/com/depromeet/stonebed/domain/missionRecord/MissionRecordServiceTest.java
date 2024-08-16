@@ -112,7 +112,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
     }
 
     @Test
-    void 캘린더미션기록조회_성공() {
+    void 본인의_미션_기록_캘린더를_조회합니다() {
         // given
         Member member = fixtureMonkey.giveMeOne(Member.class);
         List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
@@ -126,13 +126,40 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
 
         // when
         MissionRecordCalendarResponse response =
-                missionRecordService.getMissionRecordsForCalendar(cursor, limit);
+                missionRecordService.getMissionRecordsForCalendar(
+                        cursor, limit, null); // Pass null for memberId
 
         // then
         then(response).isNotNull();
         then(response.list()).isNotEmpty();
 
-        verify(memberUtil).getCurrentMember();
+        verify(memberUtil).getCurrentMember(); // This will now be invoked
+        verify(missionRecordRepository)
+                .findByMemberIdWithPagination(
+                        member.getId(),
+                        PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt")));
+    }
+
+    @Test
+    void 다른_사용자의_미션_기록_캘린더를_조회합니다() {
+        // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
+
+        when(missionRecordRepository.findByMemberIdWithPagination(anyLong(), any(Pageable.class)))
+                .thenReturn(missionRecords);
+
+        String cursor = null;
+        int limit = 5;
+
+        // when
+        MissionRecordCalendarResponse response =
+                missionRecordService.getMissionRecordsForCalendar(cursor, limit, member.getId());
+
+        // then
+        then(response).isNotNull();
+        then(response.list()).isNotEmpty();
+
         verify(missionRecordRepository)
                 .findByMemberIdWithPagination(
                         member.getId(),
