@@ -6,9 +6,9 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.global.util.FcmNotificationUtil;
 import com.google.firebase.messaging.Notification;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -41,7 +41,7 @@ public class FcmScheduledService {
 
     // 매일 18시 0분에 실행
     @Scheduled(cron = "0 0 18 * * ?")
-    public void sendReminderToIncompleteMissions() throws IOException {
+    public void sendReminderToIncompleteMissions() {
         Notification notification =
                 FcmNotificationUtil.buildNotification("리마인드 메세지 제목", "리마인드 메세지 내용");
         List<String> tokens = getIncompleteMissionTokens();
@@ -59,7 +59,7 @@ public class FcmScheduledService {
                                             .orElse(null);
                             return fcmToken != null ? fcmToken.getToken() : null;
                         })
-                .filter(token -> token != null)
+                .filter(Objects::nonNull)
                 .toList();
     }
 }

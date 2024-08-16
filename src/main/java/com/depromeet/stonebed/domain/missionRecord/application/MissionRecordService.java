@@ -8,6 +8,7 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
@@ -163,10 +164,14 @@ public class MissionRecordService {
         missionRecord.updateImageUrl(imageUrl);
     }
 
-    public Long getTotalMissionRecords() {
+    @Transactional(readOnly = true)
+    public MissionRecordCompleteTotal getTotalMissionRecords() {
         final Member member = memberUtil.getCurrentMember();
-        return missionRecordRepository.countByMemberIdAndStatus(
-                member.getId(), MissionRecordStatus.COMPLETED);
+        Long totalCount =
+                missionRecordRepository.countByMemberIdAndStatus(
+                        member.getId(), MissionRecordStatus.COMPLETED);
+
+        return MissionRecordCompleteTotal.of(totalCount);
     }
 
     public void updateExpiredMissionsToNotCompleted() {

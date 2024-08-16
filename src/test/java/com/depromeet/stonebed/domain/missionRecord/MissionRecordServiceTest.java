@@ -13,6 +13,7 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -168,5 +169,35 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         verify(missionHistoryRepository).findLatestOneByMissionId(missionId);
         verify(missionRecordRepository).findByMemberAndMissionHistory(member, missionHistory);
         verify(missionRecordRepository).save(any(MissionRecord.class));
+    }
+
+    @Test
+    void 완료한_미션_수를_조회합니다() {
+        // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+
+        // Create a list of mission records with 3 COMPLETED statuses
+        List<MissionRecord> missionRecords =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("member", member)
+                        .set("status", MissionRecordStatus.COMPLETED)
+                        .sampleList(3);
+
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.countByMemberIdAndStatus(
+                        member.getId(), MissionRecordStatus.COMPLETED))
+                .thenReturn((long) missionRecords.size());
+
+        // when
+        MissionRecordCompleteTotal completedMissionCount =
+                missionRecordService.getTotalMissionRecords();
+
+        // then
+        then(completedMissionCount.totalCount()).isEqualTo(3);
+
+        verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository)
+                .countByMemberIdAndStatus(member.getId(), MissionRecordStatus.COMPLETED);
     }
 }
