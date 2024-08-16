@@ -4,6 +4,7 @@ import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordServ
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -72,8 +73,8 @@ public class MissionRecordController {
     }
 
     @Operation(summary = "수행한 총 미션 기록 수", description = "회원이 수행한 총 미션 기록 수를 조회한다.")
-    @PostMapping("/complete/total")
-    public Long getTotalMissionRecords() {
+    @GetMapping("/complete/total")
+    public MissionRecordCompleteTotal getTotalMissionRecords() {
         return missionRecordService.getTotalMissionRecords();
     }
 }

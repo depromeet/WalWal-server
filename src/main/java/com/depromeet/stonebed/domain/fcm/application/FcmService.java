@@ -2,7 +2,6 @@ package com.depromeet.stonebed.domain.fcm.application;
 
 import com.depromeet.stonebed.domain.fcm.domain.FcmResponseErrorType;
 import com.google.firebase.messaging.*;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -33,8 +32,7 @@ public class FcmService {
     }
 
     @Transactional
-    public void sendMulticastMessage(Notification notification, List<String> tokens)
-            throws IOException {
+    public void sendMulticastMessage(Notification notification, List<String> tokens) {
         int totalTokens = tokens.size();
 
         for (int i = 0; i < totalTokens; i += BATCH_SIZE) {
