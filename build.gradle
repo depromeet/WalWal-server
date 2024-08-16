@@ -30,6 +30,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
+    // Validator
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
