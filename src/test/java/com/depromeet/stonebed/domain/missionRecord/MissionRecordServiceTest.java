@@ -66,7 +66,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         MissionRecordSaveRequest request = new MissionRecordSaveRequest(missionId, text);
 
         // when
-        missionRecordService.saveMission(missionId, request.text());
+        missionRecordService.saveMission(missionId, request.content());
 
         // then
         verify(missionHistoryRepository).findLatestOneByMissionId(missionId);

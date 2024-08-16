@@ -35,4 +35,8 @@ public class Mission extends BaseTimeEntity {
     public void updateTitle(String title) {
         this.title = title;
     }
+
+    public void updateIllustrationUrl(String illustrationUrl) {
+        this.illustrationUrl = illustrationUrl;
+    }
 }
