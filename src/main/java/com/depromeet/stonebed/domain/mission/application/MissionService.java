@@ -92,4 +92,13 @@ public class MissionService {
     public void deleteMission(Long missionId) {
         missionRepository.deleteById(missionId);
     }
+
+    public void updateMissionWithImageUrl(Long missionId, String imageUrl) {
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+        mission.updateIllustrationUrl(imageUrl);
+        missionRepository.save(mission);
+    }
 }

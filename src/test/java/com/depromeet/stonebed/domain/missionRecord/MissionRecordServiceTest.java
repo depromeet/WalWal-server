@@ -13,6 +13,7 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -62,10 +63,10 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(Optional.of(missionRecord)); // 모킹 추가
         when(missionRecordRepository.save(any(MissionRecord.class))).thenReturn(missionRecord);
 
-        MissionRecordSaveRequest request = new MissionRecordSaveRequest(text);
+        MissionRecordSaveRequest request = new MissionRecordSaveRequest(missionId, text);
 
         // when
-        missionRecordService.saveMission(missionId, request.text());
+        missionRecordService.saveMission(missionId, request.content());
 
         // then
         verify(missionHistoryRepository).findLatestOneByMissionId(missionId);
@@ -111,7 +112,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
     }
 
     @Test
-    void 캘린더미션기록조회_성공() {
+    void 본인의_미션_기록_캘린더를_조회합니다() {
         // given
         Member member = fixtureMonkey.giveMeOne(Member.class);
         List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
@@ -125,13 +126,40 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
 
         // when
         MissionRecordCalendarResponse response =
-                missionRecordService.getMissionRecordsForCalendar(cursor, limit);
+                missionRecordService.getMissionRecordsForCalendar(
+                        cursor, limit, null); // Pass null for memberId
 
         // then
         then(response).isNotNull();
         then(response.list()).isNotEmpty();
 
-        verify(memberUtil).getCurrentMember();
+        verify(memberUtil).getCurrentMember(); // This will now be invoked
+        verify(missionRecordRepository)
+                .findByMemberIdWithPagination(
+                        member.getId(),
+                        PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt")));
+    }
+
+    @Test
+    void 다른_사용자의_미션_기록_캘린더를_조회합니다() {
+        // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
+
+        when(missionRecordRepository.findByMemberIdWithPagination(anyLong(), any(Pageable.class)))
+                .thenReturn(missionRecords);
+
+        String cursor = null;
+        int limit = 5;
+
+        // when
+        MissionRecordCalendarResponse response =
+                missionRecordService.getMissionRecordsForCalendar(cursor, limit, member.getId());
+
+        // then
+        then(response).isNotNull();
+        then(response.list()).isNotEmpty();
+
         verify(missionRecordRepository)
                 .findByMemberIdWithPagination(
                         member.getId(),
@@ -168,5 +196,35 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         verify(missionHistoryRepository).findLatestOneByMissionId(missionId);
         verify(missionRecordRepository).findByMemberAndMissionHistory(member, missionHistory);
         verify(missionRecordRepository).save(any(MissionRecord.class));
+    }
+
+    @Test
+    void 완료한_미션_수를_조회합니다() {
+        // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+
+        // Create a list of mission records with 3 COMPLETED statuses
+        List<MissionRecord> missionRecords =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("member", member)
+                        .set("status", MissionRecordStatus.COMPLETED)
+                        .sampleList(3);
+
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.countByMemberIdAndStatus(
+                        member.getId(), MissionRecordStatus.COMPLETED))
+                .thenReturn((long) missionRecords.size());
+
+        // when
+        MissionRecordCompleteTotal completedMissionCount =
+                missionRecordService.getTotalMissionRecords();
+
+        // then
+        then(completedMissionCount.totalCount()).isEqualTo(3);
+
+        verify(memberUtil).getCurrentMember();
+        verify(missionRecordRepository)
+                .countByMemberIdAndStatus(member.getId(), MissionRecordStatus.COMPLETED);
     }
 }
