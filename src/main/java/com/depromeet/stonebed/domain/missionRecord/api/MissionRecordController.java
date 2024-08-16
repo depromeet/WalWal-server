@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.missionRecord.api;
 
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordBoostRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,5 +78,14 @@ public class MissionRecordController {
     @GetMapping("/complete/total")
     public MissionRecordCompleteTotal getTotalMissionRecords() {
         return missionRecordService.getTotalMissionRecords();
+    }
+
+    @Operation(summary = "부스트 생성", description = "미션 기록에 부스트를 생성한다.")
+    @PostMapping("/{recordId}/boost")
+    public ResponseEntity<Void> postFeed(
+            @PathVariable Long recordId,
+            final @Valid @RequestBody MissionRecordBoostRequest request) {
+        missionRecordService.createBoost(recordId, request.count());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

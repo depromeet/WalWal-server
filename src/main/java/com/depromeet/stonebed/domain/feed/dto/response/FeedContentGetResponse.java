@@ -11,7 +11,8 @@ public record FeedContentGetResponse(
         @Schema(description = "미션 기록 이미지 URL", example = "example.jpeg")
                 String missionRecordImageUrl,
         @Schema(description = "미션 기록 생성일") LocalDate createdDate,
-        @Schema(description = "부스트") Long totalBoostCount) {
+        @Schema(description = "부스트") Long totalBoostCount,
+        @Schema(description = "미션 기록 컨텐츠") String content) {
     public static FeedContentGetResponse from(FindFeedDto missionRecord) {
         return new FeedContentGetResponse(
                 missionRecord.mission().getId(),
@@ -19,6 +20,7 @@ public record FeedContentGetResponse(
                 missionRecord.author().getId(),
                 missionRecord.missionRecord().getImageUrl(),
                 missionRecord.missionRecord().getCreatedAt().toLocalDate(),
-                missionRecord.totalBoostCount());
+                missionRecord.totalBoostCount(),
+                missionRecord.missionRecord().getContent());
     }
 }
