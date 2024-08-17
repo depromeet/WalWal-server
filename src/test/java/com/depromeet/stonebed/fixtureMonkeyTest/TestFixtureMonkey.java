@@ -2,6 +2,7 @@ package com.depromeet.stonebed.fixtureMonkeyTest;
 
 import static org.assertj.core.api.BDDAssertions.*;
 
+import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.FieldReflectionArbitraryIntrospector;
@@ -16,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 class TestFixtureMonkey {
 
     @MockBean private FirebaseMessaging firebaseMessaging;
+    @MockBean private FcmNotificationService fcmNotificationService;
 
     @Test
     void checkPerson() {
