@@ -28,6 +28,18 @@ public class FcmTokenService {
     }
 
     @Transactional
+    public void invalidateTokenForCurrentMember() {
+        Member currentMember = memberUtil.getCurrentMember();
+        fcmRepository
+                .findByMember(currentMember)
+                .ifPresentOrElse(
+                        fcmToken -> updateToken(fcmToken, ""),
+                        () -> {
+                            throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
+                        });
+    }
+
+    @Transactional
     public void invalidateToken(String token) {
         fcmRepository
                 .findByToken(token)

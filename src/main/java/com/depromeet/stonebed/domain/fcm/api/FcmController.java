@@ -46,9 +46,8 @@ public class FcmController {
 
     @Operation(summary = "FCM 토큰 삭제", description = "로그아웃 시 FCM 토큰을 삭제합니다.")
     @DeleteMapping("/token")
-    public ResponseEntity<Void> deleteToken(
-            @RequestBody @Validated FcmTokenRequest fcmTokenRequest) {
-        fcmTokenService.invalidateToken(fcmTokenRequest.token());
+    public ResponseEntity<Void> deleteToken() {
+        fcmTokenService.invalidateTokenForCurrentMember();
         return ResponseEntity.ok().build();
     }
 }
