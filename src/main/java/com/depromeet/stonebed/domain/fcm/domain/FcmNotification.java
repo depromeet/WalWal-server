@@ -37,7 +37,7 @@ public class FcmNotification extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public FcmNotification(
+    private FcmNotification(
             FcmNotificationType type,
             String title,
             String message,
@@ -52,6 +52,18 @@ public class FcmNotification extends BaseTimeEntity {
         this.member = member;
         this.targetId = targetId;
         this.isRead = isRead;
+    }
+
+    public static FcmNotification create(
+            FcmNotificationType type,
+            String title,
+            String message,
+            String notificationImageUrl,
+            Member member,
+            Long targetId,
+            Boolean isRead) {
+        return new FcmNotification(
+                type, title, message, notificationImageUrl, member, targetId, isRead);
     }
 
     public void markAsRead() {

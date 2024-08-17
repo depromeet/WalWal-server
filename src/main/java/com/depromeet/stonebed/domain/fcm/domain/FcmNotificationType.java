@@ -10,8 +10,4 @@ public enum FcmNotificationType {
     BOOSTER("부스터 알림");
 
     private final String value;
-
-    public String getValue() {
-        return value;
-    }
 }

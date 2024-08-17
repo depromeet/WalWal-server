@@ -5,6 +5,7 @@ import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
 import com.depromeet.stonebed.global.util.FcmNotificationUtil;
 import com.google.firebase.messaging.Notification;
 import java.time.LocalDateTime;
@@ -36,30 +37,42 @@ public class FcmScheduledService {
     // 매일 9시 0분에 실행
     @Scheduled(cron = "0 0 9 * * ?")
     public void sendDailyNotification() {
-        String title = "미션 시작!";
-        String message = "새로운 미션을 지금 시작해보세요!";
-        Notification notification = FcmNotificationUtil.buildNotification(title, message);
+        FcmNotificationConstants notificationConstants = FcmNotificationConstants.MISSION_START;
+        Notification notification =
+                FcmNotificationUtil.buildNotification(
+                        notificationConstants.getTitle(), notificationConstants.getMessage());
 
         fcmService.sendMulticastMessageToAll(notification);
         log.info("모든 사용자에게 정규 알림 전송 완료");
 
         fcmNotificationService.saveNotification(
-                FcmNotificationType.MISSION, title, message, null, null, false);
+                FcmNotificationType.MISSION,
+                notificationConstants.getTitle(),
+                notificationConstants.getMessage(),
+                null,
+                null,
+                false);
     }
 
     // 매일 19시 0분에 실행
     @Scheduled(cron = "0 0 19 * * ?")
     public void sendReminderToIncompleteMissions() {
-        String title = "미션 리마인드";
-        String message = "미션 종료까지 5시간 남았어요!";
-        Notification notification = FcmNotificationUtil.buildNotification(title, message);
+        FcmNotificationConstants notificationConstants = FcmNotificationConstants.MISSION_REMINDER;
+        Notification notification =
+                FcmNotificationUtil.buildNotification(
+                        notificationConstants.getTitle(), notificationConstants.getMessage());
 
         List<String> tokens = getIncompleteMissionTokens();
         fcmService.sendMulticastMessage(notification, tokens);
         log.info("미완료 미션 사용자에게 리마인더 전송 완료. 총 토큰 수: {}", tokens.size());
 
         fcmNotificationService.saveNotification(
-                FcmNotificationType.MISSION, title, message, null, null, false);
+                FcmNotificationType.MISSION,
+                notificationConstants.getTitle(),
+                notificationConstants.getMessage(),
+                null,
+                null,
+                false);
     }
 
     private List<String> getIncompleteMissionTokens() {

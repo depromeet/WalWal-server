@@ -54,7 +54,7 @@ public class FcmService {
                 .build();
     }
 
-    public void sendMessage(MulticastMessage message, List<String> tokens) {
+    private void sendMessage(MulticastMessage message, List<String> tokens) {
         try {
             BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
             handleBatchResponse(response, tokens);
@@ -63,7 +63,7 @@ public class FcmService {
         }
     }
 
-    public void sendMessage(Message message) {
+    private void sendMessage(Message message) {
         try {
             String response = FirebaseMessaging.getInstance().send(message);
             log.info("성공적으로 메시지를 전송했습니다. 메시지 ID: {}", response);
