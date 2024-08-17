@@ -72,6 +72,7 @@ public class FcmService {
                                     tokens.get(response.getResponses().indexOf(sendResponse));
                             if (isInvalidOrNotRegistered(sendResponse)) {
                                 fcmTokenService.invalidateToken(token);
+                                log.warn("FCM 토큰 {}이(가) 유효하지 않거나 등록되지 않았습니다. 토큰을 무효화합니다.", token);
                             }
                         });
     }
