@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.domain.missionRecord.application;
 
+import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
@@ -32,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class MissionRecordService {
-
+    private final FcmNotificationService fcmNotificationService;
     private final MissionRecordRepository missionRecordRepository;
     private final MissionHistoryRepository missionHistoryRepository;
     private final MissionRecordBoostRepository missionRecordBoostRepository;
@@ -102,6 +103,8 @@ public class MissionRecordService {
                         .build();
 
         missionRecordBoostRepository.save(missionRecordBoost);
+
+        fcmNotificationService.checkAndSendBoostNotification(missionRecord);
     }
 
     private MissionHistory findMissionHistoryById(Long missionId) {

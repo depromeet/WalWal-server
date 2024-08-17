@@ -83,7 +83,7 @@ public class MissionRecordController {
     @Operation(summary = "부스트 생성", description = "미션 기록에 부스트를 생성한다.")
     @PostMapping("/{recordId}/boost")
     public ResponseEntity<Void> postFeed(
-            @PathVariable Long recordId,
+            @PathVariable("recordId") Long recordId,
             final @Valid @RequestBody MissionRecordBoostRequest request) {
         missionRecordService.createBoost(recordId, request.count());
         return ResponseEntity.status(HttpStatus.CREATED).build();

@@ -51,7 +51,8 @@ public enum ErrorCode {
     // fcm
     FAILED_TO_SEND_FCM_MESSAGE(HttpStatus.BAD_REQUEST, "FCM 메세지 전송에 실패했습니다."),
     FAILED_TO_FIND_FCM_TOKEN(HttpStatus.NOT_FOUND, "해당 FCM 토큰을 찾을 수 없습니다."),
-    FIREBASE_CONFIG_NOT_FOUND(HttpStatus.NOT_FOUND, "FIREBASE_CONFIG를 찾을 수 없습니다.");
+    FIREBASE_CONFIG_NOT_FOUND(HttpStatus.NOT_FOUND, "FIREBASE_CONFIG를 찾을 수 없습니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }
