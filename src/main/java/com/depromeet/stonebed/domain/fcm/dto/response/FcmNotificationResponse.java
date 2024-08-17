@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.fcm.dto.response;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 
 public record FcmNotificationResponse(
         @Schema(description = "알림 ID", example = "1") Long notificationId,
@@ -12,7 +13,10 @@ public record FcmNotificationResponse(
         @Schema(description = "알림 이미지 URL", example = "https://example.com/image.jpg")
                 String imageUrl,
         @Schema(description = "읽음 여부", example = "false") Boolean isRead,
-        @Schema(description = "타겟 ID", example = "1") Long targetId) {
+        @Schema(description = "타겟 ID", example = "1") Long targetId,
+        @Schema(description = "알림 전송 시간", example = "2024-08-17 13:31:19")
+                LocalDateTime createdAt) {
+
     public static FcmNotificationResponse from(FcmNotification notification) {
         return new FcmNotificationResponse(
                 notification.getId(),
@@ -21,6 +25,7 @@ public record FcmNotificationResponse(
                 notification.getMessage(),
                 notification.getNotificationImageUrl(),
                 notification.getIsRead(),
-                notification.getTargetId());
+                notification.getTargetId(),
+                notification.getCreatedAt());
     }
 }
