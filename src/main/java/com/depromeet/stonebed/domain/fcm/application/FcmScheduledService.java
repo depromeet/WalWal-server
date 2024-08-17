@@ -47,7 +47,7 @@ public class FcmScheduledService {
                 FcmNotificationType.MISSION, title, message, null, null, false);
     }
 
-    // 매일 18시 0분에 실행
+    // 매일 19시 0분에 실행
     @Scheduled(cron = "0 0 19 * * ?")
     public void sendReminderToIncompleteMissions() {
         String title = "미션 리마인드";
