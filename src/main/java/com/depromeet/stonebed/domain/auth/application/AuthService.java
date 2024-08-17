@@ -127,8 +127,10 @@ public class AuthService {
          * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
          */
         validateMemberStatusDelete(member.getStatus());
-        jwtTokenService.deleteRefreshToken(member.getId());
         member.updateMemberRole(MemberRole.TEMPORARY);
+        memberRepository.flush();
+
+        jwtTokenService.deleteRefreshToken(member.getId());
         memberRepository.deleteById(member.getId());
     }
 
