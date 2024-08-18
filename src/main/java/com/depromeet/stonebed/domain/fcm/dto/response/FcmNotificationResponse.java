@@ -2,6 +2,7 @@ package com.depromeet.stonebed.domain.fcm.dto.response;
 
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
@@ -17,13 +18,16 @@ public record FcmNotificationResponse(
         @Schema(description = "알림 전송 시간", example = "2024-08-17 13:31:19")
                 LocalDateTime createdAt) {
 
-    public static FcmNotificationResponse from(FcmNotification notification) {
+    public static FcmNotificationResponse from(
+            FcmNotification notification, MissionRecord missionRecord) {
+        String imageUrl = missionRecord != null ? missionRecord.getImageUrl() : null;
+
         return new FcmNotificationResponse(
                 notification.getId(),
                 notification.getType(),
                 notification.getTitle(),
                 notification.getMessage(),
-                notification.getNotificationImageUrl(),
+                imageUrl,
                 notification.getIsRead(),
                 notification.getTargetId(),
                 notification.getCreatedAt());

@@ -60,12 +60,7 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
         verify(fcmService, times(1)).sendMulticastMessageToAll(any());
         verify(fcmNotificationService, times(1))
                 .saveNotification(
-                        any(),
-                        eq("미션 시작!"),
-                        eq("새로운 미션을 지금 시작해보세요!"),
-                        isNull(),
-                        isNull(),
-                        eq(false));
+                        any(), eq("미션 시작!"), eq("새로운 미션을 지금 시작해보세요!"), isNull(), eq(false));
     }
 
     @Test
@@ -93,11 +88,6 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
         verify(fcmService, times(1)).sendMulticastMessage(any(), anyList());
         verify(fcmNotificationService, times(1))
                 .saveNotification(
-                        any(),
-                        eq("미션 리마인드"),
-                        eq("미션 종료까지 5시간 남았어요!"),
-                        isNull(),
-                        isNull(),
-                        eq(false));
+                        any(), eq("미션 리마인드"), eq("미션 종료까지 5시간 남았어요!"), isNull(), eq(false));
     }
 }

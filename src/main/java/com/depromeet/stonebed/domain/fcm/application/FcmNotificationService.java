@@ -8,6 +8,7 @@ import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
 import com.depromeet.stonebed.global.error.ErrorCode;
@@ -16,6 +17,7 @@ import com.depromeet.stonebed.global.util.FcmNotificationUtil;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import com.google.firebase.messaging.Notification;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,7 @@ public class FcmNotificationService {
     private final FcmService fcmService;
     private final FcmNotificationRepository notificationRepository;
     private final MissionRecordBoostRepository missionRecordBoostRepository;
-    private final FcmNotificationConstants fcmNotificationConstants;
+    private final MissionRecordRepository missionRecordRepository;
     private final FcmRepository fcmRepository;
     private final MemberUtil memberUtil;
 
@@ -35,16 +37,11 @@ public class FcmNotificationService {
     private static final long SUPER_POPULAR_THRESHOLD = 5000;
 
     public void saveNotification(
-            FcmNotificationType type,
-            String title,
-            String message,
-            String imageUrl,
-            Long targetId,
-            Boolean isRead) {
+            FcmNotificationType type, String title, String message, Long targetId, Boolean isRead) {
         final Member member = memberUtil.getCurrentMember();
 
         FcmNotification notification =
-                FcmNotification.create(type, title, message, imageUrl, member, targetId, isRead);
+                FcmNotification.create(type, title, message, member, targetId, isRead);
         notificationRepository.save(notification);
     }
 
@@ -52,7 +49,17 @@ public class FcmNotificationService {
     public List<FcmNotificationResponse> getNotificationsForCurrentMember() {
         final Member member = memberUtil.getCurrentMember();
         return notificationRepository.findAllByMember(member).stream()
-                .map(FcmNotificationResponse::from)
+                .map(
+                        notification -> {
+                            Optional<MissionRecord> missionRecord = Optional.empty();
+                            if (notification.getType() == FcmNotificationType.BOOSTER) {
+                                missionRecord =
+                                        missionRecordRepository.findById(
+                                                notification.getTargetId());
+                            }
+                            return FcmNotificationResponse.from(
+                                    notification, missionRecord.orElse(null));
+                        })
                 .toList();
     }
 
@@ -97,7 +104,6 @@ public class FcmNotificationService {
                 FcmNotificationType.BOOSTER,
                 notificationConstants.getTitle(),
                 notificationConstants.getMessage(),
-                missionRecord.getImageUrl(),
                 missionRecord.getId(),
                 false);
     }

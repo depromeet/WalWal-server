@@ -26,8 +26,6 @@ public class FcmNotification extends BaseTimeEntity {
     @Column(nullable = false)
     private String message;
 
-    @Column private String notificationImageUrl;
-
     @Column private Long targetId;
 
     @Column(nullable = false)
@@ -41,14 +39,12 @@ public class FcmNotification extends BaseTimeEntity {
             FcmNotificationType type,
             String title,
             String message,
-            String notificationImageUrl,
             Member member,
             Long targetId,
             Boolean isRead) {
         this.type = type;
         this.title = title;
         this.message = message;
-        this.notificationImageUrl = notificationImageUrl;
         this.member = member;
         this.targetId = targetId;
         this.isRead = isRead;
@@ -58,12 +54,10 @@ public class FcmNotification extends BaseTimeEntity {
             FcmNotificationType type,
             String title,
             String message,
-            String notificationImageUrl,
             Member member,
             Long targetId,
             Boolean isRead) {
-        return new FcmNotification(
-                type, title, message, notificationImageUrl, member, targetId, isRead);
+        return new FcmNotification(type, title, message, member, targetId, isRead);
     }
 
     public void markAsRead() {

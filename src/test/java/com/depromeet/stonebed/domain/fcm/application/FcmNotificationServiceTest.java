@@ -43,7 +43,7 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
 
         // when
         fcmNotificationService.saveNotification(
-                FcmNotificationType.MISSION, "title", "message", "imageUrl", 1L, false);
+                FcmNotificationType.MISSION, "title", "message", 1L, false);
 
         // then
         verify(notificationRepository, times(1)).save(any(FcmNotification.class));

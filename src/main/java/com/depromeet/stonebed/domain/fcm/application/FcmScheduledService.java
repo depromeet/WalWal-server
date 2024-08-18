@@ -50,7 +50,6 @@ public class FcmScheduledService {
                 notificationConstants.getTitle(),
                 notificationConstants.getMessage(),
                 null,
-                null,
                 false);
     }
 
@@ -70,7 +69,6 @@ public class FcmScheduledService {
                 FcmNotificationType.MISSION,
                 notificationConstants.getTitle(),
                 notificationConstants.getMessage(),
-                null,
                 null,
                 false);
     }
