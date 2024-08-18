@@ -11,6 +11,8 @@ import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -29,6 +31,7 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
 
     @Mock private FcmService fcmService;
     @Mock private FcmNotificationRepository notificationRepository;
+    @Mock private MissionRecordRepository missionRecordRepository;
     @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
     @Mock private FcmRepository fcmRepository;
     @Mock private MemberUtil memberUtil;
@@ -60,6 +63,12 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
 
         when(notificationRepository.findAllByMember(member)).thenReturn(List.of(fcmNotification));
 
+        if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
+            MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
+            when(missionRecordRepository.findById(fcmNotification.getTargetId()))
+                    .thenReturn(Optional.of(missionRecord));
+        }
+
         // when
         List<FcmNotificationResponse> responses =
                 fcmNotificationService.getNotificationsForCurrentMember();
@@ -67,6 +76,12 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
         // then
         assertTrue(responses.size() > 0);
         verify(notificationRepository, times(1)).findAllByMember(member);
+
+        if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
+            verify(missionRecordRepository, times(1)).findById(fcmNotification.getTargetId());
+        } else {
+            verify(missionRecordRepository, times(0)).findById(any());
+        }
     }
 
     @Test
