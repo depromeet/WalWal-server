@@ -34,16 +34,16 @@ class MissionServiceTest {
     @InjectMocks private MissionService missionService;
 
     private LocalDate today;
-    private LocalDate threeDaysAgo;
+    private LocalDate beforeDayByStandard;
     private Mission mission;
     private MissionHistory missionHistory;
 
     @BeforeEach
     public void setUp() {
         today = LocalDate.now();
-        threeDaysAgo = LocalDate.now().minusDays(3);
+        beforeDayByStandard = LocalDate.now().minusDays(3);
         mission = Mission.builder().title("Test Mission").build();
-        missionHistory = MissionHistory.builder().mission(mission).assignedDate(today).build();
+        missionHistory = MissionHistory.createMissionHistory(mission, today);
         MockitoAnnotations.openMocks(this);
     }
 
@@ -103,7 +103,8 @@ class MissionServiceTest {
         availableMissions.add(Mission.builder().title("4일 전 미션").build());
         availableMissions.add(Mission.builder().title("5일 전 미션").build());
 
-        when(missionRepository.findMissionsAssignedBefore(threeDaysAgo)).thenReturn(recentMissions);
+        when(missionRepository.findMissionsAssignedAfter(beforeDayByStandard))
+                .thenReturn(recentMissions);
 
         when(missionRepository.findNotInMissions(recentMissions)).thenReturn(availableMissions);
 
@@ -123,7 +124,7 @@ class MissionServiceTest {
         // Given: 초기 설정
         List<Mission> emptyMissionList = new ArrayList<>();
 
-        when(missionRepository.findMissionsAssignedBefore(today)).thenReturn(emptyMissionList);
+        when(missionRepository.findMissionsAssignedAfter(today)).thenReturn(emptyMissionList);
 
         when(missionRepository.findNotInMissions(emptyMissionList)).thenReturn(emptyMissionList);
 
