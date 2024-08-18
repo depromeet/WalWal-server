@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProfile name="actuator, cloud, datasource, redis, security, prod, dev">
+        <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level --- [%thread] %class : %m%n" />
+        <property name="LOG_DIR" value="./logs"/>
+
+        <appender name="file-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_DIR}/application.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>7</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+
+            <encoder>
+                <pattern>${LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="console-appender" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <!-- additivity : 상위 로거의 설정을 상속받을 것인지 여부 -->
+    <logger name="SomeLogger" level="warn" additivity="false">
+        <appender-ref ref="file-appender"/>
+    </logger>
+
+    <root level="info" >
+        <appender-ref ref="console-appender" />
+        <appender-ref ref="file-appender" />
+    </root>
+</configuration>

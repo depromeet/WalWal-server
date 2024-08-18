@@ -1,0 +1,405 @@
+2024-08-18 22:24:38.410 INFO  --- [background-preinit] org.hibernate.validator.internal.util.Version : HV000001: Hibernate Validator 8.0.1.Final
+2024-08-18 22:24:38.449 INFO  --- [main] org.springframework.boot.StartupInfoLogger : Starting StonebedApplication using Java 17.0.11 with PID 28272 (/Users/chayunbeom/ybcha-dev/depromeet/stonebed/out/production/classes started by chayunbeom in /Users/chayunbeom/ybcha-dev/depromeet/stonebed)
+2024-08-18 22:24:38.450 INFO  --- [main] org.springframework.boot.SpringApplication : The following 7 profiles are active: "redis", "actuator", "docs", "cloud", "security", "local", "datasource"
+2024-08-18 22:24:39.495 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2024-08-18 22:24:39.495 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2024-08-18 22:24:39.515 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 4 ms. Found 0 Redis repository interfaces.
+2024-08-18 22:24:39.937 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2024-08-18 22:24:39.938 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-08-18 22:24:39.964 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data JPA - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.auth.dao.RefreshTokenRepository; If you want this repository to be a JPA repository, consider annotating your entities with one of these annotations: jakarta.persistence.Entity, jakarta.persistence.MappedSuperclass (preferred), or consider extending one of the following types with your repository: org.springframework.data.jpa.repository.JpaRepository
+2024-08-18 22:24:40.173 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 233 ms. Found 9 JPA repository interfaces.
+2024-08-18 22:24:40.178 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2024-08-18 22:24:40.178 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2024-08-18 22:24:40.186 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.fcm.dao.FcmRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.187 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.feed.dao.FeedRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.187 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.follow.dao.FollowRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.187 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.image.dao.ImageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.188 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.member.dao.MemberRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.188 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.mission.dao.mission.MissionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.188 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.188 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.188 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2024-08-18 22:24:40.193 INFO  --- [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 14 ms. Found 1 Redis repository interface.
+2024-08-18 22:24:40.758 INFO  --- [main] org.springframework.boot.web.embedded.tomcat.TomcatWebServer : Tomcat initialized with port 8080 (http)
+2024-08-18 22:24:40.766 INFO  --- [main] org.apache.juli.logging.DirectJDKLog : Initializing ProtocolHandler ["http-nio-8080"]
+2024-08-18 22:24:40.767 INFO  --- [main] org.apache.juli.logging.DirectJDKLog : Starting service [Tomcat]
+2024-08-18 22:24:40.767 INFO  --- [main] org.apache.juli.logging.DirectJDKLog : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2024-08-18 22:24:40.815 INFO  --- [main] org.apache.juli.logging.DirectJDKLog : Initializing Spring embedded WebApplicationContext
+2024-08-18 22:24:40.816 INFO  --- [main] org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2340 ms
+2024-08-18 22:24:41.453 DEBUG --- [main] org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean : Building JPA container EntityManagerFactory for persistence unit 'default'
+2024-08-18 22:24:41.489 INFO  --- [main] org.hibernate.jpa.internal.util.LogHelper : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-08-18 22:24:41.553 INFO  --- [main] org.hibernate.Version : HHH000412: Hibernate ORM core version 6.4.8.Final
+2024-08-18 22:24:41.581 INFO  --- [main] org.hibernate.cache.internal.RegionFactoryInitiator : HHH000026: Second-level cache disabled
+2024-08-18 22:24:41.813 INFO  --- [main] org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-08-18 22:24:41.834 INFO  --- [main] com.zaxxer.hikari.HikariDataSource : HikariPool-1 - Starting...
+2024-08-18 22:24:41.996 INFO  --- [main] com.zaxxer.hikari.pool.HikariPool : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@81a56b2
+2024-08-18 22:24:41.998 INFO  --- [main] com.zaxxer.hikari.HikariDataSource : HikariPool-1 - Start completed.
+2024-08-18 22:24:42.776 INFO  --- [main] org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-08-18 22:24:42.936 INFO  --- [main] org.springframework.orm.jpa.AbstractEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-08-18 22:24:43.164 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.189 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.206 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.228 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.262 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.287 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.289 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.291 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.292 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.293 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.340 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.345 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.349 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.350 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.350 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.368 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.368 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.381 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.383 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.384 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.385 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.386 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.402 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.404 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.406 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.794 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.794 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.797 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.798 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.806 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.807 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.820 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:43.820 DEBUG --- [main] org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler : Creating new EntityManager for shared EntityManager invocation
+2024-08-18 22:24:44.393 INFO  --- [main] org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver : Exposing 2 endpoint(s) beneath base path '/walwal-actuator'
+2024-08-18 22:24:44.435 INFO  --- [main] org.springframework.security.web.DefaultSecurityFilterChain : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@21a1790d, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@24d6355c, org.springframework.security.web.context.SecurityContextHolderFilter@e4e39a0, org.springframework.security.web.header.HeaderWriterFilter@510d6e38, org.springframework.web.filter.CorsFilter@69e4e90b, org.springframework.security.web.authentication.logout.LogoutFilter@4fdc1a37, com.depromeet.stonebed.global.filter.JwtAuthenticationFilter@1d6a22dd, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3a9a1adf, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5baa759a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5872376d, org.springframework.security.web.session.SessionManagementFilter@775b908f, org.springframework.security.web.access.ExceptionTranslationFilter@3cb303d9, org.springframework.security.web.access.intercept.AuthorizationFilter@911a6cd]
+2024-08-18 22:24:44.442 INFO  --- [main] org.springframework.security.web.DefaultSecurityFilterChain : Will secure Or [Mvc [pattern='/swagger-resources/**'], Mvc [pattern='/swagger-ui/**'], Mvc [pattern='/v3/api-docs/**']] with [org.springframework.security.web.session.DisableEncodeUrlFilter@5b4e1899, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@745690d7, org.springframework.security.web.context.SecurityContextHolderFilter@61b2ca5a, org.springframework.security.web.header.HeaderWriterFilter@47955046, org.springframework.web.filter.CorsFilter@2603ff76, org.springframework.security.web.authentication.logout.LogoutFilter@4b5fc36d, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@e700641, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@78ec5e18, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@15962623, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@18ea91d7, org.springframework.security.web.session.SessionManagementFilter@5bcc2416, org.springframework.security.web.access.ExceptionTranslationFilter@6d7e973b, org.springframework.security.web.access.intercept.AuthorizationFilter@70b9cdcc]
+2024-08-18 22:24:44.866 INFO  --- [main] org.apache.juli.logging.DirectJDKLog : Starting ProtocolHandler ["http-nio-8080"]
+2024-08-18 22:24:44.877 INFO  --- [main] org.springframework.boot.web.embedded.tomcat.TomcatWebServer : Tomcat started on port 8080 (http) with context path ''
+2024-08-18 22:24:44.894 INFO  --- [main] org.springframework.boot.StartupInfoLogger : Started StonebedApplication in 6.953 seconds (process running for 7.496)
+2024-08-18 22:51:54.532 INFO  --- [http-nio-8080-exec-1] org.apache.juli.logging.DirectJDKLog : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-08-18 22:51:54.534 INFO  --- [http-nio-8080-exec-1] org.springframework.web.servlet.FrameworkServlet : Initializing Servlet 'dispatcherServlet'
+2024-08-18 22:51:54.547 INFO  --- [http-nio-8080-exec-1] org.springframework.web.servlet.FrameworkServlet : Completed initialization in 12 ms
+2024-08-18 22:51:54.697 DEBUG --- [http-nio-8080-exec-1] org.springframework.transaction.support.AbstractPlatformTransactionManager : Creating new transaction with name [com.depromeet.stonebed.domain.auth.application.AuthService.reissueTokenPair]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly
+2024-08-18 22:51:54.704 DEBUG --- [http-nio-8080-exec-1] org.springframework.orm.jpa.JpaTransactionManager : Opened new EntityManager [SessionImpl(1959973086<open>)] for JPA transaction
+2024-08-18 22:51:54.739 DEBUG --- [http-nio-8080-exec-1] org.springframework.orm.jpa.JpaTransactionManager : Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@119cd8]
+2024-08-18 22:51:55.023 DEBUG --- [http-nio-8080-exec-1] org.springframework.transaction.support.AbstractPlatformTransactionManager : Initiating transaction rollback
+2024-08-18 22:51:55.024 DEBUG --- [http-nio-8080-exec-1] org.springframework.orm.jpa.JpaTransactionManager : Rolling back JPA transaction on EntityManager [SessionImpl(1959973086<open>)]
+2024-08-18 22:51:55.031 DEBUG --- [http-nio-8080-exec-1] org.springframework.orm.jpa.JpaTransactionManager : Closing JPA EntityManager [SessionImpl(1959973086<open>)] after transaction
+2024-08-18 22:51:55.034 ERROR --- [http-nio-8080-exec-1] com.depromeet.stonebed.global.error.exception.GlobalExceptionHandler : Internal Server Error : Cannot invoke "com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto.memberId()" because "refreshTokenDto" is null
+java.lang.NullPointerException: Cannot invoke "com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto.memberId()" because "refreshTokenDto" is null
+	at com.depromeet.stonebed.domain.auth.application.AuthService.reissueTokenPair(AuthService.java:108)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:392)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:720)
+	at com.depromeet.stonebed.domain.auth.application.AuthService$$SpringCGLIB$$0.reissueTokenPair(<generated>)
+	at com.depromeet.stonebed.domain.auth.api.AuthController.reissueTokenPair(AuthController.java:57)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340)
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at com.depromeet.stonebed.global.filter.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:57)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:389)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2024-08-18 22:56:45.119 DEBUG --- [http-nio-8080-exec-3] org.springframework.transaction.support.AbstractPlatformTransactionManager : Creating new transaction with name [com.depromeet.stonebed.domain.auth.application.AuthService.reissueTokenPair]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly
+2024-08-18 22:56:45.124 DEBUG --- [http-nio-8080-exec-3] org.springframework.orm.jpa.JpaTransactionManager : Opened new EntityManager [SessionImpl(2000161423<open>)] for JPA transaction
+2024-08-18 22:56:45.126 DEBUG --- [http-nio-8080-exec-3] org.springframework.orm.jpa.JpaTransactionManager : Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@5d5d832f]
+2024-08-18 22:56:45.156 DEBUG --- [http-nio-8080-exec-3] org.springframework.transaction.support.AbstractPlatformTransactionManager : Initiating transaction rollback
+2024-08-18 22:56:45.156 DEBUG --- [http-nio-8080-exec-3] org.springframework.orm.jpa.JpaTransactionManager : Rolling back JPA transaction on EntityManager [SessionImpl(2000161423<open>)]
+2024-08-18 22:56:45.158 DEBUG --- [http-nio-8080-exec-3] org.springframework.orm.jpa.JpaTransactionManager : Closing JPA EntityManager [SessionImpl(2000161423<open>)] after transaction
+2024-08-18 22:56:45.159 ERROR --- [http-nio-8080-exec-3] com.depromeet.stonebed.global.error.exception.GlobalExceptionHandler : Internal Server Error : Cannot invoke "com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto.memberId()" because "refreshTokenDto" is null
+java.lang.NullPointerException: Cannot invoke "com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto.memberId()" because "refreshTokenDto" is null
+	at com.depromeet.stonebed.domain.auth.application.AuthService.reissueTokenPair(AuthService.java:108)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:392)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:720)
+	at com.depromeet.stonebed.domain.auth.application.AuthService$$SpringCGLIB$$0.reissueTokenPair(<generated>)
+	at com.depromeet.stonebed.domain.auth.api.AuthController.reissueTokenPair(AuthController.java:57)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340)
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at com.depromeet.stonebed.global.filter.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:57)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:389)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2024-08-18 23:15:40.518 WARN  --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool$HouseKeeper : HikariPool-1 - Retrograde clock change detected (housekeeper delta=27s918ms), soft-evicting connections from pool.

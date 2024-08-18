@@ -77,6 +77,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    // logging
+    implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
