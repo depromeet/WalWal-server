@@ -23,6 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
@@ -60,8 +63,12 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
 
         FcmNotification fcmNotification =
                 fixtureMonkey.giveMeBuilder(FcmNotification.class).set("member", member).sample();
+        Pageable pageable =
+                PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt")); // 첫 번째 페이지, 10개씩
+        List<FcmNotification> notifications = List.of(fcmNotification);
 
-        when(notificationRepository.findAllByMember(member)).thenReturn(List.of(fcmNotification));
+        when(notificationRepository.findByMemberId(eq(member.getId()), eq(pageable)))
+                .thenReturn(notifications);
 
         if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
             MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
@@ -70,12 +77,12 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
         }
 
         // when
-        List<FcmNotificationResponse> responses =
-                fcmNotificationService.getNotificationsForCurrentMember();
+        FcmNotificationResponse responses =
+                fcmNotificationService.getNotificationsForCurrentMember(null, 10);
 
         // then
-        assertTrue(responses.size() > 0);
-        verify(notificationRepository, times(1)).findAllByMember(member);
+        assertFalse(responses.list().isEmpty());
+        verify(notificationRepository, times(1)).findByMemberId(eq(member.getId()), eq(pageable));
 
         if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
             verify(missionRecordRepository, times(1)).findById(fcmNotification.getTargetId());

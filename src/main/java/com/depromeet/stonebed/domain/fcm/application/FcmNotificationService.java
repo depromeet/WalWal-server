@@ -5,6 +5,7 @@ import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
+import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationDto;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
@@ -16,9 +17,15 @@ import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.FcmNotificationUtil;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import com.google.firebase.messaging.Notification;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +40,9 @@ public class FcmNotificationService {
     private final FcmRepository fcmRepository;
     private final MemberUtil memberUtil;
 
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
     private static final long POPULAR_THRESHOLD = 500;
     private static final long SUPER_POPULAR_THRESHOLD = 5000;
 
@@ -46,9 +56,23 @@ public class FcmNotificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<FcmNotificationResponse> getNotificationsForCurrentMember() {
-        final Member member = memberUtil.getCurrentMember();
-        return notificationRepository.findAllByMember(member).stream()
+    public FcmNotificationResponse getNotificationsForCurrentMember(String cursor, int limit) {
+        Member member = memberUtil.getCurrentMember();
+
+        Pageable pageable = createPageable(limit);
+        List<FcmNotification> notifications = getNotifications(cursor, member.getId(), pageable);
+        List<FcmNotificationDto> notificationData = convertToNotificationDto(notifications);
+        String nextCursor = getNextCursor(notifications);
+
+        return FcmNotificationResponse.from(notificationData, nextCursor);
+    }
+
+    private Pageable createPageable(int limit) {
+        return PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
+    private List<FcmNotificationDto> convertToNotificationDto(List<FcmNotification> notifications) {
+        return notifications.stream()
                 .map(
                         notification -> {
                             Optional<MissionRecord> missionRecord = Optional.empty();
@@ -57,10 +81,34 @@ public class FcmNotificationService {
                                         missionRecordRepository.findById(
                                                 notification.getTargetId());
                             }
-                            return FcmNotificationResponse.from(
+                            return FcmNotificationDto.from(
                                     notification, missionRecord.orElse(null));
                         })
                 .toList();
+    }
+
+    private List<FcmNotification> getNotifications(
+            String cursor, Long memberId, Pageable pageable) {
+        if (cursor == null) {
+            return notificationRepository.findByMemberId(memberId, pageable);
+        }
+
+        try {
+            LocalDateTime cursorDate = LocalDateTime.parse(cursor, DATE_FORMATTER);
+            return notificationRepository.findByMemberIdAndCreatedAtLessThanEqual(
+                    memberId, cursorDate, pageable);
+        } catch (DateTimeParseException e) {
+            throw new CustomException(ErrorCode.INVALID_CURSOR_DATE_FORMAT);
+        }
+    }
+
+    private String getNextCursor(List<FcmNotification> notifications) {
+        if (notifications.isEmpty()) {
+            return null;
+        }
+
+        FcmNotification lastNotification = notifications.get(notifications.size() - 1);
+        return lastNotification.getCreatedAt().format(DATE_FORMATTER);
     }
 
     public void checkAndSendBoostNotification(MissionRecord missionRecord) {
