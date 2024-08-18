@@ -7,5 +7,5 @@ import java.util.List;
 public interface MissionRepositoryCustom {
     List<Mission> findNotInMissions(List<Mission> missions);
 
-    List<Mission> findMissionsAssignedBefore(LocalDate assignedDate);
+    List<Mission> findMissionsAssignedAfter(LocalDate assignedDate);
 }

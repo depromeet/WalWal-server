@@ -27,6 +27,7 @@ public class MissionService {
     private final MissionRepository missionRepository;
     private final MissionHistoryRepository missionHistoryRepository;
     private final SecureRandom secureRandom = new SecureRandom();
+    private static final long MISSION_TODAY_STANDARD = 3;
 
     public MissionCreateResponse createMission(MissionCreateRequest missionCreateRequest) {
         Mission mission = Mission.builder().title(missionCreateRequest.title()).build();
@@ -43,20 +44,20 @@ public class MissionService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
     }
 
-    @Transactional
     public MissionGetTodayResponse getOrCreateTodayMission() {
-        LocalDate today = LocalDate.now();
-        LocalDate threeDaysAgo = today.minusDays(3);
+        final LocalDate today = LocalDate.now();
+        LocalDate beforeDayByStandard = today.minusDays(MISSION_TODAY_STANDARD);
 
-        Optional<MissionHistory> optionalMissionHistory =
+        Optional<MissionHistory> findMissionHistory =
                 missionHistoryRepository.findByAssignedDate(today);
 
-        if (optionalMissionHistory.isPresent()) {
-            return MissionGetTodayResponse.from(optionalMissionHistory.get().getMission());
+        if (findMissionHistory.isPresent()) {
+            return MissionGetTodayResponse.from(findMissionHistory.get().getMission());
         }
 
-        // 최근 3일 이전의 미션들 불러오기
-        List<Mission> recentMissions = missionRepository.findMissionsAssignedBefore(threeDaysAgo);
+        // 최근 3일 내의 미션들 불러오기
+        List<Mission> recentMissions =
+                missionRepository.findMissionsAssignedAfter(beforeDayByStandard);
 
         // 최근 3일 이내의 미션은 제외하고 불러오기
         List<Mission> availableMissions = missionRepository.findNotInMissions(recentMissions);
@@ -68,10 +69,9 @@ public class MissionService {
         Mission selectedMission =
                 availableMissions.get(secureRandom.nextInt(availableMissions.size()));
 
-        MissionHistory newMissionHistory =
-                MissionHistory.builder().mission(selectedMission).assignedDate(today).build();
+        MissionHistory missionHistory = MissionHistory.createMissionHistory(selectedMission, today);
 
-        missionHistoryRepository.save(newMissionHistory);
+        missionHistoryRepository.save(missionHistory);
 
         return MissionGetTodayResponse.from(selectedMission);
     }
