@@ -31,6 +31,9 @@ public class FcmNotificationService {
     private final FcmRepository fcmRepository;
     private final MemberUtil memberUtil;
 
+    private static final long POPULAR_THRESHOLD = 500;
+    private static final long SUPER_POPULAR_THRESHOLD = 5000;
+
     public void saveNotification(
             FcmNotificationType type,
             String title,
@@ -56,44 +59,47 @@ public class FcmNotificationService {
     public void checkAndSendBoostNotification(MissionRecord missionRecord) {
         Long totalBoostCount =
                 missionRecordBoostRepository.sumBoostCountByMissionRecord(missionRecord.getId());
-        Long recordId = missionRecord.getId();
-        String imageUrl = missionRecord.getImageUrl();
 
         if (totalBoostCount != null) {
-            FcmNotificationConstants notificationConstants = null;
-
-            if (totalBoostCount == 500) {
-                notificationConstants = FcmNotificationConstants.POPULAR;
-            } else if (totalBoostCount == 5000) {
-                notificationConstants = FcmNotificationConstants.SUPER_POPULAR;
-            }
+            FcmNotificationConstants notificationConstants =
+                    determineNotificationType(totalBoostCount);
 
             if (notificationConstants != null) {
-                Notification notification =
-                        FcmNotificationUtil.buildNotification(
-                                notificationConstants.getTitle(),
-                                notificationConstants.getMessage());
-
-                String token =
-                        fcmRepository
-                                .findByMember(missionRecord.getMember())
-                                .map(FcmToken::getToken)
-                                .orElseThrow(
-                                        () ->
-                                                new CustomException(
-                                                        ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
-
-                fcmService.sendSingleMessage(notification, token);
-
-                saveNotification(
-                        FcmNotificationType.BOOSTER,
-                        notificationConstants.getTitle(),
-                        notificationConstants.getMessage(),
-                        imageUrl,
-                        recordId,
-                        false);
+                sendBoostNotification(missionRecord, notificationConstants);
             }
         }
+    }
+
+    private FcmNotificationConstants determineNotificationType(Long totalBoostCount) {
+        if (totalBoostCount == POPULAR_THRESHOLD) {
+            return FcmNotificationConstants.POPULAR;
+        } else if (totalBoostCount == SUPER_POPULAR_THRESHOLD) {
+            return FcmNotificationConstants.SUPER_POPULAR;
+        }
+        return null;
+    }
+
+    private void sendBoostNotification(
+            MissionRecord missionRecord, FcmNotificationConstants notificationConstants) {
+        Notification notification =
+                FcmNotificationUtil.buildNotification(
+                        notificationConstants.getTitle(), notificationConstants.getMessage());
+
+        String token =
+                fcmRepository
+                        .findByMember(missionRecord.getMember())
+                        .map(FcmToken::getToken)
+                        .orElseThrow(() -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
+
+        fcmService.sendSingleMessage(notification, token);
+
+        saveNotification(
+                FcmNotificationType.BOOSTER,
+                notificationConstants.getTitle(),
+                notificationConstants.getMessage(),
+                missionRecord.getImageUrl(),
+                missionRecord.getId(),
+                false);
     }
 
     public void markNotificationAsRead(Long notificationId) {
