@@ -4,7 +4,7 @@ on:
     branches:
       ["fix/#155-pr-workflow"]
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -46,6 +46,10 @@ jobs:
 
   style-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ 17 ]
+        distribution: [ 'temurin' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
