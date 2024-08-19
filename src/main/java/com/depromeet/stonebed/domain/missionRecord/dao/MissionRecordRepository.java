@@ -16,4 +16,6 @@ public interface MissionRecordRepository
     Long countByMemberIdAndStatus(Long memberId, MissionRecordStatus status);
 
     List<MissionRecord> findAllByStatus(MissionRecordStatus status);
+
+    List<MissionRecord> findByIdIn(List<Long> ids);
 }

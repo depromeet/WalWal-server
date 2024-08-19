@@ -99,4 +99,8 @@ public class Member extends BaseTimeEntity {
     public void updateMemberRole(MemberRole memberRole) {
         this.role = memberRole;
     }
+
+    public void updateStatus(MemberStatus status) {
+        this.status = status;
+    }
 }

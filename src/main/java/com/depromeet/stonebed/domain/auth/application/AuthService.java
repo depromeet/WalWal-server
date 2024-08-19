@@ -62,6 +62,7 @@ public class AuthService {
                                             ? getTemporaryLoginResponse(member)
                                             : getLoginResponse(member);
                             member.updateLastLoginAt();
+                            updateMemberStatus(member);
                             return AuthTokenResponse.of(
                                     tokenPair, member.getRole() == MemberRole.TEMPORARY);
                         })
@@ -127,8 +128,10 @@ public class AuthService {
          * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
          */
         validateMemberStatusDelete(member.getStatus());
-        jwtTokenService.deleteRefreshToken(member.getId());
         member.updateMemberRole(MemberRole.TEMPORARY);
+        memberRepository.flush();
+
+        jwtTokenService.deleteRefreshToken(member.getId());
         memberRepository.deleteById(member.getId());
     }
 
@@ -146,5 +149,11 @@ public class AuthService {
         member.updateMemberRole(MemberRole.USER);
         memberRepository.save(member);
         return member;
+    }
+
+    private void updateMemberStatus(Member member) {
+        if (member.getStatus() == MemberStatus.DELETED) {
+            member.updateStatus(MemberStatus.NORMAL);
+        }
     }
 }

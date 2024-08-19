@@ -10,6 +10,8 @@ import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
+import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,8 @@ class AuthServiceTest extends FixtureMonkeySetUp {
     @Mock private JwtTokenService jwtTokenService;
 
     @Mock private MemberRepository memberRepository;
+
+    @Mock private MemberUtil memberUtil;
 
     private String oauthId;
     private String email;
@@ -101,6 +105,32 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         assertTrue(response.isTemporaryToken());
         verify(memberRepository).save(any(Member.class));
         verify(jwtTokenService).generateTemporaryTokenPair(any(Member.class));
+    }
+
+    @Test
+    void 회원_탈퇴_기능을_테스트합니다() {
+        // given
+        Member member =
+                fixtureMonkey
+                        .giveMeBuilder(Member.class)
+                        .set("role", MemberRole.USER)
+                        .set("status", MemberStatus.NORMAL)
+                        .sample();
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+
+        // when
+        authService.withdraw();
+
+        // then
+        // 플러시가 호출되었는지 확인
+        verify(memberRepository).flush();
+
+        // @SQLDelete가 적용된 이후의 상태를 확인하기 위해, 실제 삭제가 이뤄졌는지 확인
+        verify(memberRepository).deleteById(member.getId());
+        assertEquals(MemberRole.TEMPORARY, member.getRole());
+
+        // jwtTokenService에서 리프레시 토큰 삭제가 호출되었는지 확인
+        verify(jwtTokenService).deleteRefreshToken(member.getId());
     }
 
     private void assertCommonAssertions(

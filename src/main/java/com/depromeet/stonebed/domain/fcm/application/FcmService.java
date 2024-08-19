@@ -63,6 +63,30 @@ public class FcmService {
         }
     }
 
+    private void sendMessage(Message message) {
+        try {
+            String response = FirebaseMessaging.getInstance().send(message);
+            log.info("성공적으로 메시지를 전송했습니다. 메시지 ID: {}", response);
+        } catch (FirebaseMessagingException e) {
+            log.error("FCM 메시지 전송에 실패했습니다: ", e);
+        }
+    }
+
+    public void sendSingleMessage(Notification notification, String token) {
+        Message message = buildSingleMessage(notification, token);
+        sendMessage(message);
+    }
+
+    private Message buildSingleMessage(Notification notification, String token) {
+        HashMap<String, String> data = new HashMap<>();
+
+        return Message.builder()
+                .putAllData(data)
+                .setNotification(notification)
+                .setToken(token)
+                .build();
+    }
+
     private void handleBatchResponse(BatchResponse response, List<String> tokens) {
         response.getResponses().stream()
                 .filter(sendResponse -> !sendResponse.isSuccessful())
@@ -72,6 +96,7 @@ public class FcmService {
                                     tokens.get(response.getResponses().indexOf(sendResponse));
                             if (isInvalidOrNotRegistered(sendResponse)) {
                                 fcmTokenService.invalidateToken(token);
+                                log.warn("FCM 토큰 {}이(가) 유효하지 않거나 등록되지 않았습니다. 토큰을 무효화합니다.", token);
                             }
                         });
     }
