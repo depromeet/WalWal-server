@@ -71,9 +71,9 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(notifications);
 
         if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
-            MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
-            when(missionRecordRepository.findById(fcmNotification.getTargetId()))
-                    .thenReturn(Optional.of(missionRecord));
+            List<MissionRecord> missionRecords =
+                    List.of(fixtureMonkey.giveMeOne(MissionRecord.class));
+            when(missionRecordRepository.findByIdIn(anyList())).thenReturn(missionRecords);
         }
 
         // when
@@ -85,7 +85,7 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
         verify(notificationRepository, times(1)).findByMemberId(eq(member.getId()), eq(pageable));
 
         if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
-            verify(missionRecordRepository, times(1)).findById(fcmNotification.getTargetId());
+            verify(missionRecordRepository, times(1)).findByIdIn(anyList());
         } else {
             verify(missionRecordRepository, times(0)).findById(any());
         }
