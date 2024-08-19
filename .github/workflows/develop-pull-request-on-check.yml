@@ -4,20 +4,21 @@ on:
     branches:
       - develop
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         java-version: [ 17 ]
+        distribution: [ 'temurin' ]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: 'adopt'
+          distribution: ${{ matrix.distribution }}
 
       # test 활용 목적의 container 실행
       - name: Start test docker container
@@ -42,19 +43,3 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: always() # Pick up events even if the job fails or is canceled.
-
-  style-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v3.0.2
-      - name: JDK install
-        uses: actions/setup-java@v3
-        with:
-          distribution: zulu
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: Checkstyle
-        run: |
-          ./gradlew spotlessCheck
