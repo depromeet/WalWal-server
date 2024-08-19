@@ -1,9 +1,9 @@
 package com.depromeet.stonebed.domain.member.api;
 
 import com.depromeet.stonebed.domain.member.application.MemberService;
-import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.dto.request.MemberProfileUpdateRequest;
 import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
+import com.depromeet.stonebed.domain.member.dto.response.MemberInfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,7 +26,7 @@ public class MemberController {
 
     @Operation(summary = "내 정보 조회", description = "내 정보를 조회하는 API입니다.")
     @GetMapping("/me")
-    public Member memberInfo() {
+    public MemberInfoResponse memberInfo() {
         return memberService.findMemberInfo();
     }
 

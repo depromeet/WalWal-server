@@ -8,6 +8,7 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.MemberProfileUpdateRequest;
 import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
+import com.depromeet.stonebed.domain.member.dto.response.MemberInfoResponse;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,11 +32,14 @@ class MemberServiceTest extends FixtureMonkeySetUp {
         when(memberUtil.getCurrentMember()).thenReturn(member);
 
         // when
-        Member result = memberService.findMemberInfo();
+        MemberInfoResponse result = memberService.findMemberInfo();
 
         // then
         assertNotNull(result);
-        assertEquals(member, result);
+        assertEquals(member.getId(), result.memberId());
+        assertEquals(member.getProfile().getNickname(), result.nickname());
+        assertEquals(member.getProfile().getProfileImageUrl(), result.profileImageUrl());
+        assertEquals(member.getRaisePet(), result.raisePet());
         verify(memberUtil).getCurrentMember();
     }
 
