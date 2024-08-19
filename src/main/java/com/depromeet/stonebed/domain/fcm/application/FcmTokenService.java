@@ -57,29 +57,27 @@ public class FcmTokenService {
 
     @Transactional
     public void storeOrUpdateToken(String token) {
-        final Member member = memberUtil.getCurrentMember();
-
         if (token == null || token.isEmpty()) {
             throw new CustomException(ErrorCode.INVALID_FCM_TOKEN);
         }
 
-        Optional<FcmToken> tokenByValue = fcmRepository.findByToken(token);
-        tokenByValue.ifPresent(
+        Member member = memberUtil.getCurrentMember();
+        Optional<FcmToken> existingTokenOptional = fcmRepository.findByToken(token);
+
+        existingTokenOptional.ifPresent(
                 existingToken -> {
                     if (!existingToken.getMember().equals(member)) {
                         fcmRepository.delete(existingToken);
                     }
                 });
 
-        Optional<FcmToken> existingTokenByMember = fcmRepository.findByMember(member);
-        existingTokenByMember.ifPresentOrElse(
-                fcmToken -> {
-                    fcmToken.updateToken(token);
-                    fcmRepository.save(fcmToken);
-                },
-                () -> {
-                    FcmToken fcmToken = new FcmToken(member, token);
-                    fcmRepository.save(fcmToken);
-                });
+        fcmRepository
+                .findByMember(member)
+                .ifPresentOrElse(
+                        fcmToken -> fcmToken.updateToken(token),
+                        () -> {
+                            FcmToken fcmToken = new FcmToken(member, token);
+                            fcmRepository.save(fcmToken);
+                        });
     }
 }
