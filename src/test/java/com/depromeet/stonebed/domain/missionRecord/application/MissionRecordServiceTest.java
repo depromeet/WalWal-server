@@ -4,6 +4,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
+import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
@@ -35,7 +36,7 @@ import org.springframework.test.context.ActiveProfiles;
 class MissionRecordServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private MissionRecordService missionRecordService;
-
+    @Mock private FcmNotificationService fcmNotificationService;
     @Mock private MissionRecordRepository missionRecordRepository;
     @Mock private MissionHistoryRepository missionHistoryRepository;
     @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
