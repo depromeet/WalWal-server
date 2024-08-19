@@ -6,6 +6,8 @@ import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
 import com.depromeet.stonebed.domain.feed.dto.response.FeedContentGetResponse;
 import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +51,14 @@ public class FeedService {
             return feedRepository.getFeedContents(memberId, limit);
         }
 
-        return feedRepository.getFeedContentsUsingCursor(Long.parseLong(cursor), memberId, limit);
+        return feedRepository.getFeedContentsUsingCursor(parseCursor(cursor), memberId, limit);
+    }
+
+    private Long parseCursor(String cursor) {
+        try {
+            return Long.parseLong(cursor);
+        } catch (NumberFormatException e) {
+            throw new CustomException(ErrorCode.INVALID_CURSOR_FORMAT);
+        }
     }
 }

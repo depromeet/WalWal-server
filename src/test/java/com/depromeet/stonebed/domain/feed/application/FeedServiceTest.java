@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.feed.application;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
@@ -12,6 +13,8 @@ import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.global.error.ErrorCode;
+import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,5 +124,23 @@ class FeedServiceTest extends FixtureMonkeySetUp {
         verify(memberUtil).getCurrentMember();
         verify(feedRepository)
                 .getFeedContentsUsingCursor(Long.parseLong(cursor), member.getId(), 5);
+    }
+
+    @Test
+    void 피드_조회_유효하지_않은_커서_실패() {
+        // Given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        String cursor = "2024-08-01";
+
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+
+        // When
+        CustomException exception =
+                assertThrows(
+                        CustomException.class,
+                        () -> feedService.getFeed(new FeedGetRequest(cursor, 5)));
+
+        // Then: 에러코드 검증
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_CURSOR_FORMAT);
     }
 }
