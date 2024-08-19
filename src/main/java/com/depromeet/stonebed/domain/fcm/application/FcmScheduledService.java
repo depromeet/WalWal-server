@@ -1,9 +1,11 @@
 package com.depromeet.stonebed.domain.fcm.application;
 
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
+import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
 import com.depromeet.stonebed.global.util.FcmNotificationUtil;
 import com.google.firebase.messaging.Notification;
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FcmScheduledService {
     private final FcmService fcmService;
+    private final FcmNotificationService fcmNotificationService;
     private final FcmRepository fcmRepository;
     private final MissionRecordRepository missionRecordRepository;
 
@@ -31,22 +34,43 @@ public class FcmScheduledService {
         log.info("비활성 토큰 {}개 삭제 완료", inactiveTokens.size());
     }
 
-    // 매일 12시 0분에 실행
-    @Scheduled(cron = "0 0 12 * * ?")
+    // 매일 9시 0분에 실행
+    @Scheduled(cron = "0 0 9 * * ?")
     public void sendDailyNotification() {
-        Notification notification = FcmNotificationUtil.buildNotification("정규 메세지 제목", "정규 메세지 내용");
+        FcmNotificationConstants notificationConstants = FcmNotificationConstants.MISSION_START;
+        Notification notification =
+                FcmNotificationUtil.buildNotification(
+                        notificationConstants.getTitle(), notificationConstants.getMessage());
+
         fcmService.sendMulticastMessageToAll(notification);
         log.info("모든 사용자에게 정규 알림 전송 완료");
+
+        fcmNotificationService.saveNotification(
+                FcmNotificationType.MISSION,
+                notificationConstants.getTitle(),
+                notificationConstants.getMessage(),
+                null,
+                false);
     }
 
-    // 매일 18시 0분에 실행
-    @Scheduled(cron = "0 0 18 * * ?")
+    // 매일 19시 0분에 실행
+    @Scheduled(cron = "0 0 19 * * ?")
     public void sendReminderToIncompleteMissions() {
+        FcmNotificationConstants notificationConstants = FcmNotificationConstants.MISSION_REMINDER;
         Notification notification =
-                FcmNotificationUtil.buildNotification("리마인드 메세지 제목", "리마인드 메세지 내용");
+                FcmNotificationUtil.buildNotification(
+                        notificationConstants.getTitle(), notificationConstants.getMessage());
+
         List<String> tokens = getIncompleteMissionTokens();
         fcmService.sendMulticastMessage(notification, tokens);
         log.info("미완료 미션 사용자에게 리마인더 전송 완료. 총 토큰 수: {}", tokens.size());
+
+        fcmNotificationService.saveNotification(
+                FcmNotificationType.MISSION,
+                notificationConstants.getTitle(),
+                notificationConstants.getMessage(),
+                null,
+                false);
     }
 
     private List<String> getIncompleteMissionTokens() {
