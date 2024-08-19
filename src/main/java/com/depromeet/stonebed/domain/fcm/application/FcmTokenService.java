@@ -58,8 +58,17 @@ public class FcmTokenService {
     @Transactional
     public void storeOrUpdateToken(String token) {
         final Member member = memberUtil.getCurrentMember();
-        Optional<FcmToken> existingToken = fcmRepository.findByMember(member);
-        existingToken.ifPresentOrElse(
+
+        Optional<FcmToken> tokenByValue = fcmRepository.findByToken(token);
+        tokenByValue.ifPresent(
+                existingToken -> {
+                    if (!existingToken.getMember().equals(member)) {
+                        fcmRepository.delete(existingToken);
+                    }
+                });
+
+        Optional<FcmToken> existingTokenByMember = fcmRepository.findByMember(member);
+        existingTokenByMember.ifPresentOrElse(
                 fcmToken -> {
                     fcmToken.updateToken(token);
                     fcmRepository.save(fcmToken);
