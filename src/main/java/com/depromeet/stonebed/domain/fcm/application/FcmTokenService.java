@@ -33,7 +33,7 @@ public class FcmTokenService {
         fcmRepository
                 .findByMember(currentMember)
                 .ifPresentOrElse(
-                        fcmToken -> updateToken(fcmToken, ""),
+                        fcmToken -> updateToken(fcmToken, null),
                         () -> {
                             throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
                         });
@@ -44,7 +44,7 @@ public class FcmTokenService {
         fcmRepository
                 .findByToken(token)
                 .ifPresentOrElse(
-                        fcmToken -> updateToken(fcmToken, ""),
+                        fcmToken -> updateToken(fcmToken, null),
                         () -> {
                             throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
                         });
@@ -57,16 +57,27 @@ public class FcmTokenService {
 
     @Transactional
     public void storeOrUpdateToken(String token) {
-        final Member member = memberUtil.getCurrentMember();
-        Optional<FcmToken> existingToken = fcmRepository.findByMember(member);
-        existingToken.ifPresentOrElse(
-                fcmToken -> {
-                    fcmToken.updateToken(token);
-                    fcmRepository.save(fcmToken);
-                },
-                () -> {
-                    FcmToken fcmToken = new FcmToken(member, token);
-                    fcmRepository.save(fcmToken);
+        if (token == null || token.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_FCM_TOKEN);
+        }
+
+        Member member = memberUtil.getCurrentMember();
+        Optional<FcmToken> existingTokenOptional = fcmRepository.findByToken(token);
+
+        existingTokenOptional.ifPresent(
+                existingToken -> {
+                    if (!existingToken.getMember().equals(member)) {
+                        fcmRepository.delete(existingToken);
+                    }
                 });
+
+        fcmRepository
+                .findByMember(member)
+                .ifPresentOrElse(
+                        fcmToken -> fcmToken.updateToken(token),
+                        () -> {
+                            FcmToken fcmToken = new FcmToken(member, token);
+                            fcmRepository.save(fcmToken);
+                        });
     }
 }
