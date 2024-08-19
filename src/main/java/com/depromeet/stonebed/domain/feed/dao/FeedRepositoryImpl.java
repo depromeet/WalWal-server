@@ -46,11 +46,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
     public List<FindFeedDto> getFeedContentsUsingCursor(
             Long missionRecordId, Long memberId, int limit) {
         return getFeedBaseQuery()
-                .where(
-                        missionRecord
-                                .id
-                                .lt(missionRecordId)
-                                .and(missionRecord.member.id.eq(memberId)))
+                .where(missionRecord.id.lt(missionRecordId))
                 .groupBy(missionRecord.id, member.id, mission.id, missionHistory.id)
                 .orderBy(missionRecord.id.desc())
                 .limit(limit)
@@ -60,7 +56,6 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
     @Override
     public List<FindFeedDto> getFeedContents(Long memberId, int limit) {
         return getFeedBaseQuery()
-                .where(missionRecord.member.id.eq(memberId))
                 .groupBy(missionRecord.id, member.id, mission.id, missionHistory.id)
                 .orderBy(missionRecord.id.desc())
                 .limit(limit)
