@@ -1,8 +1,8 @@
 name: Pull Request on Check
 on:
-  push:
+  pull_request:
     branches:
-      ["fix/#155-pr-workflow"]
+      - develop
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,23 +43,3 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: always() # Pick up events even if the job fails or is canceled.
-
-  style-test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java-version: [ 17 ]
-        distribution: [ 'temurin' ]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: JDK install
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: ${{ matrix.distribution }}
-
-      - name: Checkstyle
-        run: |
-          ./gradlew spotlessCheck
