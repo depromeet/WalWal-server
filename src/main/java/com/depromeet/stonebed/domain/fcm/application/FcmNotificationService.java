@@ -21,7 +21,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,17 +73,26 @@ public class FcmNotificationService {
     }
 
     private List<FcmNotificationDto> convertToNotificationDto(List<FcmNotification> notifications) {
+        List<Long> targetIds =
+                notifications.stream()
+                        .filter(
+                                notification ->
+                                        notification.getType() == FcmNotificationType.BOOSTER)
+                        .map(FcmNotification::getTargetId)
+                        .toList();
+
+        Map<Long, MissionRecord> missionRecordMap =
+                missionRecordRepository.findByIdIn(targetIds).stream()
+                        .collect(
+                                Collectors.toMap(
+                                        MissionRecord::getId, missionRecord -> missionRecord));
+
         return notifications.stream()
                 .map(
                         notification -> {
-                            Optional<MissionRecord> missionRecord = Optional.empty();
-                            if (notification.getType() == FcmNotificationType.BOOSTER) {
-                                missionRecord =
-                                        missionRecordRepository.findById(
-                                                notification.getTargetId());
-                            }
-                            return FcmNotificationDto.from(
-                                    notification, missionRecord.orElse(null));
+                            MissionRecord missionRecord =
+                                    missionRecordMap.get(notification.getTargetId());
+                            return FcmNotificationDto.from(notification, missionRecord);
                         })
                 .toList();
     }
