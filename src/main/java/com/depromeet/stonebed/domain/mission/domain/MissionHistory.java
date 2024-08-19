@@ -24,9 +24,13 @@ public class MissionHistory extends BaseTimeEntity {
     @Column(name = "assigned_date", nullable = false, unique = true)
     private LocalDate assignedDate;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     public MissionHistory(Mission mission, LocalDate assignedDate) {
         this.mission = mission;
         this.assignedDate = assignedDate;
+    }
+
+    public static MissionHistory createMissionHistory(Mission mission, LocalDate assignedDate) {
+        return MissionHistory.builder().mission(mission).assignedDate(assignedDate).build();
     }
 }

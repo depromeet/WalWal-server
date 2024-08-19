@@ -4,6 +4,7 @@ import static com.depromeet.stonebed.domain.mission.domain.QMission.mission;
 import static com.depromeet.stonebed.domain.mission.domain.QMissionHistory.missionHistory;
 
 import com.depromeet.stonebed.domain.mission.domain.Mission;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,11 +22,15 @@ public class MissionRepositoryImpl implements MissionRepositoryCustom {
     }
 
     @Override
-    public List<Mission> findMissionsAssignedBefore(LocalDate assignedDate) {
+    public List<Mission> findMissionsAssignedAfter(LocalDate assignedDate) {
         return queryFactory
                 .select(missionHistory.mission)
                 .from(missionHistory)
-                .where(missionHistory.assignedDate.before(assignedDate))
+                .where(assignedDateAfter(assignedDate))
                 .fetch();
+    }
+
+    private BooleanExpression assignedDateAfter(LocalDate assignedDate) {
+        return missionHistory.assignedDate.after(assignedDate);
     }
 }

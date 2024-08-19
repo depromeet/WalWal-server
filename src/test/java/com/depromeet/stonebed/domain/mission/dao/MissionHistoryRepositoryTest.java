@@ -33,8 +33,7 @@ class MissionHistoryRepositoryTest {
         missionRepository.save(mission);
         LocalDate today = LocalDate.now();
 
-        MissionHistory missionHistory =
-                MissionHistory.builder().mission(mission).assignedDate(today).build();
+        MissionHistory missionHistory = MissionHistory.createMissionHistory(mission, today);
 
         // When: 미션 히스토리를 저장하면
         MissionHistory savedMissionHistory = missionHistoryRepository.save(missionHistory);
@@ -52,8 +51,7 @@ class MissionHistoryRepositoryTest {
         missionRepository.save(mission);
         LocalDate today = LocalDate.now();
 
-        MissionHistory missionHistory =
-                MissionHistory.builder().mission(mission).assignedDate(today).build();
+        MissionHistory missionHistory = MissionHistory.createMissionHistory(mission, today);
         missionHistoryRepository.save(missionHistory);
 
         // When: 특정 날짜(오늘)의 미션 히스토리를 가져오면
