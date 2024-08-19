@@ -4,6 +4,7 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.MemberProfileUpdateRequest;
 import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
+import com.depromeet.stonebed.domain.member.dto.response.MemberInfoResponse;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,9 @@ public class MemberService {
     private final MemberUtil memberUtil;
 
     @Transactional(readOnly = true)
-    public Member findMemberInfo() {
-        return memberUtil.getCurrentMember();
+    public MemberInfoResponse findMemberInfo() {
+        Member currentMember = memberUtil.getCurrentMember();
+        return MemberInfoResponse.from(currentMember);
     }
 
     @Transactional(readOnly = true)
