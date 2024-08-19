@@ -50,9 +50,9 @@ public enum ErrorCode {
     FOLLOW_NOT_EXIST(HttpStatus.NOT_FOUND, "팔로우 관계가 존재하지 않습니다."),
 
     // fcm
-    FAILED_TO_SEND_FCM_MESSAGE(HttpStatus.BAD_REQUEST, "FCM 메세지 전송에 실패했습니다."),
+    INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "FCM 토큰값이 비어있습니다."),
     FAILED_TO_FIND_FCM_TOKEN(HttpStatus.NOT_FOUND, "해당 FCM 토큰을 찾을 수 없습니다."),
-    FIREBASE_CONFIG_NOT_FOUND(HttpStatus.NOT_FOUND, "FIREBASE_CONFIG를 찾을 수 없습니다.");
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }

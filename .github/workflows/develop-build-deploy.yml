@@ -17,7 +17,7 @@ jobs:
         distribution: [ 'temurin' ]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # JDK를 17 버전으로 세팅
       - name: Set up JDK 17
