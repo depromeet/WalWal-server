@@ -7,6 +7,7 @@ import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -15,12 +16,14 @@ public class MemberUtil {
     private final SecurityUtil securityUtil;
     private final MemberRepository memberRepository;
 
+    @Transactional(readOnly = true)
     public Member getCurrentMember() {
         return memberRepository
                 .findById(securityUtil.getCurrentMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
     public Member getMemberByMemberId(Long memberId) {
         return memberRepository
                 .findById(memberId)
@@ -35,6 +38,7 @@ public class MemberUtil {
         return role;
     }
 
+    @Transactional(readOnly = true)
     public void checkNickname(NicknameCheckRequest request) {
         validateNicknameNotDuplicate(request.nickname());
         if (validateNicknameText(request.nickname())) {

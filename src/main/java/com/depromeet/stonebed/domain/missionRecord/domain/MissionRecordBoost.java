@@ -21,7 +21,7 @@ public class MissionRecordBoost {
     private MissionRecord missionRecord;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Column(name = "count", nullable = false)

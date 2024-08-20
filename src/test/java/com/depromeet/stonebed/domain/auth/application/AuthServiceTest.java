@@ -131,7 +131,6 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         authService.withdraw();
 
         // then
-        // 플러시가 호출되었는지 확인
         verify(memberRepository).flush();
 
         // 실제 삭제가 이뤄졌는지 확인
