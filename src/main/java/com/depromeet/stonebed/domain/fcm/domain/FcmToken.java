@@ -25,7 +25,7 @@ public class FcmToken extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = true)
     private String token;
 
     public FcmToken(Member member, String token) {
