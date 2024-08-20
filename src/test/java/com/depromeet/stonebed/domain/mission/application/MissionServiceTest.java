@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import com.depromeet.stonebed.domain.mission.dao.mission.MissionRepository;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
@@ -16,6 +18,7 @@ import com.depromeet.stonebed.domain.mission.dto.response.MissionGetTodayRespons
 import com.depromeet.stonebed.domain.mission.dto.response.MissionUpdateResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
+import com.depromeet.stonebed.global.util.MemberUtil;
 import java.time.LocalDate;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +33,7 @@ class MissionServiceTest {
 
     @Mock private MissionRepository missionRepository;
     @Mock private MissionHistoryRepository missionHistoryRepository;
+    @Mock private MemberUtil memberUtil;
 
     @InjectMocks private MissionService missionService;
 
@@ -37,6 +41,7 @@ class MissionServiceTest {
     private LocalDate beforeDayByStandard;
     private Mission mission;
     private MissionHistory missionHistory;
+    private Member member;
 
     @BeforeEach
     public void setUp() {
@@ -44,6 +49,7 @@ class MissionServiceTest {
         beforeDayByStandard = LocalDate.now().minusDays(3);
         mission = Mission.builder().title("Test Mission").build();
         missionHistory = MissionHistory.createMissionHistory(mission, today);
+        member = mock(Member.class);
         MockitoAnnotations.openMocks(this);
     }
 
@@ -51,7 +57,8 @@ class MissionServiceTest {
     void 미션_생성_성공() {
         // Given
         when(missionRepository.save(any(Mission.class))).thenReturn(mission);
-        MissionCreateRequest missionCreateRequest = new MissionCreateRequest("Test Mission");
+        MissionCreateRequest missionCreateRequest =
+                new MissionCreateRequest("Test Mission", RaisePet.DOG);
 
         // When
         MissionCreateResponse missionCreateResponse =
@@ -78,8 +85,14 @@ class MissionServiceTest {
     @Test
     void 오늘의_미션_조회_성공_히스토리가_이미_존재하는_경우() {
         // Given
-        when(missionHistoryRepository.findByAssignedDate(today))
+        LocalDate today = LocalDate.now();
+        Mission mission = new Mission("Test Mission", RaisePet.DOG);
+        MissionHistory missionHistory = MissionHistory.createMissionHistory(mission, today);
+
+        when(missionHistoryRepository.findByAssignedDateAndMission_RaisePet(today, RaisePet.DOG))
                 .thenReturn(Optional.of(missionHistory));
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(member.getRaisePet()).thenReturn(RaisePet.DOG);
 
         // When
         MissionGetTodayResponse result = missionService.getOrCreateTodayMission();
@@ -87,7 +100,8 @@ class MissionServiceTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.title()).isEqualTo("Test Mission");
-        verify(missionHistoryRepository, times(1)).findByAssignedDate(today);
+        verify(missionHistoryRepository, times(1))
+                .findByAssignedDateAndMission_RaisePet(today, RaisePet.DOG);
         verify(missionHistoryRepository, times(0)).save(any(MissionHistory.class));
     }
 
@@ -95,18 +109,23 @@ class MissionServiceTest {
     void 오늘의_미션_조회_성공_히스토리가_없는_경우() {
         // Given: 초기 설정
         List<Mission> recentMissions = new ArrayList<>();
-        recentMissions.add(Mission.builder().title("1일 전 미션").build());
-        recentMissions.add(Mission.builder().title("2일 전 미션").build());
-        recentMissions.add(Mission.builder().title("3일 전 미션").build());
+        recentMissions.add(Mission.builder().title("1일 전 미션").raisePet(RaisePet.DOG).build());
+        recentMissions.add(Mission.builder().title("2일 전 미션").raisePet(RaisePet.DOG).build());
+        recentMissions.add(Mission.builder().title("3일 전 미션").raisePet(RaisePet.DOG).build());
 
         List<Mission> availableMissions = new ArrayList<>();
-        availableMissions.add(Mission.builder().title("4일 전 미션").build());
-        availableMissions.add(Mission.builder().title("5일 전 미션").build());
+        availableMissions.add(Mission.builder().title("4일 전 미션").raisePet(RaisePet.DOG).build());
+        availableMissions.add(Mission.builder().title("5일 전 미션").raisePet(RaisePet.DOG).build());
 
-        when(missionRepository.findMissionsAssignedAfter(beforeDayByStandard))
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(member.getRaisePet()).thenReturn(RaisePet.DOG);
+
+        when(missionRepository.findMissionsAssignedAfterAndByRaisePet(
+                        beforeDayByStandard, RaisePet.DOG))
                 .thenReturn(recentMissions);
 
-        when(missionRepository.findNotInMissions(recentMissions)).thenReturn(availableMissions);
+        when(missionRepository.findNotInMissionsAndByRaisePet(recentMissions, RaisePet.DOG))
+                .thenReturn(availableMissions);
 
         when(missionHistoryRepository.save(any(MissionHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -123,10 +142,14 @@ class MissionServiceTest {
     void 오늘의_미션_조회_실패_할당가능한_미션이_없는_경우() {
         // Given: 초기 설정
         List<Mission> emptyMissionList = new ArrayList<>();
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(member.getRaisePet()).thenReturn(RaisePet.DOG);
 
-        when(missionRepository.findMissionsAssignedAfter(today)).thenReturn(emptyMissionList);
+        when(missionRepository.findMissionsAssignedAfterAndByRaisePet(today, RaisePet.DOG))
+                .thenReturn(emptyMissionList);
 
-        when(missionRepository.findNotInMissions(emptyMissionList)).thenReturn(emptyMissionList);
+        when(missionRepository.findNotInMissionsAndByRaisePet(emptyMissionList, RaisePet.DOG))
+                .thenReturn(emptyMissionList);
 
         when(missionHistoryRepository.save(any(MissionHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -158,7 +181,8 @@ class MissionServiceTest {
 
         // When
         MissionUpdateResponse missionUpdateResponse =
-                missionService.updateMission(1L, new MissionUpdateRequest("Updated Mission"));
+                missionService.updateMission(
+                        1L, new MissionUpdateRequest("Updated Mission", RaisePet.DOG));
 
         // Then
         assertThat(missionUpdateResponse.title()).isEqualTo("Updated Mission");
@@ -170,7 +194,7 @@ class MissionServiceTest {
     void 미션_수정_실패_미션이_없는_경우() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.empty());
-        MissionUpdateRequest updateRequest = new MissionUpdateRequest("Test Mission");
+        MissionUpdateRequest updateRequest = new MissionUpdateRequest("Test Mission", RaisePet.DOG);
 
         // When & Then
         assertThrows(CustomException.class, () -> missionService.updateMission(1L, updateRequest));
