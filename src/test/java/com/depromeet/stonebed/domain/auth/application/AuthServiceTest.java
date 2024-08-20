@@ -118,6 +118,15 @@ class AuthServiceTest extends FixtureMonkeySetUp {
                         .sample();
         when(memberUtil.getCurrentMember()).thenReturn(member);
 
+        // Mocking: deleteById가 호출될 때 MemberStatus를 DELETED로 변경
+        doAnswer(
+                        invocation -> {
+                            member.updateStatus(MemberStatus.DELETED);
+                            return null;
+                        })
+                .when(memberRepository)
+                .deleteById(member.getId());
+
         // when
         authService.withdraw();
 
@@ -125,12 +134,17 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         // 플러시가 호출되었는지 확인
         verify(memberRepository).flush();
 
-        // @SQLDelete가 적용된 이후의 상태를 확인하기 위해, 실제 삭제가 이뤄졌는지 확인
+        // 실제 삭제가 이뤄졌는지 확인
         verify(memberRepository).deleteById(member.getId());
         assertEquals(MemberRole.TEMPORARY, member.getRole());
+        assertEquals("", member.getProfile().getProfileImageUrl());
+        assertEquals("", member.getProfile().getNickname());
 
         // jwtTokenService에서 리프레시 토큰 삭제가 호출되었는지 확인
         verify(jwtTokenService).deleteRefreshToken(member.getId());
+
+        // MemberStatus가 DELETED로 변경되었는지 확인
+        assertEquals(MemberStatus.DELETED, member.getStatus());
     }
 
     private void assertCommonAssertions(

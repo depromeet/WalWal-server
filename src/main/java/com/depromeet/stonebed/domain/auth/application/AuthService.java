@@ -129,6 +129,7 @@ public class AuthService {
          */
         validateMemberStatusDelete(member.getStatus());
         member.updateMemberRole(MemberRole.TEMPORARY);
+        member.updateProfile(Profile.createProfile("", ""));
         memberRepository.flush();
 
         jwtTokenService.deleteRefreshToken(member.getId());
