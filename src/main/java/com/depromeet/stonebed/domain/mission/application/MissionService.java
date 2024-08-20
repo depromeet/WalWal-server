@@ -30,7 +30,11 @@ public class MissionService {
     private static final long MISSION_TODAY_STANDARD = 3;
 
     public MissionCreateResponse createMission(MissionCreateRequest missionCreateRequest) {
-        Mission mission = Mission.builder().title(missionCreateRequest.title()).build();
+        Mission mission =
+                Mission.builder()
+                        .title(missionCreateRequest.title())
+                        .raisePet(missionCreateRequest.raisePet())
+                        .build();
 
         mission = missionRepository.save(mission);
         return MissionCreateResponse.from(mission);
@@ -84,6 +88,7 @@ public class MissionService {
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
 
         missionToUpdate.updateTitle(missionUpdateRequest.title());
+        missionToUpdate.updateRaisePet(missionUpdateRequest.raisePet());
         missionRepository.save(missionToUpdate);
 
         return MissionUpdateResponse.from(missionToUpdate);
