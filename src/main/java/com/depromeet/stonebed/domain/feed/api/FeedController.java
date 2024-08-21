@@ -18,8 +18,10 @@ public class FeedController {
     @Operation(summary = "피드 조회", description = "내 피드를 조회하는 API입니다.")
     @GetMapping
     public FeedGetResponse getFeed(
-            @RequestParam(required = false) String cursor, @RequestParam int limit) {
-        FeedGetRequest request = new FeedGetRequest(cursor, limit);
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Long memberId,
+            @RequestParam int limit) {
+        FeedGetRequest request = new FeedGetRequest(cursor, memberId, limit);
         return feedService.getFeed(request);
     }
 }
