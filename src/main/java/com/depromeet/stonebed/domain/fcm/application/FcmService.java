@@ -1,6 +1,5 @@
 package com.depromeet.stonebed.domain.fcm.application;
 
-import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmResponseErrorType;
 import com.google.firebase.messaging.*;
 import java.time.LocalDateTime;
@@ -18,7 +17,6 @@ public class FcmService {
     private static final int BATCH_SIZE = 500;
 
     private final FcmTokenService fcmTokenService;
-    private final FcmRepository fcmRepository;
 
     @Transactional(readOnly = true)
     public void sendMulticastMessageToAll(Notification notification) {

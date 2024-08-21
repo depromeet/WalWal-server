@@ -119,7 +119,11 @@ public class FcmNotificationService {
         }
 
         FcmNotification lastNotification = notifications.get(notifications.size() - 1);
-        return lastNotification.getCreatedAt().format(DATE_FORMATTER);
+
+        boolean hasNext =
+                notificationRepository.existsByCreatedAtLessThan(lastNotification.getCreatedAt());
+
+        return hasNext ? lastNotification.getCreatedAt().format(DATE_FORMATTER) : null;
     }
 
     public void checkAndSendBoostNotification(MissionRecord missionRecord) {

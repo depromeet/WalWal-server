@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class FcmScheduledService {
-    private final FcmService fcmService;
     private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
     private final FcmRepository fcmRepository;
