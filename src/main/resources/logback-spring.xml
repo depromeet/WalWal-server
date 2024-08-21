@@ -1,37 +1,62 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <springProfile name="actuator, cloud, datasource, redis, security, prod, dev">
-        <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level --- [%thread] %class : %m%n" />
-        <property name="LOG_DIR" value="./logs"/>
-
-        <appender name="file-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>${LOG_DIR}/application.log</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>${LOG_DIR}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+<configuration scan="true" scanPeriod="60 seconds">
+    <!-- Appender 설정 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>{"traceId":"%X{traceId}","time":"%d{yyyy-MM-dd HH:mm:ss.SSS}", "service.name":"%X{serviceName}", "level":"%level", "message":"%msg"}%n</pattern>
+            </layout>
+        </encoder>
+    </appender>
+    <!-- DEBUG 레벨 설정 -->
+    <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/debug.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
-                <maxHistory>7</maxHistory>
-                <totalSizeCap>1GB</totalSizeCap>
-            </rollingPolicy>
-
-            <encoder>
-                <pattern>${LOG_PATTERN}</pattern>
-            </encoder>
-        </appender>
-
-        <appender name="console-appender" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <pattern>${LOG_PATTERN}</pattern>
-            </encoder>
-        </appender>
-    </springProfile>
-
-    <!-- additivity : 상위 로거의 설정을 상속받을 것인지 여부 -->
-    <logger name="SomeLogger" level="warn" additivity="false">
-        <appender-ref ref="file-appender"/>
-    </logger>
-
-    <root level="info" >
-        <appender-ref ref="console-appender" />
-        <appender-ref ref="file-appender" />
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <!-- INFO 레벨 설정 -->
+    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <!-- WARN 레벨 설정 -->
+    <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/warn.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/warn.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <!-- ERROR 레벨 설정 -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <!-- Root 설정 -->
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="DEBUG_FILE"/>
+        <appender-ref ref="INFO_FILE"/>
+        <appender-ref ref="WARN_FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
     </root>
 </configuration>
