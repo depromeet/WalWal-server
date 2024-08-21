@@ -7,12 +7,12 @@ import com.depromeet.stonebed.domain.image.dto.request.MissionImageCreateRequest
 import com.depromeet.stonebed.domain.image.dto.request.MissionImageUploadRequest;
 import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageCreateRequest;
 import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageUploadRequest;
+import com.depromeet.stonebed.domain.image.dto.response.ImageUrlResponse;
 import com.depromeet.stonebed.domain.image.dto.response.PresignedUrlResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,10 +37,9 @@ public class ImageController {
 
     @Operation(summary = "회원 프로필 이미지 업로드 완료", description = "회원 프로필 이미지 업로드 완료 업로드 상태를 변경합니다.")
     @PostMapping("/members/me/upload-complete")
-    public ResponseEntity<Void> memberProfileUploaded(
+    public ImageUrlResponse memberProfileUploaded(
             @Valid @RequestBody MemberProfileImageUploadCompleteRequest request) {
-        imageService.uploadCompleteMemberProfile(request);
-        return ResponseEntity.ok().build();
+        return imageService.uploadCompleteMemberProfile(request);
     }
 
     @Operation(
@@ -54,10 +53,9 @@ public class ImageController {
 
     @Operation(summary = "미션 기록 이미지 업로드 완료", description = "미션 기록 이미지 업로드 완료 업로드 상태를 변경합니다.")
     @PostMapping("/mission-record/upload-complete")
-    public ResponseEntity<Void> missionRecordUploaded(
+    public ImageUrlResponse missionRecordUploaded(
             @Valid @RequestBody MissionRecordImageUploadRequest request) {
-        imageService.uploadCompleteMissionRecord(request);
-        return ResponseEntity.ok().build();
+        return imageService.uploadCompleteMissionRecord(request);
     }
 
     @Operation(
@@ -71,9 +69,7 @@ public class ImageController {
 
     @Operation(summary = "미션 일러스트 이미지 업로드 완료", description = "미션 일러스트 이미지 업로드 완료 업로드 상태를 변경합니다.")
     @PostMapping("/mission/upload-complete")
-    public ResponseEntity<Void> missionUploaded(
-            @Valid @RequestBody MissionImageUploadRequest request) {
-        imageService.uploadCompleteMission(request);
-        return ResponseEntity.ok().build();
+    public ImageUrlResponse missionUploaded(@Valid @RequestBody MissionImageUploadRequest request) {
+        return imageService.uploadCompleteMission(request);
     }
 }

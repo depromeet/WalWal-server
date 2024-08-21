@@ -2,6 +2,10 @@ package com.depromeet.stonebed.domain.member.domain;
 
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
+import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -10,17 +14,22 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET status = 'DELETED' WHERE member_id = ?")
+@SQLRestriction("status != 'DELETED'")
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -42,6 +51,15 @@ public class Member extends BaseTimeEntity {
     private RaisePet raisePet;
 
     private LocalDateTime lastLoginAt;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MissionRecord> missionRecords = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MissionRecordBoost> missionRecordBoosts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FcmNotification> fcmNotifications = new ArrayList<>();
 
     @Builder(access = AccessLevel.PRIVATE)
     public Member(
