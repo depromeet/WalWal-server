@@ -15,6 +15,7 @@ import com.depromeet.stonebed.domain.image.dto.request.MissionImageCreateRequest
 import com.depromeet.stonebed.domain.image.dto.request.MissionImageUploadRequest;
 import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageCreateRequest;
 import com.depromeet.stonebed.domain.image.dto.request.MissionRecordImageUploadRequest;
+import com.depromeet.stonebed.domain.image.dto.response.ImageUrlResponse;
 import com.depromeet.stonebed.domain.image.dto.response.PresignedUrlResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.Profile;
@@ -73,7 +74,8 @@ public class ImageService {
         return PresignedUrlResponse.from(presignedUrl.toString());
     }
 
-    public void uploadCompleteMemberProfile(MemberProfileImageUploadCompleteRequest request) {
+    public ImageUrlResponse uploadCompleteMemberProfile(
+            MemberProfileImageUploadCompleteRequest request) {
         final Member currentMember = memberUtil.getCurrentMember();
         validateImageFileExtension(request.imageFileExtension());
 
@@ -89,6 +91,7 @@ public class ImageService {
                         image.getImageKey(),
                         request.imageFileExtension());
         currentMember.updateProfile(Profile.createProfile(request.nickname(), imageUrl));
+        return ImageUrlResponse.of(imageUrl);
     }
 
     public PresignedUrlResponse createMissionRecordPresignedUrl(
@@ -120,23 +123,21 @@ public class ImageService {
         return PresignedUrlResponse.from(presignedUrl.toString());
     }
 
-    public void uploadCompleteMissionRecord(MissionRecordImageUploadRequest request) {
-        final Member currentMember = memberUtil.getCurrentMember();
+    public ImageUrlResponse uploadCompleteMissionRecord(MissionRecordImageUploadRequest request) {
         validateImageFileExtension(request.imageFileExtension());
 
         Image image =
                 findImage(
-                        ImageType.MISSION_RECORD,
-                        currentMember.getId(),
-                        request.imageFileExtension());
+                        ImageType.MISSION_RECORD, request.recordId(), request.imageFileExtension());
         String imageUrl =
                 createReadImageUrl(
                         ImageType.MISSION_RECORD,
-                        currentMember.getId(),
+                        request.recordId(),
                         image.getImageKey(),
                         request.imageFileExtension());
 
         missionRecordService.updateMissionRecordWithImage(request.recordId(), imageUrl);
+        return ImageUrlResponse.of(imageUrl);
     }
 
     public PresignedUrlResponse createMissionPresignedUrl(MissionImageCreateRequest request) {
@@ -161,7 +162,7 @@ public class ImageService {
         return PresignedUrlResponse.from(presignedUrl.toString());
     }
 
-    public void uploadCompleteMission(MissionImageUploadRequest request) {
+    public ImageUrlResponse uploadCompleteMission(MissionImageUploadRequest request) {
         validateImageFileExtension(request.imageFileExtension());
 
         Image image =
@@ -174,6 +175,8 @@ public class ImageService {
                         request.imageFileExtension());
 
         missionService.updateMissionWithImageUrl(request.missionId(), imageUrl);
+
+        return ImageUrlResponse.of(imageUrl);
     }
 
     private void validateImageFileExtension(ImageFileExtension imageFileExtension) {
@@ -190,8 +193,7 @@ public class ImageService {
     private Image findImage(
             ImageType imageType, Long targetId, ImageFileExtension imageFileExtension) {
         return imageRepository
-                .findTopByImageTypeAndTargetIdAndImageFileExtensionOrderByIdDesc(
-                        imageType, targetId, imageFileExtension)
+                .findTopImageByTarget(imageType, targetId, imageFileExtension)
                 .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_KEY_NOT_FOUND));
     }
 

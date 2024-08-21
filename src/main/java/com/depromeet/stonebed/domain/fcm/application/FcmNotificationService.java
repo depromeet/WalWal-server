@@ -20,6 +20,7 @@ import com.google.firebase.messaging.Notification;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -118,7 +119,11 @@ public class FcmNotificationService {
         }
 
         FcmNotification lastNotification = notifications.get(notifications.size() - 1);
-        return lastNotification.getCreatedAt().format(DATE_FORMATTER);
+
+        boolean hasNext =
+                notificationRepository.existsByCreatedAtLessThan(lastNotification.getCreatedAt());
+
+        return hasNext ? lastNotification.getCreatedAt().format(DATE_FORMATTER) : null;
     }
 
     public void checkAndSendBoostNotification(MissionRecord missionRecord) {
@@ -175,5 +180,34 @@ public class FcmNotificationService {
 
         notification.markAsRead();
         notificationRepository.save(notification);
+    }
+
+    private List<FcmNotification> buildNotificationList(
+            String title, String message, List<String> tokens) {
+        List<FcmNotification> notifications = new ArrayList<>();
+
+        for (String token : tokens) {
+            Member member =
+                    fcmRepository
+                            .findByToken(token)
+                            .map(FcmToken::getMember)
+                            .orElseThrow(
+                                    () -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
+
+            FcmNotification newNotification =
+                    FcmNotification.create(
+                            FcmNotificationType.MISSION, title, message, member, null, false);
+            notifications.add(newNotification);
+        }
+
+        return notifications;
+    }
+
+    public void sendAndNotifications(String title, String message, List<String> tokens) {
+        Notification notification = FcmNotificationUtil.buildNotification(title, message);
+        fcmService.sendMulticastMessage(notification, tokens);
+
+        List<FcmNotification> notifications = buildNotificationList(title, message, tokens);
+        notificationRepository.saveAll(notifications);
     }
 }

@@ -8,13 +8,15 @@ import com.depromeet.stonebed.domain.auth.dto.request.RefreshTokenRequest;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
+import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
-import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -29,12 +31,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class AuthService {
+    private final FcmNotificationRepository fcmNotificationRepository;
+    private final MemberRepository memberRepository;
+    private final MissionRecordRepository missionRecordRepository;
+    private final MissionRecordBoostRepository missionRecordBoostRepository;
 
     private final AppleClient appleClient;
     private final KakaoClient kakaoClient;
     private final JwtTokenService jwtTokenService;
     private final MemberUtil memberUtil;
-    private final MemberRepository memberRepository;
 
     public SocialClientResponse authenticateFromProvider(OAuthProvider provider, String token) {
         /* token
@@ -86,9 +91,6 @@ public class AuthService {
         Member currentMember = memberUtil.getCurrentMember();
         // 사용자 회원가입
         if (memberUtil.getMemberRole().equals(MemberRole.TEMPORARY.getValue())) {
-            // 닉네임 검증
-            memberUtil.checkNickname(NicknameCheckRequest.of(request.nickname()));
-
             // 명시적 변경 감지
             Member registerMember = registerMember(currentMember, request);
 
@@ -129,9 +131,12 @@ public class AuthService {
          */
         validateMemberStatusDelete(member.getStatus());
         member.updateMemberRole(MemberRole.TEMPORARY);
+        member.updateProfile(Profile.createProfile("", ""));
         memberRepository.flush();
+        withdrawMemberRelationByMemberId(member.getId());
 
         jwtTokenService.deleteRefreshToken(member.getId());
+
         memberRepository.deleteById(member.getId());
     }
 
@@ -155,5 +160,11 @@ public class AuthService {
         if (member.getStatus() == MemberStatus.DELETED) {
             member.updateStatus(MemberStatus.NORMAL);
         }
+    }
+
+    private void withdrawMemberRelationByMemberId(Long memberId) {
+        missionRecordRepository.deleteAllByMember(memberId);
+        missionRecordBoostRepository.deleteAllByMember(memberId);
+        fcmNotificationRepository.deleteAllByMember(memberId);
     }
 }

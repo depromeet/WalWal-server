@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.mission.dao.mission;
 import static com.depromeet.stonebed.domain.mission.domain.QMission.mission;
 import static com.depromeet.stonebed.domain.mission.domain.QMissionHistory.missionHistory;
 
+import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,16 +18,21 @@ public class MissionRepositoryImpl implements MissionRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Mission> findNotInMissions(List<Mission> missions) {
-        return queryFactory.selectFrom(mission).where(mission.notIn(missions)).fetch();
+    public List<Mission> findNotInMissionsAndByRaisePet(List<Mission> missions, RaisePet raisePet) {
+        return queryFactory
+                .selectFrom(mission)
+                .where(mission.notIn(missions).and(mission.raisePet.eq(raisePet)))
+                .fetch();
     }
 
     @Override
-    public List<Mission> findMissionsAssignedAfter(LocalDate assignedDate) {
+    public List<Mission> findMissionsAssignedAfterAndByRaisePet(
+            LocalDate assignedDate, RaisePet raisePet) {
         return queryFactory
                 .select(missionHistory.mission)
                 .from(missionHistory)
-                .where(assignedDateAfter(assignedDate))
+                .join(missionHistory.mission, mission)
+                .where(assignedDateAfter(assignedDate).and(mission.raisePet.eq(raisePet)))
                 .fetch();
     }
 

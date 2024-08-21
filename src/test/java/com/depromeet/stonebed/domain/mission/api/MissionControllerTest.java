@@ -53,7 +53,7 @@ class MissionControllerTest {
         mockMvc.perform(
                         post("/missions")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"title\":\"Test Mission\"}"))
+                                .content("{\"title\":\"Test Mission\", \"raisePet\":\"DOG\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("Test Mission"));
     }
@@ -93,7 +93,7 @@ class MissionControllerTest {
         mockMvc.perform(
                         patch("/missions/1")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"title\":\"Updated Mission\"}"))
+                                .content("{\"title\":\"Test Mission\", \"raisePet\":\"DOG\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("Updated Mission"));
     }

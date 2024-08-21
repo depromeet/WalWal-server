@@ -1,8 +1,11 @@
 package com.depromeet.stonebed.domain.mission.domain;
 
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
+import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,9 +30,14 @@ public class Mission extends BaseTimeEntity {
     @Column(name = "illustration_url")
     private String illustrationUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "raise_pet", nullable = false)
+    private RaisePet raisePet;
+
     @Builder
-    public Mission(String title) {
+    public Mission(String title, RaisePet raisePet) {
         this.title = title;
+        this.raisePet = raisePet;
     }
 
     public void updateTitle(String title) {
@@ -38,5 +46,9 @@ public class Mission extends BaseTimeEntity {
 
     public void updateIllustrationUrl(String illustrationUrl) {
         this.illustrationUrl = illustrationUrl;
+    }
+
+    public void updateRaisePet(RaisePet raisePet) {
+        this.raisePet = raisePet;
     }
 }

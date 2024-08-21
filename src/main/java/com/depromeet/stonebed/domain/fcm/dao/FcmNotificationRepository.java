@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface FcmNotificationRepository extends JpaRepository<FcmNotification, Long> {
     List<FcmNotification> findByMemberId(Long memberId, Pageable pageable);
@@ -15,4 +18,11 @@ public interface FcmNotificationRepository extends JpaRepository<FcmNotification
             Long memberId, LocalDateTime cursorDate, Pageable pageable);
 
     Optional<FcmNotification> findByIdAndMember(Long id, Member member);
+
+    boolean existsByCreatedAtLessThan(LocalDateTime createdAt);
+
+    @Modifying
+    @Query(
+            "UPDATE FcmNotification fn SET fn.deletedAt = CURRENT_TIMESTAMP WHERE fn.member.id = :memberId")
+    void deleteAllByMember(@Param("memberId") Long memberId);
 }
