@@ -35,12 +35,12 @@ public class FeedService {
     }
 
     private boolean nextFeedNotExists(List<FindFeedDto> feeds, Long memberId) {
-        Long lastFeedId = getLastId(feeds);
-        if (lastFeedId == null) {
+        Long lastRecordId = getLastRecordId(feeds);
+        if (lastRecordId == null) {
             return true;
         }
 
-        return feedRepository.getNextFeedContent(lastFeedId, memberId) == null;
+        return feedRepository.getNextFeedContent(lastRecordId, memberId) == null;
     }
 
     private String getNextCursor(List<FindFeedDto> records, int limit) {
@@ -48,10 +48,10 @@ public class FeedService {
             return null;
         }
 
-        return String.valueOf(getLastId(records));
+        return String.valueOf(getLastRecordId(records));
     }
 
-    private Long getLastId(List<FindFeedDto> records) {
+    private Long getLastRecordId(List<FindFeedDto> records) {
         if (records.isEmpty()) {
             return null;
         }
