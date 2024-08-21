@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.domain.fcm.application;
 
+import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmResponseErrorType;
 import com.google.firebase.messaging.*;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class FcmService {
     private static final int BATCH_SIZE = 500;
 
     private final FcmTokenService fcmTokenService;
+    private final FcmRepository fcmRepository;
 
     @Transactional(readOnly = true)
     public void sendMulticastMessageToAll(Notification notification) {
@@ -28,6 +30,7 @@ public class FcmService {
             MulticastMessage message = buildMulticastMessage(notification, batchTokens);
             sendMessage(message, batchTokens);
         }
+
         log.info("전체 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
     }
 
@@ -40,6 +43,7 @@ public class FcmService {
             MulticastMessage message = buildMulticastMessage(notification, batchTokens);
             sendMessage(message, batchTokens);
         }
+
         log.info("리마인드 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
     }
 
