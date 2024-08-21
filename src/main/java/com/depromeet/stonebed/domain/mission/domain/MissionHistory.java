@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "mission_history",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"assigned_date", "mission_id"})})
 public class MissionHistory extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +24,7 @@ public class MissionHistory extends BaseTimeEntity {
     @JoinColumn(name = "mission_id", nullable = false)
     private Mission mission;
 
-    @Column(name = "assigned_date", nullable = false, unique = true)
+    @Column(name = "assigned_date", nullable = false)
     private LocalDate assignedDate;
 
     @Builder(access = AccessLevel.PRIVATE)

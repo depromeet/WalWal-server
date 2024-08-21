@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.mission.dao;
 import static org.assertj.core.api.Assertions.*;
 
 import com.depromeet.stonebed.TestQuerydslConfig;
+import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import com.depromeet.stonebed.domain.mission.dao.mission.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ class MissionRepositoryTest {
     @Test
     void 미션_생성_성공() {
         // Given
-        Mission mission = Mission.builder().title("Test Mission").build();
+        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
 
         // When
         Mission savedMission = missionRepository.save(mission);
@@ -34,7 +35,7 @@ class MissionRepositoryTest {
     @Test
     void 고유번호로_미션_조회_성공() {
         // Given
-        Mission mission = Mission.builder().title("Test Mission").build();
+        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
         missionRepository.save(mission);
 
         // When
@@ -48,7 +49,7 @@ class MissionRepositoryTest {
     @Test
     void 미션_삭제_성공() {
         // Given
-        Mission mission = Mission.builder().title("Test Mission").build();
+        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
         mission = missionRepository.save(mission);
 
         // When

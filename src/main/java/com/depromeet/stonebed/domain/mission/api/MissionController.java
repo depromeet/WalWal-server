@@ -31,19 +31,19 @@ public class MissionController {
     }
 
     @GetMapping("/{missionId}")
-    public MissionGetOneResponse getMission(@PathVariable Long missionId) {
+    public MissionGetOneResponse getMission(@PathVariable("missionId") Long missionId) {
         return missionService.getMission(missionId);
     }
 
     @PatchMapping("/{missionId}")
     public MissionUpdateResponse updateMission(
-            @PathVariable Long missionId,
+            @PathVariable("missionId") Long missionId,
             @Valid @RequestBody MissionUpdateRequest missionUpdateRequest) {
         return missionService.updateMission(missionId, missionUpdateRequest);
     }
 
     @DeleteMapping("/{missionId}")
-    public void deleteMission(@PathVariable Long missionId) {
+    public void deleteMission(@PathVariable("missionId") Long missionId) {
         missionService.deleteMission(missionId);
     }
 }
