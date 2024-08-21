@@ -39,7 +39,7 @@ public class FcmScheduledService {
         String message = notificationConstants.getMessage();
 
         List<String> tokens = fcmTokenService.getAllTokens();
-        fcmNotificationService.sendAndSaveNotifications(title, message, tokens);
+        fcmNotificationService.sendAndNotifications(title, message, tokens);
 
         log.info("모든 사용자에게 정규 알림 전송 및 저장 완료");
     }
@@ -52,7 +52,7 @@ public class FcmScheduledService {
         String message = notificationConstants.getMessage();
 
         List<String> tokens = getIncompleteMissionTokens();
-        fcmNotificationService.sendAndSaveNotifications(title, message, tokens);
+        fcmNotificationService.sendAndNotifications(title, message, tokens);
 
         log.info("미완료 미션 사용자에게 리마인더 전송 및 저장 완료. 총 토큰 수: {}", tokens.size());
     }

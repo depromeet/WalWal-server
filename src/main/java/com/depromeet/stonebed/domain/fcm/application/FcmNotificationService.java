@@ -203,7 +203,7 @@ public class FcmNotificationService {
         return notifications;
     }
 
-    public void sendAndSaveNotifications(String title, String message, List<String> tokens) {
+    public void sendAndNotifications(String title, String message, List<String> tokens) {
         Notification notification = FcmNotificationUtil.buildNotification(title, message);
         fcmService.sendMulticastMessage(notification, tokens);
 
