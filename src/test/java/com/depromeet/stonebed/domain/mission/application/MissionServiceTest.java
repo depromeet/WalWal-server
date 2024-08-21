@@ -86,12 +86,13 @@ class MissionServiceTest {
     @Test
     void 오늘의_미션_조회_성공_히스토리가_이미_존재하는_경우() {
         // Given
-        LocalDate today = LocalDate.now();
-        Mission mission = new Mission("Test Mission", RaisePet.DOG);
-        MissionHistory missionHistory = MissionHistory.createMissionHistory(mission, today);
+        LocalDate currentDate = LocalDate.now();
+        Mission localMission = new Mission("Test Mission", RaisePet.DOG);
+        MissionHistory localMissionHistory =
+                MissionHistory.createMissionHistory(localMission, currentDate);
 
-        when(missionHistoryRepository.findByAssignedDateAndRaisePet(today, RaisePet.DOG))
-                .thenReturn(Optional.of(missionHistory));
+        when(missionHistoryRepository.findByAssignedDateAndRaisePet(currentDate, RaisePet.DOG))
+                .thenReturn(Optional.of(localMissionHistory));
         when(memberUtil.getCurrentMember()).thenReturn(member);
         when(member.getRaisePet()).thenReturn(RaisePet.DOG);
 
