@@ -22,11 +22,11 @@ public class MissionRecordBoost extends BaseFullTimeEntity {
     @Column(name = "boost_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mission_record_id", nullable = false)
     private MissionRecord missionRecord;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 

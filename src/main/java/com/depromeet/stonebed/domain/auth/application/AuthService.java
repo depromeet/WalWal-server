@@ -137,10 +137,8 @@ public class AuthService {
         member.updateMemberRole(MemberRole.TEMPORARY);
         member.updateProfile(Profile.createProfile("", ""));
         memberRepository.flush();
+        withdrawMemberRelationByMemberId(member.getId());
 
-        missionRecordRepository.deleteAllByMember(member.getId());
-        missionRecordBoostRepository.deleteAllByMember(member.getId());
-        fcmNotificationRepository.deleteAllByMember(member.getId());
         jwtTokenService.deleteRefreshToken(member.getId());
 
         memberRepository.deleteById(member.getId());
@@ -166,5 +164,11 @@ public class AuthService {
         if (member.getStatus() == MemberStatus.DELETED) {
             member.updateStatus(MemberStatus.NORMAL);
         }
+    }
+
+    private void withdrawMemberRelationByMemberId(Long memberId) {
+        missionRecordRepository.deleteAllByMember(memberId);
+        missionRecordBoostRepository.deleteAllByMember(memberId);
+        fcmNotificationRepository.deleteAllByMember(memberId);
     }
 }
