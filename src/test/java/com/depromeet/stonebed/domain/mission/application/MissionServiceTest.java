@@ -48,7 +48,7 @@ class MissionServiceTest {
         today = LocalDate.now();
         beforeDayByStandard = LocalDate.now().minusDays(3);
         mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
-        missionHistory = MissionHistory.createMissionHistory(mission, today);
+        missionHistory = MissionHistory.createMissionHistory(mission, today, RaisePet.DOG);
         member = mock(Member.class);
         MockitoAnnotations.openMocks(this);
     }
@@ -89,7 +89,7 @@ class MissionServiceTest {
         LocalDate currentDate = LocalDate.now();
         Mission localMission = new Mission("Test Mission", RaisePet.DOG);
         MissionHistory localMissionHistory =
-                MissionHistory.createMissionHistory(localMission, currentDate);
+                MissionHistory.createMissionHistory(localMission, currentDate, RaisePet.DOG);
 
         when(missionHistoryRepository.findByAssignedDateAndRaisePet(currentDate, RaisePet.DOG))
                 .thenReturn(Optional.of(localMissionHistory));

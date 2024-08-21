@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.mission.domain;
 
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
+import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "mission_history",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"assigned_date", "mission_id"})})
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"assigned_date", "raise_pet"})})
 public class MissionHistory extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +28,23 @@ public class MissionHistory extends BaseTimeEntity {
     @Column(name = "assigned_date", nullable = false)
     private LocalDate assignedDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "raise_pet", nullable = false)
+    private RaisePet raisePet;
+
     @Builder(access = AccessLevel.PRIVATE)
-    public MissionHistory(Mission mission, LocalDate assignedDate) {
+    public MissionHistory(Mission mission, LocalDate assignedDate, RaisePet raisePet) {
         this.mission = mission;
         this.assignedDate = assignedDate;
+        this.raisePet = raisePet;
     }
 
-    public static MissionHistory createMissionHistory(Mission mission, LocalDate assignedDate) {
-        return MissionHistory.builder().mission(mission).assignedDate(assignedDate).build();
+    public static MissionHistory createMissionHistory(
+            Mission mission, LocalDate assignedDate, RaisePet raisePet) {
+        return MissionHistory.builder()
+                .mission(mission)
+                .assignedDate(assignedDate)
+                .raisePet(raisePet)
+                .build();
     }
 }

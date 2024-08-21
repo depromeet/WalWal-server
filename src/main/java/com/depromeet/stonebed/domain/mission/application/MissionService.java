@@ -81,7 +81,8 @@ public class MissionService {
         Mission selectedMission =
                 availableMissions.get(secureRandom.nextInt(availableMissions.size()));
 
-        MissionHistory missionHistory = MissionHistory.createMissionHistory(selectedMission, today);
+        MissionHistory missionHistory =
+                MissionHistory.createMissionHistory(selectedMission, today, raisePet);
 
         missionHistoryRepository.save(missionHistory);
 
