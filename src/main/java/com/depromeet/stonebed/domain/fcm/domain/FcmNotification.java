@@ -1,17 +1,21 @@
 package com.depromeet.stonebed.domain.fcm.domain;
 
-import com.depromeet.stonebed.domain.common.BaseTimeEntity;
+import com.depromeet.stonebed.domain.common.BaseFullTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
+@Table(name = "fcm_notification")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FcmNotification extends BaseTimeEntity {
-
+@SQLDelete(sql = "UPDATE fcm_notification SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
+public class FcmNotification extends BaseFullTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

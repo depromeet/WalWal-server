@@ -1,6 +1,6 @@
 package com.depromeet.stonebed.domain.missionRecord.domain;
 
-import com.depromeet.stonebed.domain.common.BaseTimeEntity;
+import com.depromeet.stonebed.domain.common.BaseFullTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
@@ -20,7 +22,9 @@ import lombok.NoArgsConstructor;
                     name = "uk_member_mission_history",
                     columnNames = {"member_id", "mission_history_id"})
         })
-public class MissionRecord extends BaseTimeEntity {
+@SQLDelete(sql = "UPDATE mission_record SET deleted_at = NOW() WHERE record_id = ?")
+@SQLRestriction("deleted_at IS NULL")
+public class MissionRecord extends BaseFullTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +48,7 @@ public class MissionRecord extends BaseTimeEntity {
     private MissionRecordStatus status;
 
     @Schema(description = "미션 기록 컨텐츠", example = "미션 완료 소감")
-    @Column(name = "content", nullable = true)
+    @Column(name = "content")
     private String content;
 
     @Builder

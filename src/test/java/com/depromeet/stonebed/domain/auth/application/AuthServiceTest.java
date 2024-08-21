@@ -7,10 +7,13 @@ import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
+import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +33,10 @@ class AuthServiceTest extends FixtureMonkeySetUp {
     @Mock private JwtTokenService jwtTokenService;
 
     @Mock private MemberRepository memberRepository;
+
+    @Mock private FcmNotificationRepository fcmNotificationRepository;
+    @Mock private MissionRecordRepository missionRecordRepository;
+    @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
 
     @Mock private MemberUtil memberUtil;
 
