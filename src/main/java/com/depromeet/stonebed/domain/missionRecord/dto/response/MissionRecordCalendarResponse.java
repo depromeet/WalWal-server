@@ -7,7 +7,7 @@ public record MissionRecordCalendarResponse(
         @Schema(
                         description = "미션 기록 데이터 리스트",
                         example =
-                                "[{\"imageId\": 1, \"imageUrl\": \"http://example.com/image1.jpg\", \"missionDate\": \"2024-01-01\"}]")
+                                "[{\"recordId\": 1, \"imageUrl\": \"http://example.com/image1.jpg\", \"missionDate\": \"2024-01-01\"}]")
                 List<MissionRecordCalendarDto> list,
         @Schema(description = "커서 위치", example = "2024-01-03") String nextCursor) {
 
