@@ -121,18 +121,15 @@ public class ImageService {
     }
 
     public void uploadCompleteMissionRecord(MissionRecordImageUploadRequest request) {
-        final Member currentMember = memberUtil.getCurrentMember();
         validateImageFileExtension(request.imageFileExtension());
 
         Image image =
                 findImage(
-                        ImageType.MISSION_RECORD,
-                        currentMember.getId(),
-                        request.imageFileExtension());
+                        ImageType.MISSION_RECORD, request.recordId(), request.imageFileExtension());
         String imageUrl =
                 createReadImageUrl(
                         ImageType.MISSION_RECORD,
-                        currentMember.getId(),
+                        request.recordId(),
                         image.getImageKey(),
                         request.imageFileExtension());
 
