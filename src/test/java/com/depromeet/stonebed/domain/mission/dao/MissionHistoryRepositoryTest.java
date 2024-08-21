@@ -34,7 +34,8 @@ class MissionHistoryRepositoryTest {
         missionRepository.save(mission);
         LocalDate today = LocalDate.now();
 
-        MissionHistory missionHistory = MissionHistory.createMissionHistory(mission, today);
+        MissionHistory missionHistory =
+                MissionHistory.createMissionHistory(mission, today, RaisePet.DOG);
 
         // When: 미션 히스토리를 저장하면
         MissionHistory savedMissionHistory = missionHistoryRepository.save(missionHistory);
@@ -48,11 +49,12 @@ class MissionHistoryRepositoryTest {
     @Test
     void 미션_히스토리_특정_날짜_조회_성공() {
         // Given: 오늘 날짜를 기준으로 저장된 객체가 있다
-        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
+        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.CAT).build();
         missionRepository.save(mission);
         LocalDate today = LocalDate.now();
 
-        MissionHistory missionHistory = MissionHistory.createMissionHistory(mission, today);
+        MissionHistory missionHistory =
+                MissionHistory.createMissionHistory(mission, today, RaisePet.CAT);
         missionHistoryRepository.save(missionHistory);
 
         // When: 특정 날짜(오늘)의 미션 히스토리를 가져오면
