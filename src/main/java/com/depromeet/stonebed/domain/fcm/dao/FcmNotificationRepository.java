@@ -19,6 +19,8 @@ public interface FcmNotificationRepository extends JpaRepository<FcmNotification
 
     Optional<FcmNotification> findByIdAndMember(Long id, Member member);
 
+    boolean existsByCreatedAtLessThan(LocalDateTime createdAt);
+
     @Modifying
     @Query(
             "UPDATE FcmNotification fn SET fn.deletedAt = CURRENT_TIMESTAMP WHERE fn.member.id = :memberId")
