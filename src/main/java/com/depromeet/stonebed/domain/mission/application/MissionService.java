@@ -59,7 +59,7 @@ public class MissionService {
         LocalDate beforeDayByStandard = today.minusDays(MISSION_TODAY_STANDARD);
 
         Optional<MissionHistory> existingMissionHistory =
-                missionHistoryRepository.findByAssignedDateAndMission_RaisePet(today, raisePet);
+                missionHistoryRepository.findByAssignedDateAndRaisePet(today, raisePet);
 
         if (existingMissionHistory.isPresent()) {
             return MissionGetTodayResponse.from(existingMissionHistory.get().getMission());
