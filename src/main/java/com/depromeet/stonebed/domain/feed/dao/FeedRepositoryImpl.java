@@ -7,7 +7,9 @@ import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecordBoost.missionRecordBoost;
 
 import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -20,7 +22,7 @@ import org.springframework.stereotype.Repository;
 public class FeedRepositoryImpl implements FeedRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
-    private JPAQuery<FindFeedDto> getFeedBaseQuery() {
+    private JPAQuery<FindFeedDto> getFeedBaseQuery(Long missionRecordId, Long memberId) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -39,26 +41,31 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .leftJoin(missionHistory)
                 .on(missionRecord.missionHistory.eq(missionHistory))
                 .leftJoin(mission)
-                .on(missionHistory.mission.eq(mission));
+                .on(missionHistory.mission.eq(mission))
+                .where(
+                        missionRecord.status.eq(MissionRecordStatus.COMPLETED),
+                        ltMissionRecordId(missionRecordId),
+                        eqMemberId(memberId))
+                .groupBy(missionRecord.id)
+                .orderBy(missionRecord.id.desc());
     }
 
     @Override
     public List<FindFeedDto> getFeedContentsUsingCursor(
             Long missionRecordId, Long memberId, int limit) {
-        return getFeedBaseQuery()
-                .where(missionRecord.id.lt(missionRecordId))
-                .groupBy(missionRecord.id, member.id, mission.id, missionHistory.id)
-                .orderBy(missionRecord.id.desc())
-                .limit(limit)
-                .fetch();
+        return getFeedBaseQuery(missionRecordId, memberId).limit(limit).fetch();
     }
 
     @Override
-    public List<FindFeedDto> getFeedContents(Long memberId, int limit) {
-        return getFeedBaseQuery()
-                .groupBy(missionRecord.id, member.id, mission.id, missionHistory.id)
-                .orderBy(missionRecord.id.desc())
-                .limit(limit)
-                .fetch();
+    public FindFeedDto getNextFeedContent(Long missionRecordId, Long memberId) {
+        return getFeedBaseQuery(missionRecordId, memberId).fetchOne();
+    }
+
+    private BooleanExpression ltMissionRecordId(Long missionRecordId) {
+        return missionRecordId != null ? missionRecord.id.lt(missionRecordId) : null;
+    }
+
+    private BooleanExpression eqMemberId(Long memberId) {
+        return memberId != null ? missionRecord.member.id.eq(memberId) : null;
     }
 }

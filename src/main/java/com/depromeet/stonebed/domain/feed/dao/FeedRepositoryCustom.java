@@ -6,5 +6,5 @@ import java.util.List;
 public interface FeedRepositoryCustom {
     List<FindFeedDto> getFeedContentsUsingCursor(Long missionRecordId, Long memberId, int limit);
 
-    List<FindFeedDto> getFeedContents(Long memberId, int limit);
+    FindFeedDto getNextFeedContent(Long missionRecordId, Long memberId);
 }
