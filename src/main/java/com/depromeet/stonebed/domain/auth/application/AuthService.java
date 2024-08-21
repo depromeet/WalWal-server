@@ -15,7 +15,6 @@ import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
-import com.depromeet.stonebed.domain.member.dto.request.NicknameCheckRequest;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.global.error.ErrorCode;
@@ -92,9 +91,6 @@ public class AuthService {
         Member currentMember = memberUtil.getCurrentMember();
         // 사용자 회원가입
         if (memberUtil.getMemberRole().equals(MemberRole.TEMPORARY.getValue())) {
-            // 닉네임 검증
-            memberUtil.checkNickname(NicknameCheckRequest.of(request.nickname()));
-
             // 명시적 변경 감지
             Member registerMember = registerMember(currentMember, request);
 
