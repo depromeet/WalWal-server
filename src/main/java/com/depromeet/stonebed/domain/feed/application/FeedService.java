@@ -44,7 +44,7 @@ public class FeedService {
     }
 
     private String getNextCursor(List<FindFeedDto> records, int limit) {
-        if (records.size() <= limit) {
+        if (records.size() < limit) {
             return null;
         }
 
