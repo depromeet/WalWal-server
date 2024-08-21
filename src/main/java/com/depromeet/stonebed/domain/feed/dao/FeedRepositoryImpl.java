@@ -58,7 +58,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
 
     @Override
     public FindFeedDto getNextFeedContent(Long missionRecordId, Long memberId) {
-        return getFeedBaseQuery(missionRecordId, memberId).fetchOne();
+        return getFeedBaseQuery(missionRecordId, memberId).fetchFirst();
     }
 
     private BooleanExpression ltMissionRecordId(Long missionRecordId) {
