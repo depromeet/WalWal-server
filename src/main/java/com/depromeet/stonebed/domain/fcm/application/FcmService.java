@@ -28,6 +28,7 @@ public class FcmService {
             MulticastMessage message = buildMulticastMessage(notification, batchTokens);
             sendMessage(message, batchTokens);
         }
+
         log.info("전체 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
     }
 
@@ -40,6 +41,7 @@ public class FcmService {
             MulticastMessage message = buildMulticastMessage(notification, batchTokens);
             sendMessage(message, batchTokens);
         }
+
         log.info("리마인드 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
     }
 
