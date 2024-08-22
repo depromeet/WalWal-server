@@ -21,10 +21,7 @@ public class FcmTokenService {
 
     @Transactional(readOnly = true)
     public List<String> getAllTokens() {
-        return fcmRepository.findAll().stream()
-                .map(FcmToken::getToken)
-                .filter(token -> !token.isEmpty())
-                .toList();
+        return fcmRepository.findAllValidTokens();
     }
 
     @Transactional
