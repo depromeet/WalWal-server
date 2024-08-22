@@ -6,6 +6,7 @@ import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -59,7 +60,13 @@ public class FcmScheduledService {
     }
 
     private List<String> getIncompleteMissionTokens() {
-        return missionRecordRepository.findAllByStatus(MissionRecordStatus.NOT_COMPLETED).stream()
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        return missionRecordRepository
+                .findAllByCreatedAtBetweenAndStatusNot(
+                        startOfDay, endOfDay, MissionRecordStatus.COMPLETED)
+                .stream()
                 .map(
                         missionRecord -> {
                             FcmToken fcmToken =
