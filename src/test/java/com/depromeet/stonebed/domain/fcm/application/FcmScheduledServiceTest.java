@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
@@ -74,6 +75,8 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
         when(missionRecordRepository.findAllByStatus(MissionRecordStatus.NOT_COMPLETED))
                 .thenReturn(missionRecords);
 
+        missionRecords.forEach(record -> record.getMember().updateStatus(MemberStatus.NORMAL));
+
         List<String> tokens =
                 missionRecords.stream()
                         .map(
@@ -83,7 +86,8 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
                                                     .giveMeBuilder(FcmToken.class)
                                                     .set("member", missionRecord.getMember())
                                                     .sample();
-                                    when(fcmRepository.findByMember(missionRecord.getMember()))
+                                    when(fcmRepository.findByMemberAndMemberStatus(
+                                                    missionRecord.getMember(), MemberStatus.NORMAL))
                                             .thenReturn(Optional.of(token));
                                     return token.getToken();
                                 })
