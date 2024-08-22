@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -186,7 +187,7 @@ public class MissionRecordService {
         return new MissionTabResponse(missionRecord.getId(), imageUrl, missionRecordStatus);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateMissionRecordWithImage(Long recordId, String imageUrl) {
         MissionRecord missionRecord =
                 missionRecordRepository

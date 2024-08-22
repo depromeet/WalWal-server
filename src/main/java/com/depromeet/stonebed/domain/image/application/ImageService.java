@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -123,6 +124,7 @@ public class ImageService {
         return PresignedUrlResponse.from(presignedUrl.toString());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ImageUrlResponse uploadCompleteMissionRecord(MissionRecordImageUploadRequest request) {
         validateImageFileExtension(request.imageFileExtension());
 
@@ -162,6 +164,7 @@ public class ImageService {
         return PresignedUrlResponse.from(presignedUrl.toString());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ImageUrlResponse uploadCompleteMission(MissionImageUploadRequest request) {
         validateImageFileExtension(request.imageFileExtension());
 
