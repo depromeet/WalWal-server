@@ -2,6 +2,7 @@ package com.depromeet.stonebed.domain.fcm.application;
 
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
@@ -63,7 +64,8 @@ public class FcmScheduledService {
                         missionRecord -> {
                             FcmToken fcmToken =
                                     fcmRepository
-                                            .findByMember(missionRecord.getMember())
+                                            .findByMemberAndMemberStatus(
+                                                    missionRecord.getMember(), MemberStatus.NORMAL)
                                             .orElse(null);
                             return fcmToken != null ? fcmToken.getToken() : null;
                         })

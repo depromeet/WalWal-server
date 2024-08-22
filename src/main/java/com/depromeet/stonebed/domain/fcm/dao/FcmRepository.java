@@ -2,6 +2,7 @@ package com.depromeet.stonebed.domain.fcm.dao;
 
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,8 @@ public interface FcmRepository extends JpaRepository<FcmToken, Long> {
 
     List<FcmToken> findAllByUpdatedAtBefore(LocalDateTime cutoffDate);
 
-    @Query("SELECT f.token FROM FcmToken f WHERE f.member.status != 'DELETED'")
+    @Query("SELECT f.token FROM FcmToken f WHERE f.member.status = 'NORMAL'")
     List<String> findAllValidTokens();
+
+    Optional<FcmToken> findByMemberAndMemberStatus(Member member, MemberStatus status);
 }
