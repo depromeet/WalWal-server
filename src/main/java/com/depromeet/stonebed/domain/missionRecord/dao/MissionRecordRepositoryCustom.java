@@ -11,5 +11,5 @@ public interface MissionRecordRepositoryCustom {
     List<MissionRecord> findByMemberIdAndCreatedAtFromWithPagination(
             Long memberId, LocalDateTime createdAt, Pageable pageable);
 
-    long updateExpiredMissionsToNotCompleted(LocalDateTime dateTime);
+    void updateExpiredMissionsToNotCompleted(LocalDateTime dateTime);
 }

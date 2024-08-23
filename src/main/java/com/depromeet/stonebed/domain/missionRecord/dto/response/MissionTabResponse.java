@@ -8,7 +8,7 @@ public record MissionTabResponse(
         @Schema(description = "이미지 URL", example = "example.jpeg") String imageUrl,
         @Schema(description = "미션 상태", example = "NOT_COMPLETED") MissionRecordStatus status) {
 
-    public static MissionTabResponse from(
+    public static MissionTabResponse of(
             Long recordId, String imageUrl, MissionRecordStatus status) {
         return new MissionTabResponse(recordId, imageUrl, status);
     }

@@ -65,6 +65,16 @@ public class MissionRecord extends BaseFullTimeEntity {
         this.content = content;
     }
 
+    public static MissionRecord createMissionRecord(
+            String content, Member member, MissionHistory missionHistory) {
+        return MissionRecord.builder()
+                .content(content)
+                .member(member)
+                .missionHistory(missionHistory)
+                .status(MissionRecordStatus.IN_PROGRESS)
+                .build();
+    }
+
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }

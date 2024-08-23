@@ -70,12 +70,9 @@ public class MissionRecordService {
         MissionHistory missionHistory = findMissionHistoryById(missionId);
 
         MissionRecord missionRecord =
-                missionRecordRepository
-                        .findByMemberAndMissionHistory(member, missionHistory)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+                MissionRecord.createMissionRecord(content, member, missionHistory);
 
         missionRecord.updateContent(content);
-        missionRecord.updateStatus(MissionRecordStatus.COMPLETED);
 
         missionRecordRepository.save(missionRecord);
     }
@@ -175,7 +172,7 @@ public class MissionRecordService {
                         .orElse(null);
 
         if (missionRecord == null) {
-            return new MissionTabResponse(null, null, MissionRecordStatus.NOT_COMPLETED);
+            return MissionTabResponse.of(null, null, MissionRecordStatus.NOT_COMPLETED);
         }
 
         MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
@@ -184,7 +181,7 @@ public class MissionRecordService {
                         ? missionRecord.getImageUrl()
                         : null;
 
-        return new MissionTabResponse(missionRecord.getId(), imageUrl, missionRecordStatus);
+        return MissionTabResponse.of(missionRecord.getId(), imageUrl, missionRecordStatus);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -193,21 +190,23 @@ public class MissionRecordService {
                 missionRecordRepository
                         .findById(recordId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
-
+        missionRecord.updateStatus(MissionRecordStatus.COMPLETED);
         missionRecord.updateImageUrl(imageUrl);
     }
 
     @Transactional(readOnly = true)
-    public MissionRecordCompleteTotal getTotalMissionRecords() {
-        final Member member = memberUtil.getCurrentMember();
+    public MissionRecordCompleteTotal getTotalMissionRecords(Long memberId) {
+        final Member currentMember = memberUtil.getCurrentMember();
+        Long findMemberId = Optional.ofNullable(memberId).orElseGet(currentMember::getId);
+
         Long totalCount =
                 missionRecordRepository.countByMemberIdAndStatus(
-                        member.getId(), MissionRecordStatus.COMPLETED);
+                        findMemberId, MissionRecordStatus.COMPLETED);
 
         return MissionRecordCompleteTotal.of(totalCount);
     }
 
-    public void updateExpiredMissionsToNotCompleted() {
+    public void expiredMissionsToNotCompletedUpdate() {
         missionRecordRepository.updateExpiredMissionsToNotCompleted(endOfYesterday);
     }
 }
