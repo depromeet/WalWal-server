@@ -22,4 +22,7 @@ logging:
     org.hibernate.type: trace
 
 fcm:
-  credential: ${FCM_CREDENTIAL}
+  dev:
+    credential: ${FCM_DEV_CREDENTIAL}
+  prod:
+    credential: ${FCM_PROD_CREDENTIAL}
