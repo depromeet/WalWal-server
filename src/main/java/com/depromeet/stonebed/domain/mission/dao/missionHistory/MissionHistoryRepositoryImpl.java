@@ -16,11 +16,17 @@ public class MissionHistoryRepositoryImpl implements MissionHistoryRepositoryCus
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<MissionHistory> findLatestOneByMissionId(Long missionId) {
+    public Optional<MissionHistory> findLatestOneByMissionIdRaisePet(
+            Long missionId, RaisePet raisePet) {
         return Optional.ofNullable(
                 queryFactory
                         .selectFrom(missionHistory)
-                        .where(missionHistory.mission.id.eq(missionId))
+                        .where(
+                                missionHistory
+                                        .mission
+                                        .id
+                                        .eq(missionId)
+                                        .and(missionHistory.raisePet.eq(raisePet)))
                         .orderBy(missionHistory.assignedDate.desc())
                         .fetchFirst());
     }

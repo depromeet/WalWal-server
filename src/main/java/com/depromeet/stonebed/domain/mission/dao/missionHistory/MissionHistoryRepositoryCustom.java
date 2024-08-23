@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface MissionHistoryRepositoryCustom {
-    Optional<MissionHistory> findLatestOneByMissionId(Long missionId);
+    Optional<MissionHistory> findLatestOneByMissionIdRaisePet(Long missionId, RaisePet raisePet);
 
     Optional<MissionHistory> findByAssignedDateAndRaisePet(LocalDate date, RaisePet raisePet);
 }
