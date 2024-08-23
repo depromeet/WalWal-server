@@ -78,6 +78,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     // logging
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-logging
+    implementation 'org.springframework.boot:spring-boot-starter-logging:3.3.2'
     implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
     implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
     implementation 'ch.qos.logback:logback-core:1.5.7'
