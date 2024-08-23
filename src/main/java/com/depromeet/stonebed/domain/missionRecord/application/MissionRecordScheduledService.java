@@ -11,6 +11,6 @@ public class MissionRecordScheduledService {
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void updateMissionStatus() {
-        missionRecordService.updateExpiredMissionsToNotCompleted();
+        missionRecordService.expiredMissionsToNotCompletedUpdate();
     }
 }
