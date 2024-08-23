@@ -70,12 +70,9 @@ public class MissionRecordService {
         MissionHistory missionHistory = findMissionHistoryById(missionId);
 
         MissionRecord missionRecord =
-                missionRecordRepository
-                        .findByMemberAndMissionHistory(member, missionHistory)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+                MissionRecord.createMissionRecord(content, member, missionHistory);
 
         missionRecord.updateContent(content);
-        missionRecord.updateStatus(MissionRecordStatus.COMPLETED);
 
         missionRecordRepository.save(missionRecord);
     }
@@ -193,7 +190,7 @@ public class MissionRecordService {
                 missionRecordRepository
                         .findById(recordId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
-
+        missionRecord.updateStatus(MissionRecordStatus.COMPLETED);
         missionRecord.updateImageUrl(imageUrl);
     }
 
