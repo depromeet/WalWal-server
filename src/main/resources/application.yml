@@ -16,7 +16,10 @@ spring:
 
 logging:
   level:
-    com.depromeet.stonebed.*.api.*: debug
+    com.depromeet.stonebed.*.*.api.*: debug
+    com.depromeet.stonebed.*.*.application.*: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
 
 fcm:
   credential: ${FCM_CREDENTIAL}

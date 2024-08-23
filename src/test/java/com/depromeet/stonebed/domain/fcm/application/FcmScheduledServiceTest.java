@@ -6,9 +6,11 @@ import static org.mockito.Mockito.*;
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -71,8 +73,13 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
     void 미완료_미션_사용자에게_리마인더를_전송하고_저장한다() {
         // given
         List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 2);
-        when(missionRecordRepository.findAllByStatus(MissionRecordStatus.NOT_COMPLETED))
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+        when(missionRecordRepository.findAllByCreatedAtBetweenAndStatusNot(
+                        startOfDay, endOfDay, MissionRecordStatus.COMPLETED))
                 .thenReturn(missionRecords);
+
+        missionRecords.forEach(record -> record.getMember().updateStatus(MemberStatus.NORMAL));
 
         List<String> tokens =
                 missionRecords.stream()
@@ -83,7 +90,8 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
                                                     .giveMeBuilder(FcmToken.class)
                                                     .set("member", missionRecord.getMember())
                                                     .sample();
-                                    when(fcmRepository.findByMember(missionRecord.getMember()))
+                                    when(fcmRepository.findByMemberAndMemberStatus(
+                                                    missionRecord.getMember(), MemberStatus.NORMAL))
                                             .thenReturn(Optional.of(token));
                                     return token.getToken();
                                 })

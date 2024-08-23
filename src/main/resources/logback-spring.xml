@@ -1,0 +1,85 @@
+<configuration scan="true" scanPeriod="60 seconds">
+    <springProfile name="local">
+        <!-- 개발 환경 로그 설정 -->
+        <root level="DEBUG">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="DEBUG_FILE"/>
+            <appender-ref ref="INFO_FILE"/>
+            <appender-ref ref="WARN_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+    </springProfile>
+    <springProfile name="dev">
+        <!-- 개발 환경 로그 설정 -->
+        <root level="DEBUG">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="DEBUG_FILE"/>
+            <appender-ref ref="INFO_FILE"/>
+            <appender-ref ref="WARN_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <!-- 프로덕션 환경 로그 설정 -->
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="INFO_FILE"/>
+            <appender-ref ref="WARN_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- Appender 설정 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>{"traceId":"%X{traceId}","time":"%d{yyyy-MM-dd HH:mm:ss.SSS}", "service.name":"%X{serviceName}", "level":"%level", "message":"%msg"}%n</pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/debug.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/warn.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/warn.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>./logs/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+</configuration>
