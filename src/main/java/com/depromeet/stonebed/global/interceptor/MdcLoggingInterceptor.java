@@ -15,13 +15,15 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
     public boolean preHandle(
             HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        String handlerName = handlerMethod.getMethod().getName();
-        String methodName = handlerMethod.getBeanType().getSimpleName();
-        String controllerInfo = methodName + "." + handlerName;
-        String traceId = UUID.randomUUID().toString();
-        MDC.put("traceId", traceId);
-        MDC.put("serviceName", controllerInfo);
+        // handler가 HandlerMethod인지 확인
+        if (handler instanceof HandlerMethod handlerMethod) {
+            String handlerName = handlerMethod.getMethod().getName();
+            String methodName = handlerMethod.getBeanType().getSimpleName();
+            String controllerInfo = methodName + "." + handlerName;
+            String traceId = UUID.randomUUID().toString();
+            MDC.put("traceId", traceId);
+            MDC.put("serviceName", controllerInfo);
+        }
         return true;
     }
 
