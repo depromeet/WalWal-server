@@ -2,7 +2,10 @@ package com.depromeet.stonebed.domain.missionRecord.application;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.domain.member.domain.RaisePet;
+import com.depromeet.stonebed.domain.mission.dao.mission.MissionRepository;
 import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
@@ -36,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MissionRecordService {
     private final FcmNotificationService fcmNotificationService;
     private final MissionRecordRepository missionRecordRepository;
+    private final MissionRepository missionRepository;
     private final MissionHistoryRepository missionHistoryRepository;
     private final MissionRecordBoostRepository missionRecordBoostRepository;
     private final MemberUtil memberUtil;
@@ -47,8 +51,13 @@ public class MissionRecordService {
 
     public void startMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
 
-        MissionHistory missionHistory = findMissionHistoryById(missionId);
+        MissionHistory missionHistory =
+                findMissionHistoryByIdAndRaisePet(missionId, mission.getRaisePet());
 
         MissionRecord missionRecord =
                 missionRecordRepository
@@ -67,7 +76,13 @@ public class MissionRecordService {
     public void saveMission(Long missionId, String content) {
         final Member member = memberUtil.getCurrentMember();
 
-        MissionHistory missionHistory = findMissionHistoryById(missionId);
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionHistory missionHistory =
+                findMissionHistoryByIdAndRaisePet(missionId, mission.getRaisePet());
 
         MissionRecord missionRecord =
                 MissionRecord.createMissionRecord(content, member, missionHistory);
@@ -105,9 +120,9 @@ public class MissionRecordService {
         fcmNotificationService.checkAndSendBoostNotification(missionRecord);
     }
 
-    private MissionHistory findMissionHistoryById(Long missionId) {
+    private MissionHistory findMissionHistoryByIdAndRaisePet(Long missionId, RaisePet raisePet) {
         return missionHistoryRepository
-                .findLatestOneByMissionId(missionId)
+                .findLatestOneByMissionIdRaisePet(missionId, raisePet)
                 .orElseThrow(() -> new CustomException(ErrorCode.MISSION_HISTORY_NOT_FOUNT));
     }
 
@@ -164,7 +179,13 @@ public class MissionRecordService {
     public MissionTabResponse getMissionTabStatus(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
 
-        MissionHistory missionHistory = findMissionHistoryById(missionId);
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionHistory missionHistory =
+                findMissionHistoryByIdAndRaisePet(missionId, mission.getRaisePet());
 
         MissionRecord missionRecord =
                 missionRecordRepository
