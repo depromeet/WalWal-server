@@ -15,6 +15,7 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordIdResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
@@ -49,7 +50,7 @@ public class MissionRecordService {
     private static final LocalDateTime endOfYesterday =
             LocalDate.now().minusDays(1).atTime(23, 59, 59);
 
-    public void startMission(Long missionId) {
+    public MissionRecordIdResponse startMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
         Mission mission =
                 missionRepository
@@ -70,7 +71,8 @@ public class MissionRecordService {
                                                 .status(MissionRecordStatus.IN_PROGRESS)
                                                 .build());
 
-        missionRecordRepository.save(missionRecord);
+        MissionRecord saveMissionRecord = missionRecordRepository.save(missionRecord);
+        return MissionRecordIdResponse.of(saveMissionRecord.getId());
     }
 
     public void saveMission(Long missionId, String content) {

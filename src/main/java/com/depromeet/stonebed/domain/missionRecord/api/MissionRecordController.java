@@ -6,6 +6,7 @@ import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSave
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordStartRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordIdResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,10 +35,9 @@ public class MissionRecordController {
 
     @Operation(summary = "미션 참여", description = "미션 참여하기.")
     @PostMapping("/start")
-    public ResponseEntity<Void> startMission(
+    public MissionRecordIdResponse startMission(
             @Valid @RequestBody MissionRecordStartRequest request) {
-        missionRecordService.startMission(request.missionId());
-        return ResponseEntity.ok().build();
+        return missionRecordService.startMission(request.missionId());
     }
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
