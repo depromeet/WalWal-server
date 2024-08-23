@@ -37,6 +37,7 @@ out/
 .vscode/
 
 ### Custom ###
+logs
 *.env
 *.DS_Store
 /src/main/generated
