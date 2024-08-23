@@ -221,7 +221,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
 
         // when
         MissionRecordCompleteTotal completedMissionCount =
-                missionRecordService.getTotalMissionRecords();
+                missionRecordService.getTotalMissionRecords(member.getId());
 
         // then
         then(completedMissionCount.totalCount()).isEqualTo(3);

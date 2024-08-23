@@ -76,8 +76,12 @@ public class MissionRecordController {
 
     @Operation(summary = "수행한 총 미션 기록 수", description = "회원이 수행한 총 미션 기록 수를 조회한다.")
     @GetMapping("/complete/total")
-    public MissionRecordCompleteTotal getTotalMissionRecords() {
-        return missionRecordService.getTotalMissionRecords();
+    public MissionRecordCompleteTotal getTotalMissionRecords(
+            @Parameter(description = "조회할 memberId", example = "1")
+                    @Valid
+                    @RequestParam(required = false)
+                    Long memberId) {
+        return missionRecordService.getTotalMissionRecords(memberId);
     }
 
     @Operation(summary = "부스트 생성", description = "미션 기록에 부스트를 생성한다.")
