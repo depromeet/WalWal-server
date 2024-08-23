@@ -85,7 +85,9 @@ public class MissionRecordService {
                 findMissionHistoryByIdAndRaisePet(missionId, mission.getRaisePet());
 
         MissionRecord missionRecord =
-                MissionRecord.createMissionRecord(content, member, missionHistory);
+                missionRecordRepository
+                        .findByMemberAndMissionHistory(member, missionHistory)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
         missionRecord.updateContent(content);
 
