@@ -197,7 +197,7 @@ public class MissionRecordService {
                         .orElse(null);
 
         if (missionRecord == null) {
-            return MissionTabResponse.of(null, null, MissionRecordStatus.NOT_COMPLETED);
+            return MissionTabResponse.of(null, MissionRecordStatus.NOT_COMPLETED);
         }
 
         MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
@@ -206,7 +206,7 @@ public class MissionRecordService {
                         ? missionRecord.getImageUrl()
                         : null;
 
-        return MissionTabResponse.of(missionRecord.getId(), imageUrl, missionRecordStatus);
+        return MissionTabResponse.of(imageUrl, missionRecordStatus);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
