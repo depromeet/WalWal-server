@@ -230,6 +230,7 @@ public class MissionRecordService {
     }
 
     public void expiredMissionsToNotCompletedUpdate() {
-        missionRecordRepository.updateExpiredMissionsToNotCompleted(LocalDateTime.now());
+        LocalDateTime endOfYesterday = LocalDate.now().minusDays(1).atTime(23, 59, 59);
+        missionRecordRepository.updateExpiredMissionsToNotCompleted(endOfYesterday);
     }
 }
