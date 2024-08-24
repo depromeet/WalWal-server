@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,13 +42,14 @@ public class FcmController {
         Notification notification =
                 FcmNotificationUtil.buildNotification(
                         fcmSendRequest.title(), fcmSendRequest.body());
-        fcmService.sendMulticastMessageToAll(notification);
+        List<String> tokens = fcmTokenService.getAllTokens();
+        fcmService.sendMulticastMessage(notification, tokens);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "FCM 토큰 저장", description = "로그인 시 FCM 토큰을 저장합니다.")
     @PostMapping("/token")
-    public ResponseEntity<Void> storeToken(
+    public ResponseEntity<Void> fcmTokenStore(
             @RequestBody @Validated FcmTokenRequest fcmTokenRequest) {
         fcmTokenService.storeOrUpdateToken(fcmTokenRequest.token());
         return ResponseEntity.ok().build();
@@ -55,14 +57,14 @@ public class FcmController {
 
     @Operation(summary = "FCM 토큰 삭제", description = "로그아웃 시 FCM 토큰을 삭제합니다.")
     @DeleteMapping("/token")
-    public ResponseEntity<Void> deleteToken() {
+    public ResponseEntity<Void> fcmTokenDelete() {
         fcmTokenService.invalidateTokenForCurrentMember();
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "알림 리스트 조회", description = "회원의 알림을 커서 기반으로 페이징하여 조회한다.")
     @GetMapping
-    public FcmNotificationResponse getNotifications(
+    public FcmNotificationResponse getFcmNotifications(
             @Valid @RequestParam(name = "cursor", required = false) String cursor,
             @Valid @NotNull @Min(1) @RequestParam(name = "limit", defaultValue = "10") int limit) {
         return fcmNotificationService.getNotificationsForCurrentMember(cursor, limit);
@@ -70,7 +72,7 @@ public class FcmController {
 
     @Operation(summary = "FCM 알림 읽음 처리", description = "알림을 읽음 상태로 변경합니다.")
     @PostMapping("/{notificationId}/read")
-    public ResponseEntity<Void> markNotificationAsRead(
+    public ResponseEntity<Void> fcmNotificationAsRead(
             @PathVariable("notificationId") Long notificationId) {
         fcmNotificationService.markNotificationAsRead(notificationId);
         return ResponseEntity.ok().build();

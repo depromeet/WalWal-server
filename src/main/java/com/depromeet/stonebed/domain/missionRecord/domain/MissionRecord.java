@@ -2,7 +2,7 @@ package com.depromeet.stonebed.domain.missionRecord.domain;
 
 import com.depromeet.stonebed.domain.common.BaseFullTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
+import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

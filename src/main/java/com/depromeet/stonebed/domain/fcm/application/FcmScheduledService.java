@@ -39,8 +39,8 @@ public class FcmScheduledService {
         FcmNotificationConstants notificationConstants = FcmNotificationConstants.MISSION_START;
         String title = notificationConstants.getTitle();
         String message = notificationConstants.getMessage();
-
         List<String> tokens = fcmTokenService.getAllTokens();
+
         fcmNotificationService.sendAndNotifications(title, message, tokens);
 
         log.info("모든 사용자에게 정규 알림 전송 및 저장 완료");

@@ -3,10 +3,10 @@ package com.depromeet.stonebed.domain.missionRecord.application;
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.RaisePet;
-import com.depromeet.stonebed.domain.mission.dao.mission.MissionRepository;
-import com.depromeet.stonebed.domain.mission.dao.missionHistory.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
-import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
+import com.depromeet.stonebed.domain.missionHistory.dao.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
@@ -197,7 +197,7 @@ public class MissionRecordService {
                         .orElse(null);
 
         if (missionRecord == null) {
-            return MissionTabResponse.of(null, null, MissionRecordStatus.NOT_COMPLETED);
+            return MissionTabResponse.of(null, MissionRecordStatus.NOT_COMPLETED);
         }
 
         MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
@@ -206,7 +206,7 @@ public class MissionRecordService {
                         ? missionRecord.getImageUrl()
                         : null;
 
-        return MissionTabResponse.of(missionRecord.getId(), imageUrl, missionRecordStatus);
+        return MissionTabResponse.of(imageUrl, missionRecordStatus);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

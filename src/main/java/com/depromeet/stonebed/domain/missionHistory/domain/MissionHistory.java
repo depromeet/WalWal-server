@@ -1,7 +1,8 @@
-package com.depromeet.stonebed.domain.mission.domain;
+package com.depromeet.stonebed.domain.missionHistory.domain;
 
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.RaisePet;
+import com.depromeet.stonebed.domain.mission.domain.Mission;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.AccessLevel;

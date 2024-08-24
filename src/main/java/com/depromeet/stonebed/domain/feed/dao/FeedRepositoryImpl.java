@@ -1,10 +1,10 @@
 package com.depromeet.stonebed.domain.feed.dao;
 
-import static com.depromeet.stonebed.domain.member.domain.QMember.member;
-import static com.depromeet.stonebed.domain.mission.domain.QMission.mission;
-import static com.depromeet.stonebed.domain.mission.domain.QMissionHistory.missionHistory;
-import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
-import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecordBoost.missionRecordBoost;
+import static com.depromeet.stonebed.domain.member.domain.QMember.*;
+import static com.depromeet.stonebed.domain.mission.domain.QMission.*;
+import static com.depromeet.stonebed.domain.missionHistory.domain.QMissionHistory.*;
+import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.*;
+import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecordBoost.*;
 
 import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;

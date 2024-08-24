@@ -5,6 +5,7 @@ import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
 import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +18,7 @@ public class FeedController {
 
     @Operation(summary = "피드 조회", description = "내 피드를 조회하는 API입니다.")
     @GetMapping
-    public FeedGetResponse getFeed(
-            @RequestParam(required = false) String cursor,
-            @RequestParam(required = false) Long memberId,
-            @RequestParam int limit) {
-        FeedGetRequest request = new FeedGetRequest(cursor, memberId, limit);
+    public FeedGetResponse getFeed(@Valid FeedGetRequest request) {
         return feedService.getFeed(request);
     }
 }
