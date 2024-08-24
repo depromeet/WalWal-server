@@ -47,8 +47,6 @@ public class MissionRecordService {
 
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final LocalDateTime endOfYesterday =
-            LocalDate.now().minusDays(1).atTime(23, 59, 59);
 
     public MissionRecordIdResponse startMission(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
@@ -232,6 +230,6 @@ public class MissionRecordService {
     }
 
     public void expiredMissionsToNotCompletedUpdate() {
-        missionRecordRepository.updateExpiredMissionsToNotCompleted(endOfYesterday);
+        missionRecordRepository.updateExpiredMissionsToNotCompleted(LocalDateTime.now());
     }
 }
