@@ -29,20 +29,21 @@ public class MissionRecordController {
 
     @Operation(summary = "미션 탭 상태 조회", description = "미션 탭의 상태를 조회한다.")
     @GetMapping("/status")
-    public MissionTabResponse getMissionTabStatus(@RequestParam Long missionId) {
+    public MissionTabResponse getMissionRecordStatus(@RequestParam Long missionId) {
         return missionRecordService.getMissionTabStatus(missionId);
     }
 
     @Operation(summary = "미션 참여", description = "미션 참여하기.")
     @PostMapping("/start")
-    public MissionRecordIdResponse startMission(
+    public MissionRecordIdResponse startMissionRecord(
             @Valid @RequestBody MissionRecordStartRequest request) {
         return missionRecordService.startMission(request.missionId());
     }
 
     @Operation(summary = "미션 기록 저장", description = "미션 완료 후 기록을 저장한다.")
     @PostMapping
-    public ResponseEntity<Void> saveMission(@Valid @RequestBody MissionRecordSaveRequest request) {
+    public ResponseEntity<Void> saveMissionRecord(
+            @Valid @RequestBody MissionRecordSaveRequest request) {
         missionRecordService.saveMission(request.missionId(), request.content());
         return ResponseEntity.ok().build();
     }
@@ -86,7 +87,7 @@ public class MissionRecordController {
 
     @Operation(summary = "부스트 생성", description = "미션 기록에 부스트를 생성한다.")
     @PostMapping("/{recordId}/boost")
-    public ResponseEntity<Void> postFeed(
+    public ResponseEntity<Void> createMissionRecordBoost(
             @PathVariable("recordId") Long recordId,
             final @Valid @RequestBody MissionRecordBoostRequest request) {
         missionRecordService.createBoost(recordId, request.count());
