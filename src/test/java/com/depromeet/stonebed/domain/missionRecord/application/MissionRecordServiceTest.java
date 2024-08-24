@@ -54,7 +54,6 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
     void 미션기록_성공() {
         // given
         String content = "미션 완료 소감";
-        RaisePet raisePet = RaisePet.DOG;
 
         Mission mission = fixtureMonkey.giveMeOne(Mission.class);
         MissionHistory missionHistory = fixtureMonkey.giveMeOne(MissionHistory.class);
@@ -68,7 +67,8 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
                         .set("content", content)
                         .sample();
 
-        when(missionHistoryRepository.findLatestOneByMissionIdRaisePet(mission.getId(), raisePet))
+        when(missionHistoryRepository.findLatestOneByMissionIdRaisePet(
+                        mission.getId(), mission.getRaisePet()))
                 .thenReturn(Optional.of(missionHistory));
         when(memberUtil.getCurrentMember()).thenReturn(member);
         when(missionRepository.findById(mission.getId())).thenReturn(Optional.of(mission));
@@ -83,7 +83,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
 
         // then
         verify(missionHistoryRepository)
-                .findLatestOneByMissionIdRaisePet(mission.getId(), raisePet);
+                .findLatestOneByMissionIdRaisePet(mission.getId(), mission.getRaisePet());
         verify(memberUtil).getCurrentMember();
         verify(missionRepository).findById(mission.getId());
         verify(missionRecordRepository)
@@ -199,7 +199,6 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
                         .sample();
         Member member =
                 fixtureMonkey.giveMeBuilder(Member.class).set("raisePet", RaisePet.DOG).sample();
-        ;
         MissionRecord missionRecord =
                 fixtureMonkey
                         .giveMeBuilder(MissionRecord.class)
