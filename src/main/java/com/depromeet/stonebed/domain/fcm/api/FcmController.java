@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,7 +42,8 @@ public class FcmController {
         Notification notification =
                 FcmNotificationUtil.buildNotification(
                         fcmSendRequest.title(), fcmSendRequest.body());
-        fcmService.sendMulticastMessageToAll(notification);
+        List<String> tokens = fcmTokenService.getAllTokens();
+        fcmService.sendMulticastMessage(notification, tokens);
         return ResponseEntity.ok().build();
     }
 
