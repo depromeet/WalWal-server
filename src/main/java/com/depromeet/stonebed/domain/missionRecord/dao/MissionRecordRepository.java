@@ -1,7 +1,7 @@
 package com.depromeet.stonebed.domain.missionRecord.dao;
 
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
+import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import java.time.LocalDateTime;

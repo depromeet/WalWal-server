@@ -1,7 +1,7 @@
-package com.depromeet.stonebed.domain.mission.dao.mission;
+package com.depromeet.stonebed.domain.mission.dao;
 
-import static com.depromeet.stonebed.domain.mission.domain.QMission.mission;
-import static com.depromeet.stonebed.domain.mission.domain.QMissionHistory.missionHistory;
+import static com.depromeet.stonebed.domain.mission.domain.QMission.*;
+import static com.depromeet.stonebed.domain.missionHistory.domain.QMissionHistory.*;
 
 import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import com.depromeet.stonebed.domain.mission.domain.Mission;

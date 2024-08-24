@@ -1,9 +1,9 @@
-package com.depromeet.stonebed.domain.mission.dao.missionHistory;
+package com.depromeet.stonebed.domain.missionHistory.dao;
 
-import static com.depromeet.stonebed.domain.mission.domain.QMissionHistory.missionHistory;
+import static com.depromeet.stonebed.domain.missionHistory.domain.QMissionHistory.*;
 
 import com.depromeet.stonebed.domain.member.domain.RaisePet;
-import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
+import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.Optional;
