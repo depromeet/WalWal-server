@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.fcm.api;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
+import com.depromeet.stonebed.domain.fcm.application.FcmScheduledService;
 import com.depromeet.stonebed.domain.fcm.application.FcmService;
 import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmSendRequest;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +35,7 @@ public class FcmController {
     private final FcmService fcmService;
     private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
+    private final FcmScheduledService fcmScheduledService;
 
     @Operation(summary = "푸시 메시지 전송", description = "저장된 모든 토큰에 푸시 메시지를 전송합니다.")
     @PostMapping("/send")
@@ -41,7 +44,8 @@ public class FcmController {
         Notification notification =
                 FcmNotificationUtil.buildNotification(
                         fcmSendRequest.title(), fcmSendRequest.body());
-        fcmService.sendMulticastMessageToAll(notification);
+        List<String> tokens = fcmTokenService.getAllTokens();
+        fcmService.sendMulticastMessageToAll(notification, tokens);
         return ResponseEntity.ok().build();
     }
 
@@ -73,6 +77,18 @@ public class FcmController {
     public ResponseEntity<Void> markNotificationAsRead(
             @PathVariable("notificationId") Long notificationId) {
         fcmNotificationService.markNotificationAsRead(notificationId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/test/sendDaily")
+    public ResponseEntity<Void> testSendDaily() {
+        fcmScheduledService.sendDailyNotification();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/test/sendReminder")
+    public ResponseEntity<Void> testReminder() {
+        fcmScheduledService.sendReminderToIncompleteMissions();
         return ResponseEntity.ok().build();
     }
 }

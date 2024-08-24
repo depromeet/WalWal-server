@@ -19,8 +19,7 @@ public class FcmService {
     private final FcmTokenService fcmTokenService;
 
     @Transactional(readOnly = true)
-    public void sendMulticastMessageToAll(Notification notification) {
-        List<String> tokens = fcmTokenService.getAllTokens();
+    public void sendMulticastMessageToAll(Notification notification, List<String> tokens) {
         int totalTokens = tokens.size();
 
         for (int i = 0; i < totalTokens; i += BATCH_SIZE) {
