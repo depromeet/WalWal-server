@@ -1,7 +1,6 @@
 package com.depromeet.stonebed.domain.fcm.api;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
-import com.depromeet.stonebed.domain.fcm.application.FcmScheduledService;
 import com.depromeet.stonebed.domain.fcm.application.FcmService;
 import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmSendRequest;
@@ -35,7 +34,6 @@ public class FcmController {
     private final FcmService fcmService;
     private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
-    private final FcmScheduledService fcmScheduledService;
 
     @Operation(summary = "푸시 메시지 전송", description = "저장된 모든 토큰에 푸시 메시지를 전송합니다.")
     @PostMapping("/send")
@@ -77,18 +75,6 @@ public class FcmController {
     public ResponseEntity<Void> markNotificationAsRead(
             @PathVariable("notificationId") Long notificationId) {
         fcmNotificationService.markNotificationAsRead(notificationId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/test/sendDaily")
-    public ResponseEntity<Void> testSendDaily() {
-        fcmScheduledService.sendDailyNotification();
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/test/sendReminder")
-    public ResponseEntity<Void> testReminder() {
-        fcmScheduledService.sendReminderToIncompleteMissions();
         return ResponseEntity.ok().build();
     }
 }
