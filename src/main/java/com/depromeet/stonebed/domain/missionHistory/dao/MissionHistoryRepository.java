@@ -1,6 +1,6 @@
-package com.depromeet.stonebed.domain.mission.dao.missionHistory;
+package com.depromeet.stonebed.domain.missionHistory.dao;
 
-import com.depromeet.stonebed.domain.mission.domain.MissionHistory;
+import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

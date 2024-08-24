@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.domain.mission.dao.mission;
+package com.depromeet.stonebed.domain.mission.dao;
 
 import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
