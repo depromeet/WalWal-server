@@ -45,7 +45,7 @@ public class FcmController {
                 FcmNotificationUtil.buildNotification(
                         fcmSendRequest.title(), fcmSendRequest.body());
         List<String> tokens = fcmTokenService.getAllTokens();
-        fcmService.sendMulticastMessageToAll(notification, tokens);
+        fcmService.sendMulticastMessage(notification, tokens);
         return ResponseEntity.ok().build();
     }
 

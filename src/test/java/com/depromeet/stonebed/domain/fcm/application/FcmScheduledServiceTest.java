@@ -66,7 +66,7 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
 
         // then
         verify(fcmNotificationService, times(1))
-                .sendAndNotifications(eq("미션 시작!"), eq("새로운 미션을 지금 시작해보세요!"), eq(tokens), eq(true));
+                .sendAndNotifications(eq("미션 시작!"), eq("새로운 미션을 지금 시작해보세요!"), eq(tokens));
     }
 
     @Test
@@ -102,7 +102,6 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
 
         // then
         verify(fcmNotificationService, times(1))
-                .sendAndNotifications(
-                        eq("미션 리마인드"), eq("미션 종료까지 5시간 남았어요!"), eq(tokens), eq(false));
+                .sendAndNotifications(eq("미션 리마인드"), eq("미션 종료까지 5시간 남았어요!"), eq(tokens));
     }
 }

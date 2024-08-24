@@ -19,19 +19,6 @@ public class FcmService {
     private final FcmTokenService fcmTokenService;
 
     @Transactional(readOnly = true)
-    public void sendMulticastMessageToAll(Notification notification, List<String> tokens) {
-        int totalTokens = tokens.size();
-
-        for (int i = 0; i < totalTokens; i += BATCH_SIZE) {
-            List<String> batchTokens = tokens.subList(i, Math.min(i + BATCH_SIZE, totalTokens));
-            MulticastMessage message = buildMulticastMessage(notification, batchTokens);
-            sendMessage(message, batchTokens);
-        }
-
-        log.info("전체 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
-    }
-
-    @Transactional
     public void sendMulticastMessage(Notification notification, List<String> tokens) {
         int totalTokens = tokens.size();
 
@@ -41,7 +28,7 @@ public class FcmService {
             sendMessage(message, batchTokens);
         }
 
-        log.info("리마인드 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
+        log.info("전체 메세지를 일괄 전송했습니다. 총 메세지 수: {}", totalTokens);
     }
 
     private MulticastMessage buildMulticastMessage(Notification notification, List<String> tokens) {

@@ -203,14 +203,9 @@ public class FcmNotificationService {
         return notifications;
     }
 
-    public void sendAndNotifications(
-            String title, String message, List<String> tokens, boolean isDailyNotification) {
+    public void sendAndNotifications(String title, String message, List<String> tokens) {
         Notification notification = FcmNotificationUtil.buildNotification(title, message);
-        if (isDailyNotification) {
-            fcmService.sendMulticastMessageToAll(notification, tokens);
-        } else {
-            fcmService.sendMulticastMessage(notification, tokens);
-        }
+        fcmService.sendMulticastMessage(notification, tokens);
 
         List<FcmNotification> notifications = buildNotificationList(title, message, tokens);
         notificationRepository.saveAll(notifications);
