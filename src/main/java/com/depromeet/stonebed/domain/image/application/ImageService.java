@@ -91,6 +91,8 @@ public class ImageService {
                         currentMember.getId(),
                         image.getImageKey(),
                         request.imageFileExtension());
+
+        isValidImageUrl(imageUrl);
         currentMember.updateProfile(Profile.createProfile(request.nickname(), imageUrl));
         return ImageUrlResponse.of(imageUrl);
     }
@@ -138,6 +140,7 @@ public class ImageService {
                         image.getImageKey(),
                         request.imageFileExtension());
 
+        isValidImageUrl(imageUrl);
         missionRecordService.updateMissionRecordWithImage(request.recordId(), imageUrl);
         return ImageUrlResponse.of(imageUrl);
     }
@@ -177,6 +180,7 @@ public class ImageService {
                         image.getImageKey(),
                         request.imageFileExtension());
 
+        isValidImageUrl(imageUrl);
         missionService.updateMissionWithImageUrl(request.missionId(), imageUrl);
 
         return ImageUrlResponse.of(imageUrl);
@@ -249,5 +253,11 @@ public class ImageService {
 
     private Date getPreSignedUrlExpiration() {
         return new Date(System.currentTimeMillis() + 1000 * 60 * 30);
+    }
+
+    private void isValidImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_IMAGE_URL);
+        }
     }
 }
