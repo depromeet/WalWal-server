@@ -57,12 +57,16 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
 
     @Test
     void 매일_정기_알림을_모든_사용자에게_전송하고_저장한다() {
+        // given
+        List<String> tokens = fixtureMonkey.giveMe(String.class, 5);
+        when(fcmTokenService.getAllTokens()).thenReturn(tokens);
+
         // when
         fcmScheduledService.sendDailyNotification();
 
         // then
         verify(fcmNotificationService, times(1))
-                .sendAndNotifications(eq("미션 시작!"), eq("새로운 미션을 지금 시작해보세요!"), isNull(), eq(true));
+                .sendAndNotifications(eq("미션 시작!"), eq("새로운 미션을 지금 시작해보세요!"), eq(tokens), eq(true));
     }
 
     @Test
