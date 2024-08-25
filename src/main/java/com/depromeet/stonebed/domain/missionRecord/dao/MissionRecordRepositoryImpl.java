@@ -42,15 +42,16 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
     }
 
     @Override
-    public void updateExpiredMissionsToNotCompleted(LocalDateTime endOfYesterday) {
+    public void updateExpiredMissionsToNotCompleted(LocalDateTime currentTime) {
         queryFactory
                 .update(missionRecord)
                 .set(missionRecord.status, MissionRecordStatus.NOT_COMPLETED)
+                .set(missionRecord.updatedAt, LocalDateTime.now())
                 .where(
                         missionRecord
                                 .status
                                 .eq(MissionRecordStatus.IN_PROGRESS)
-                                .and(missionRecord.createdAt.before(endOfYesterday)))
+                                .and(missionRecord.createdAt.before(currentTime)))
                 .execute();
     }
 
