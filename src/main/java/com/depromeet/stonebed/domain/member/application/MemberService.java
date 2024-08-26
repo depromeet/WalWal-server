@@ -31,7 +31,8 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public void checkNickname(NicknameCheckRequest request) {
-        memberUtil.checkNickname(request);
+        final Member currentMember = memberUtil.getCurrentMember();
+        memberUtil.checkNickname(request, currentMember);
     }
 
     public void modifyMemberProfile(MemberProfileUpdateRequest request) {
