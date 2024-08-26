@@ -26,7 +26,7 @@ public class KakaoClient {
                                 (request, response) -> {
                                     if (!response.getStatusCode().is2xxSuccessful()) {
                                         throw new CustomException(
-                                                ErrorCode.APPLE_TOKEN_CLIENT_FAILED);
+                                                ErrorCode.KAKAO_TOKEN_CLIENT_FAILED);
                                     }
                                     return Objects.requireNonNull(
                                             response.bodyTo(KakaoAuthResponse.class));

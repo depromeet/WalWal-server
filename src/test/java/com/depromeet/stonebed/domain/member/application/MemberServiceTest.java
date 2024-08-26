@@ -32,7 +32,7 @@ class MemberServiceTest extends FixtureMonkeySetUp {
         when(memberUtil.getCurrentMember()).thenReturn(member);
 
         // when
-        MemberInfoResponse result = memberService.findMemberInfo();
+        MemberInfoResponse result = memberService.findMemberMyInfo();
 
         // then
         assertNotNull(result);

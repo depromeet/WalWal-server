@@ -55,8 +55,7 @@ public class AuthService {
     public AuthTokenResponse socialLogin(
             OAuthProvider oAuthProvider, String oauthId, String email) {
         Optional<Member> memberOptional =
-                memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
-                        oAuthProvider.getValue(), oauthId);
+                memberRepository.findByMemberOauthInfo(oAuthProvider.getValue(), email);
 
         return memberOptional
                 .map(
@@ -67,7 +66,8 @@ public class AuthService {
                                             ? getTemporaryLoginResponse(member)
                                             : getLoginResponse(member);
                             member.updateLastLoginAt();
-                            updateMemberStatus(member);
+                            member.updateOauthId(oauthId);
+                            updateMemberNormalStatus(member);
                             return AuthTokenResponse.of(
                                     tokenPair, member.getRole() == MemberRole.TEMPORARY);
                         })
@@ -132,6 +132,7 @@ public class AuthService {
         validateMemberStatusDelete(member.getStatus());
         member.updateMemberRole(MemberRole.TEMPORARY);
         member.updateProfile(Profile.createProfile("", ""));
+        member.updateOauthId("");
         memberRepository.flush();
         withdrawMemberRelationByMemberId(member.getId());
 
@@ -156,7 +157,7 @@ public class AuthService {
         return member;
     }
 
-    private void updateMemberStatus(Member member) {
+    private void updateMemberNormalStatus(Member member) {
         if (member.getStatus() == MemberStatus.DELETED) {
             member.updateStatus(MemberStatus.NORMAL);
         }
