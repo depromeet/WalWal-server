@@ -36,7 +36,7 @@ public class Mission extends BaseTimeEntity {
 
     @NotBlank
     @Size(max = 100)
-    @Column(name = "complete_message")
+    @Column(name = "complete_message", nullable = false)
     private String completeMessage;
 
     @Builder
