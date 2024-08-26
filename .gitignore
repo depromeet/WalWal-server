@@ -42,3 +42,6 @@ logs
 *.DS_Store
 /src/main/generated
 .*-database
+
+### 멀티모듈 임시 주석 ###
+walwal-*

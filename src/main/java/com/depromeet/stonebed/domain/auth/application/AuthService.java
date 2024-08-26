@@ -55,8 +55,8 @@ public class AuthService {
     public AuthTokenResponse socialLogin(
             OAuthProvider oAuthProvider, String oauthId, String email) {
         Optional<Member> memberOptional =
-                memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
-                        oAuthProvider.getValue(), oauthId);
+                memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthEmail(
+                        oAuthProvider.getValue(), email);
 
         return memberOptional
                 .map(
