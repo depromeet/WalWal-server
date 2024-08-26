@@ -13,12 +13,15 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public boolean existsByProfileNickname(String nickname) {
+    public boolean existsByProfileNickname(String nickname, String currentNickname) {
         // 존재하는 경우의 쿼리
         return jpaQueryFactory
                         .selectOne()
                         .from(member)
-                        .where(isProfileNickname(nickname).and(isNotEmptyProfileNickname()))
+                        .where(
+                                isProfileNickname(nickname)
+                                        .and(isNotEmptyProfileNickname())
+                                        .and(isMyNickname(currentNickname)))
                         .fetchFirst()
                 != null;
     }
@@ -29,5 +32,9 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
     private BooleanExpression isNotEmptyProfileNickname() {
         return member.profile.nickname.ne("");
+    }
+
+    private BooleanExpression isMyNickname(String currentNickname) {
+        return member.profile.nickname.ne(currentNickname);
     }
 }

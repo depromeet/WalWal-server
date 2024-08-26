@@ -98,50 +98,61 @@ class MemberUtilTest extends FixtureMonkeySetUp {
     @Test
     void checkNickname_성공() {
         // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
         String nickname = "validNickname";
         NicknameCheckRequest request = new NicknameCheckRequest(nickname);
-        when(memberRepository.existsByProfileNickname(nickname)).thenReturn(false);
+        when(memberRepository.existsByProfileNickname(nickname, member.getProfile().getNickname()))
+                .thenReturn(false);
 
         // when & then
-        assertDoesNotThrow(() -> memberUtil.checkNickname(request));
+        assertDoesNotThrow(() -> memberUtil.checkNickname(request, member));
     }
 
     @Test
     void checkNickname_실패_MEMBER_ALREADY_NICKNAME() {
         // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
         String nickname = "duplicateNickname";
         NicknameCheckRequest request = new NicknameCheckRequest(nickname);
-        when(memberRepository.existsByProfileNickname(nickname)).thenReturn(true);
+        when(memberRepository.existsByProfileNickname(nickname, member.getProfile().getNickname()))
+                .thenReturn(true);
 
         // when & then
         CustomException exception =
-                assertThrows(CustomException.class, () -> memberUtil.checkNickname(request));
+                assertThrows(
+                        CustomException.class, () -> memberUtil.checkNickname(request, member));
         assertEquals(ErrorCode.MEMBER_ALREADY_NICKNAME, exception.getErrorCode());
     }
 
     @Test
     void checkNickname_실패_MEMBER_INVALID_NICKNAME_길이_1() {
         // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
         String nickname = "a";
         NicknameCheckRequest request = new NicknameCheckRequest(nickname);
-        when(memberRepository.existsByProfileNickname(nickname)).thenReturn(false);
+        when(memberRepository.existsByProfileNickname(nickname, member.getProfile().getNickname()))
+                .thenReturn(false);
 
         // when & then
         CustomException exception =
-                assertThrows(CustomException.class, () -> memberUtil.checkNickname(request));
+                assertThrows(
+                        CustomException.class, () -> memberUtil.checkNickname(request, member));
         assertEquals(ErrorCode.MEMBER_INVALID_NICKNAME, exception.getErrorCode());
     }
 
     @Test
     void checkNickname_실패_MEMBER_INVALID_NICKNAME_길이_15() {
         // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
         String nickname = "a".repeat(15);
         NicknameCheckRequest request = new NicknameCheckRequest(nickname);
-        when(memberRepository.existsByProfileNickname(nickname)).thenReturn(false);
+        when(memberRepository.existsByProfileNickname(nickname, member.getProfile().getNickname()))
+                .thenReturn(false);
 
         // when & then
         CustomException exception =
-                assertThrows(CustomException.class, () -> memberUtil.checkNickname(request));
+                assertThrows(
+                        CustomException.class, () -> memberUtil.checkNickname(request, member));
         assertEquals(ErrorCode.MEMBER_INVALID_NICKNAME, exception.getErrorCode());
     }
 }
