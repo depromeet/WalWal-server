@@ -87,9 +87,10 @@ public class MissionRecordService {
 
         LocalDate today = LocalDate.now();
         boolean recordExists =
-                missionRecordRepository.existsByMemberAndMissionHistoryAndCreatedAtBetween(
+                missionRecordRepository.existsByMemberAndMissionHistoryAndStatusAndCreatedAtBetween(
                         member,
                         missionHistory,
+                        MissionRecordStatus.COMPLETED,
                         today.atStartOfDay(),
                         today.plusDays(1).atStartOfDay());
 

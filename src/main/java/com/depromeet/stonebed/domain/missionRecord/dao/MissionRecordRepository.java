@@ -24,11 +24,12 @@ public interface MissionRecordRepository
 
     List<MissionRecord> findByIdIn(List<Long> ids);
 
-    boolean existsByMemberAndMissionHistoryAndCreatedAtBetween(
+    boolean existsByMemberAndMissionHistoryAndStatusAndCreatedAtBetween(
             Member member,
             MissionHistory missionHistory,
-            LocalDateTime startOfDay,
-            LocalDateTime endOfDay);
+            MissionRecordStatus status,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime);
 
     @Modifying
     @Query(
