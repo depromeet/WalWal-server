@@ -7,7 +7,9 @@ import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
+import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionHistory.dao.MissionHistoryRepository;
+import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
@@ -15,6 +17,7 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -258,5 +261,97 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         verify(memberUtil).getCurrentMember();
         verify(missionRecordRepository).findById(missionRecord.getId());
         verify(missionRecordBoostRepository).save(any(MissionRecordBoost.class));
+    }
+
+    @Test
+    void 미션탭_상태_미션_완료() {
+        // Given
+        Long missionId = 1L;
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        Mission mission = fixtureMonkey.giveMeBuilder(Mission.class).set("id", missionId).sample();
+        MissionHistory missionHistory =
+                fixtureMonkey.giveMeBuilder(MissionHistory.class).set("mission", mission).sample();
+        MissionRecord missionRecord =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("member", member)
+                        .set("missionHistory", missionHistory)
+                        .set("status", MissionRecordStatus.COMPLETED)
+                        .sample();
+
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
+        when(missionHistoryRepository.findLatestOneByMissionIdRaisePet(
+                        missionId, mission.getRaisePet()))
+                .thenReturn(Optional.of(missionHistory));
+        when(missionRecordRepository.findByMemberAndMissionHistory(member, missionHistory))
+                .thenReturn(Optional.of(missionRecord));
+
+        // When
+        MissionTabResponse response = missionRecordService.getMissionTabStatus(missionId);
+
+        // Then
+        then(response).isNotNull();
+        then(response.imageUrl()).isEqualTo(missionRecord.getImageUrl());
+        then(response.status()).isEqualTo(MissionRecordStatus.COMPLETED);
+
+        verify(memberUtil).getCurrentMember();
+        verify(missionRepository).findById(missionId);
+        verify(missionHistoryRepository)
+                .findLatestOneByMissionIdRaisePet(missionId, mission.getRaisePet());
+        verify(missionRecordRepository).findByMemberAndMissionHistory(member, missionHistory);
+    }
+
+    @Test
+    void 미션탭_상태_미션_진행중() {
+        // Given
+        Long missionId = 1L;
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        Mission mission = fixtureMonkey.giveMeBuilder(Mission.class).set("id", missionId).sample();
+        MissionHistory missionHistory =
+                fixtureMonkey.giveMeBuilder(MissionHistory.class).set("mission", mission).sample();
+
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
+        when(missionHistoryRepository.findLatestOneByMissionIdRaisePet(
+                        missionId, mission.getRaisePet()))
+                .thenReturn(Optional.of(missionHistory));
+        when(missionRecordRepository.findByMemberAndMissionHistory(member, missionHistory))
+                .thenReturn(Optional.empty());
+
+        // When
+        MissionTabResponse response = missionRecordService.getMissionTabStatus(missionId);
+
+        // Then
+        then(response).isNotNull();
+        then(response.imageUrl()).isNull();
+        then(response.status()).isEqualTo(MissionRecordStatus.NOT_COMPLETED);
+
+        verify(memberUtil).getCurrentMember();
+        verify(missionRepository).findById(missionId);
+        verify(missionHistoryRepository)
+                .findLatestOneByMissionIdRaisePet(missionId, mission.getRaisePet());
+        verify(missionRecordRepository).findByMemberAndMissionHistory(member, missionHistory);
+    }
+
+    @Test
+    void 미션탭_상태_미션_시작안함() {
+        // Given
+        Long missionId = 1L;
+
+        when(missionRepository.findById(missionId)).thenReturn(Optional.empty());
+
+        // When & Then
+        CustomException exception =
+                org.junit.jupiter.api.Assertions.assertThrows(
+                        CustomException.class,
+                        () -> missionRecordService.getMissionTabStatus(missionId));
+
+        then(exception.getErrorCode()).isEqualTo(ErrorCode.MISSION_NOT_FOUND);
+
+        verify(missionRepository).findById(missionId);
+        verify(missionHistoryRepository, never())
+                .findLatestOneByMissionIdRaisePet(anyLong(), any());
+        verify(missionRecordRepository, never()).findByMemberAndMissionHistory(any(), any());
     }
 }

@@ -23,13 +23,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET status = 'DELETED' WHERE member_id = ?")
-@SQLRestriction("status != 'DELETED'")
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -120,5 +118,9 @@ public class Member extends BaseTimeEntity {
 
     public void updateStatus(MemberStatus status) {
         this.status = status;
+    }
+
+    public void updateOauthId(String oauthId) {
+        this.oauthInfo.oauthId = oauthId;
     }
 }
