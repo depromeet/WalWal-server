@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class OauthInfo {
 
     @Schema(description = "소셜 ID", example = "123487892")
-    private String oauthId;
+    public String oauthId;
 
     @Schema(description = "소셜 제공자", example = "APPLE")
     private String oauthProvider;

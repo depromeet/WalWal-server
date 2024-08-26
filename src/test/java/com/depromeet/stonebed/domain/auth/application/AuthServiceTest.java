@@ -57,8 +57,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         // given
         OAuthProvider provider = OAuthProvider.KAKAO;
 
-        when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthEmail(
-                        provider.getValue(), email))
+        when(memberRepository.findByMemberOauthInfo(provider.getValue(), email))
                 .thenReturn(Optional.of(member));
         when(jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER))
                 .thenReturn(new TokenPairResponse("accessToken", "refreshToken"));
@@ -75,8 +74,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         // given
         OAuthProvider provider = OAuthProvider.APPLE;
 
-        when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthEmail(
-                        provider.getValue(), email))
+        when(memberRepository.findByMemberOauthInfo(provider.getValue(), email))
                 .thenReturn(Optional.of(member));
         when(jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER))
                 .thenReturn(new TokenPairResponse("accessToken", "refreshToken"));
@@ -95,8 +93,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         TokenPairResponse temporaryTokenPair = new TokenPairResponse("accessToken", "refreshToken");
         Member newMember = Member.createOAuthMember(provider, oauthId, email);
 
-        when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthEmail(
-                        provider.getValue(), email))
+        when(memberRepository.findByMemberOauthInfo(provider.getValue(), email))
                 .thenReturn(Optional.empty());
         when(memberRepository.save(any(Member.class))).thenReturn(newMember);
         when(jwtTokenService.generateTemporaryTokenPair(any(Member.class)))
