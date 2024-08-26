@@ -98,6 +98,7 @@ public class MissionService {
 
         missionToUpdate.updateTitle(missionUpdateRequest.title());
         missionToUpdate.updateRaisePet(missionUpdateRequest.raisePet());
+        missionToUpdate.updateCompleteMessage(missionUpdateRequest.completeMessage());
         missionRepository.save(missionToUpdate);
 
         return MissionUpdateResponse.from(missionToUpdate);
