@@ -21,7 +21,12 @@ class MissionRepositoryTest {
     @Test
     void 미션_생성_성공() {
         // Given
-        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
+        Mission mission =
+                Mission.builder()
+                        .title("Test Mission")
+                        .raisePet(RaisePet.DOG)
+                        .completeMessage("Complete")
+                        .build();
 
         // When
         Mission savedMission = missionRepository.save(mission);
@@ -34,7 +39,12 @@ class MissionRepositoryTest {
     @Test
     void 고유번호로_미션_조회_성공() {
         // Given
-        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
+        Mission mission =
+                Mission.builder()
+                        .title("Test Mission")
+                        .raisePet(RaisePet.DOG)
+                        .completeMessage("Complete")
+                        .build();
         missionRepository.save(mission);
 
         // When
@@ -48,7 +58,12 @@ class MissionRepositoryTest {
     @Test
     void 미션_삭제_성공() {
         // Given
-        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
+        Mission mission =
+                Mission.builder()
+                        .title("Test Mission")
+                        .raisePet(RaisePet.DOG)
+                        .completeMessage("Complete")
+                        .build();
         mission = missionRepository.save(mission);
 
         // When

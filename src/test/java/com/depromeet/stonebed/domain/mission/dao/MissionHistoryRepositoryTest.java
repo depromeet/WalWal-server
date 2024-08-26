@@ -29,7 +29,12 @@ class MissionHistoryRepositoryTest {
     @Test
     void 미션_히스토리_생성_성공() {
         // Given: 오늘 날짜를 기준으로 미션 히스토리가 있다 (생성할 예정)
-        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
+        Mission mission =
+                Mission.builder()
+                        .title("Test Mission")
+                        .raisePet(RaisePet.DOG)
+                        .completeMessage("Complete")
+                        .build();
         missionRepository.save(mission);
         LocalDate today = LocalDate.now();
 
@@ -41,14 +46,19 @@ class MissionHistoryRepositoryTest {
 
         // Then: 저장된 미션 히스토리가 올바른지 검증한다
         assertThat(savedMissionHistory.getId()).isNotNull();
-        assertThat(savedMissionHistory.getMission().getTitle()).isEqualTo("Test Mission");
+        assertThat(savedMissionHistory.getMission().getTitle()).isEqualTo(mission.getTitle());
         assertThat(savedMissionHistory.getAssignedDate()).isEqualTo(today);
     }
 
     @Test
     void 미션_히스토리_특정_날짜_조회_성공() {
         // Given: 오늘 날짜를 기준으로 저장된 객체가 있다
-        Mission mission = Mission.builder().title("Test Mission").raisePet(RaisePet.CAT).build();
+        Mission mission =
+                Mission.builder()
+                        .title("Test Mission")
+                        .raisePet(RaisePet.CAT)
+                        .completeMessage("Complete")
+                        .build();
         missionRepository.save(mission);
         LocalDate today = LocalDate.now();
 
@@ -62,7 +72,7 @@ class MissionHistoryRepositoryTest {
 
         // Then: 가져온 미션 히스토리가 올바른지 검증한다
         assertThat(foundMissionHistory).isPresent();
-        assertThat(foundMissionHistory.get().getMission().getTitle()).isEqualTo("Test Mission");
+        assertThat(foundMissionHistory.get().getMission().getTitle()).isEqualTo(mission.getTitle());
         assertThat(foundMissionHistory.get().getAssignedDate()).isEqualTo(today);
     }
 }
