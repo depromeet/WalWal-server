@@ -34,7 +34,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
             Long memberId, LocalDateTime createdAt, Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
-                .where(missionRecord.member.id.eq(memberId).and(createdAtFrom(createdAt)))
+                .where(isMemberId(memberId).and(createdAtFrom(createdAt)).and(isCompleted()))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -61,5 +61,9 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
 
     private BooleanExpression createdAtFrom(LocalDateTime createdAt) {
         return missionRecord.createdAt.goe(createdAt);
+    }
+
+    private BooleanExpression isCompleted() {
+        return missionRecord.status.eq(MissionRecordStatus.COMPLETED);
     }
 }

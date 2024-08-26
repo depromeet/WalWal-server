@@ -15,6 +15,7 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
@@ -132,10 +133,13 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         String cursor = null;
         int limit = 5;
 
+        MissionRecordCalendarRequest request =
+                new MissionRecordCalendarRequest(cursor, limit, null);
+
         // when
         MissionRecordCalendarResponse response =
                 missionRecordService.getMissionRecordsForCalendar(
-                        cursor, limit, null); // Pass null for memberId
+                        request); // Pass null for memberId
 
         // then
         then(response).isNotNull();
@@ -160,9 +164,12 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         String cursor = null;
         int limit = 5;
 
+        MissionRecordCalendarRequest request =
+                new MissionRecordCalendarRequest(cursor, limit, member.getId());
+
         // when
         MissionRecordCalendarResponse response =
-                missionRecordService.getMissionRecordsForCalendar(cursor, limit, member.getId());
+                missionRecordService.getMissionRecordsForCalendar(request);
 
         // then
         then(response).isNotNull();
