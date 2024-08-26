@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,8 +27,14 @@ public class MemberController {
 
     @Operation(summary = "내 정보 조회", description = "내 정보를 조회하는 API입니다.")
     @GetMapping("/me")
-    public MemberInfoResponse memberInfo() {
-        return memberService.findMemberInfo();
+    public MemberInfoResponse memberMyInfo() {
+        return memberService.findMemberMyInfo();
+    }
+
+    @Operation(summary = "회원 정보 조회", description = "회원 정보를 조회하는 API입니다.")
+    @GetMapping("/{memberId}")
+    public MemberInfoResponse memberInfo(@PathVariable("memberId") Long memberId) {
+        return memberService.findMemberInfo(memberId);
     }
 
     @Operation(summary = "회원 프로필 변경", description = "회원 프로필을 변경합니다.")

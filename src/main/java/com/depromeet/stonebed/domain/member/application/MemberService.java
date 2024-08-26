@@ -18,9 +18,15 @@ public class MemberService {
     private final MemberUtil memberUtil;
 
     @Transactional(readOnly = true)
-    public MemberInfoResponse findMemberInfo() {
+    public MemberInfoResponse findMemberMyInfo() {
         Member currentMember = memberUtil.getCurrentMember();
         return MemberInfoResponse.from(currentMember);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberInfoResponse findMemberInfo(Long memberId) {
+        Member member = memberUtil.getMemberByMemberId(memberId);
+        return MemberInfoResponse.from(member);
     }
 
     @Transactional(readOnly = true)
