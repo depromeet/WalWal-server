@@ -46,13 +46,15 @@ class MemberServiceTest extends FixtureMonkeySetUp {
     @Test
     void 닉네임을_검증한다() {
         // given
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        when(memberUtil.getCurrentMember()).thenReturn(member);
         NicknameCheckRequest request = fixtureMonkey.giveMeOne(NicknameCheckRequest.class);
 
         // when
         memberService.checkNickname(request);
 
         // then
-        verify(memberUtil).checkNickname(request);
+        verify(memberUtil).checkNickname(request, member);
     }
 
     @Test

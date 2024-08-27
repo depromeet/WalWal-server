@@ -36,6 +36,7 @@ public enum ErrorCode {
     MISSION_HISTORY_NOT_FOUNT(HttpStatus.NOT_FOUND, "해당 일별 미션 정보를 찾을 수 없습니다."),
     MISSION_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션 기록을 찾을 수 없습니다."),
     NO_AVAILABLE_TODAY_MISSION(HttpStatus.INTERNAL_SERVER_ERROR, "할당 가능한 오늘의 미션이 없습니다."),
+    DUPLICATE_MISSION_RECORD(HttpStatus.BAD_REQUEST, "오늘 완료한 미션이 존재합니다."),
 
     // image
     IMAGE_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),

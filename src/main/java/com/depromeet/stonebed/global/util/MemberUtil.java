@@ -39,8 +39,8 @@ public class MemberUtil {
     }
 
     @Transactional(readOnly = true)
-    public void checkNickname(NicknameCheckRequest request) {
-        validateNicknameNotDuplicate(request.nickname());
+    public void checkNickname(NicknameCheckRequest request, Member currentMember) {
+        validateNicknameNotDuplicate(request.nickname(), currentMember.getProfile().getNickname());
         if (validateNicknameText(request.nickname())) {
             throw new CustomException(ErrorCode.MEMBER_INVALID_NICKNAME);
         }
@@ -50,8 +50,8 @@ public class MemberUtil {
         return nickname == null || nickname.length() < 2 || nickname.length() > 14;
     }
 
-    private void validateNicknameNotDuplicate(String nickname) {
-        if (memberRepository.existsByProfileNickname(nickname)) {
+    private void validateNicknameNotDuplicate(String nickname, String currentNickname) {
+        if (memberRepository.existsByProfileNickname(nickname, currentNickname)) {
             throw new CustomException(ErrorCode.MEMBER_ALREADY_NICKNAME);
         }
     }

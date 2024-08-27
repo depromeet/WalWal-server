@@ -12,6 +12,7 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
@@ -84,6 +85,19 @@ public class MissionRecordService {
         MissionHistory missionHistory =
                 findMissionHistoryByIdAndRaisePet(missionId, mission.getRaisePet());
 
+        LocalDate today = LocalDate.now();
+        boolean recordExists =
+                missionRecordRepository.existsByMemberAndMissionHistoryAndStatusAndCreatedAtBetween(
+                        member,
+                        missionHistory,
+                        MissionRecordStatus.COMPLETED,
+                        today.atStartOfDay(),
+                        today.plusDays(1).atStartOfDay());
+
+        if (recordExists) {
+            throw new CustomException(ErrorCode.DUPLICATE_MISSION_RECORD);
+        }
+
         MissionRecord missionRecord =
                 missionRecordRepository
                         .findByMemberAndMissionHistory(member, missionHistory)
@@ -130,15 +144,15 @@ public class MissionRecordService {
 
     @Transactional(readOnly = true)
     public MissionRecordCalendarResponse getMissionRecordsForCalendar(
-            String cursor, int limit, Long memberId) {
+            MissionRecordCalendarRequest request) {
         Long findMemberId =
-                Optional.ofNullable(memberId)
+                Optional.ofNullable(request.memberId())
                         .orElseGet(() -> memberUtil.getCurrentMember().getId());
 
-        Pageable pageable = createPageable(limit);
-        List<MissionRecord> records = getMissionRecords(cursor, findMemberId, pageable);
+        Pageable pageable = createPageable(request.limit());
+        List<MissionRecord> records = getMissionRecords(request.cursor(), findMemberId, pageable);
         List<MissionRecordCalendarDto> calendarData = convertToCalendarDto(records);
-        String nextCursor = getNextCursor(records);
+        String nextCursor = getNextCursor(records, request.limit());
 
         return MissionRecordCalendarResponse.from(calendarData, nextCursor);
     }
@@ -167,14 +181,19 @@ public class MissionRecordService {
         }
     }
 
-    private String getNextCursor(List<MissionRecord> records) {
+    private String getNextCursor(List<MissionRecord> records, int limit) {
+        if (records.size() < limit) {
+            return null;
+        }
+        return String.valueOf(getLastRecordId(records));
+    }
+
+    private Long getLastRecordId(List<MissionRecord> records) {
         if (records.isEmpty()) {
             return null;
         }
 
-        MissionRecord lastRecord = records.get(records.size() - 1);
-        LocalDate nextCursorDate = lastRecord.getCreatedAt().toLocalDate().plusDays(1);
-        return nextCursorDate.format(DATE_FORMATTER);
+        return records.get(records.size() - 1).getId();
     }
 
     @Transactional(readOnly = true)

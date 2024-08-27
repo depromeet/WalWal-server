@@ -24,6 +24,13 @@ public interface MissionRecordRepository
 
     List<MissionRecord> findByIdIn(List<Long> ids);
 
+    boolean existsByMemberAndMissionHistoryAndStatusAndCreatedAtBetween(
+            Member member,
+            MissionHistory missionHistory,
+            MissionRecordStatus status,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime);
+
     @Modifying
     @Query(
             "UPDATE MissionRecord mr SET mr.deletedAt = CURRENT_TIMESTAMP WHERE mr.member.id = :memberId")
