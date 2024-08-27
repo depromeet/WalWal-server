@@ -9,13 +9,9 @@ storage:
   region: ${AWS_REGION:}
   endpoint: ${S3_ENDPOINT:https://s3.ap-northeast-2.amazonaws.com}
 
-cloud:
-  aws:
-    credentials:
-      accessKey: ${AWS_ACCESS_KEY:}
-      secretKey: ${AWS_SECRET_KEY:}
-    region:
-      static: ${AWS_REGION:}
-    sqs:
-      queue-url: ${SQS_QUEUE_URL}
+sqs:
+  accessKey: ${AWS_ACCESS_KEY:}
+  secretKey: ${AWS_SECRET_KEY:}
+  region: ${AWS_REGION:}
+  queue-url: ${SQS_QUEUE_URL}
 

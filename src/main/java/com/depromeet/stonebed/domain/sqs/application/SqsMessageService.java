@@ -1,13 +1,13 @@
 package com.depromeet.stonebed.domain.sqs.application;
 
 import com.depromeet.stonebed.domain.fcm.domain.FcmMessage;
+import com.depromeet.stonebed.infra.properties.SqsProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -26,8 +26,7 @@ public class SqsMessageService {
 
     private final SqsClient sqsClient;
 
-    @Value("${cloud.aws.sqs.queue-url}")
-    private String queueUrl;
+    private final SqsProperties sqsProperties;
 
     private final ObjectMapper objectMapper;
 
@@ -36,7 +35,7 @@ public class SqsMessageService {
             String messageBody = objectMapper.writeValueAsString(message);
             SendMessageRequest sendMsgRequest =
                     SendMessageRequest.builder()
-                            .queueUrl(queueUrl)
+                            .queueUrl(sqsProperties.queueUrl())
                             .messageBody(messageBody)
                             .build();
 
@@ -65,7 +64,10 @@ public class SqsMessageService {
         }
 
         SendMessageBatchRequest batchRequest =
-                SendMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
+                SendMessageBatchRequest.builder()
+                        .queueUrl(sqsProperties.queueUrl())
+                        .entries(entries)
+                        .build();
 
         try {
             SendMessageBatchResponse batchResponse = sqsClient.sendMessageBatch(batchRequest);
