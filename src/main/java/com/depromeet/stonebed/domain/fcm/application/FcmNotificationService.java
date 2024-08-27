@@ -2,6 +2,7 @@ package com.depromeet.stonebed.domain.fcm.application;
 
 import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
+import com.depromeet.stonebed.domain.fcm.domain.FcmMessage;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
@@ -11,12 +12,11 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.sqs.application.SqsMessageService;
 import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
-import com.depromeet.stonebed.global.util.FcmNotificationUtil;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import com.google.firebase.messaging.Notification;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,17 +25,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class FcmNotificationService {
-    private final FcmService fcmService;
+    private final SqsMessageService sqsMessageService;
     private final FcmNotificationRepository notificationRepository;
     private final MissionRecordBoostRepository missionRecordBoostRepository;
     private final MissionRecordRepository missionRecordRepository;
@@ -151,17 +153,18 @@ public class FcmNotificationService {
 
     private void sendBoostNotification(
             MissionRecord missionRecord, FcmNotificationConstants notificationConstants) {
-        Notification notification =
-                FcmNotificationUtil.buildNotification(
-                        notificationConstants.getTitle(), notificationConstants.getMessage());
-
         String token =
                 fcmRepository
                         .findByMember(missionRecord.getMember())
                         .map(FcmToken::getToken)
                         .orElseThrow(() -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
 
-        fcmService.sendSingleMessage(notification, token);
+        FcmMessage fcmMessage =
+                new FcmMessage(
+                        notificationConstants.getTitle(),
+                        notificationConstants.getMessage(),
+                        token);
+        sqsMessageService.sendMessage(fcmMessage);
 
         saveNotification(
                 FcmNotificationType.BOOSTER,
@@ -204,10 +207,22 @@ public class FcmNotificationService {
     }
 
     public void sendAndNotifications(String title, String message, List<String> tokens) {
-        Notification notification = FcmNotificationUtil.buildNotification(title, message);
-        fcmService.sendMulticastMessage(notification, tokens);
+        List<List<String>> batches = createBatches(tokens, 10);
+
+        for (List<String> batch : batches) {
+            sqsMessageService.sendBatchMessages(batch, title, message);
+        }
 
         List<FcmNotification> notifications = buildNotificationList(title, message, tokens);
         notificationRepository.saveAll(notifications);
+    }
+
+    private List<List<String>> createBatches(List<String> tokens, int batchSize) {
+        List<List<String>> batches = new ArrayList<>();
+        for (int i = 0; i < tokens.size(); i += batchSize) {
+            int end = Math.min(tokens.size(), i + batchSize);
+            batches.add(tokens.subList(i, end));
+        }
+        return batches;
     }
 }

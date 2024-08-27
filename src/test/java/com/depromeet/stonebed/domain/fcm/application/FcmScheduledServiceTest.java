@@ -26,8 +26,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
-
-    @Mock private FcmService fcmService;
     @Mock private FcmNotificationService fcmNotificationService;
     @Mock private FcmRepository fcmRepository;
     @Mock private FcmTokenService fcmTokenService;

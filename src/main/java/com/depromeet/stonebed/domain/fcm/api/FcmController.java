@@ -1,13 +1,12 @@
 package com.depromeet.stonebed.domain.fcm.api;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
-import com.depromeet.stonebed.domain.fcm.application.FcmService;
 import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
+import com.depromeet.stonebed.domain.fcm.domain.FcmMessage;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmSendRequest;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmTokenRequest;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
-import com.depromeet.stonebed.global.util.FcmNotificationUtil;
-import com.google.firebase.messaging.Notification;
+import com.depromeet.stonebed.domain.sqs.application.SqsMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,19 +30,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/alarm")
 @RequiredArgsConstructor
 public class FcmController {
-    private final FcmService fcmService;
     private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
+    private final SqsMessageService sqsMessageService;
 
     @Operation(summary = "푸시 메시지 전송", description = "저장된 모든 토큰에 푸시 메시지를 전송합니다.")
     @PostMapping("/send")
     public ResponseEntity<Void> pushMessageToAll(
             @RequestBody @Validated FcmSendRequest fcmSendRequest) {
-        Notification notification =
-                FcmNotificationUtil.buildNotification(
-                        fcmSendRequest.title(), fcmSendRequest.body());
+
         List<String> tokens = fcmTokenService.getAllTokens();
-        fcmService.sendMulticastMessage(notification, tokens);
+
+        for (String token : tokens) {
+            FcmMessage fcmMessage =
+                    new FcmMessage(fcmSendRequest.title(), fcmSendRequest.body(), token);
+            sqsMessageService.sendMessage(fcmMessage);
+        }
+
         return ResponseEntity.ok().build();
     }
 

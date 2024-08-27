@@ -97,6 +97,11 @@ dependencies {
     // FCM
     implementation 'com.google.firebase:firebase-admin:9.3.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+
+    // SQS
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+    implementation 'software.amazon.awssdk:sqs'
 }
 
 tasks.named('test') {
