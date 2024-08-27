@@ -34,10 +34,16 @@ public class Mission extends BaseTimeEntity {
     @Column(name = "raise_pet", nullable = false)
     private RaisePet raisePet;
 
+    @NotBlank
+    @Size(max = 100)
+    @Column(name = "complete_message", nullable = false)
+    private String completeMessage;
+
     @Builder
-    public Mission(String title, RaisePet raisePet) {
+    public Mission(String title, RaisePet raisePet, String completeMessage) {
         this.title = title;
         this.raisePet = raisePet;
+        this.completeMessage = completeMessage;
     }
 
     public void updateTitle(String title) {
@@ -50,5 +56,9 @@ public class Mission extends BaseTimeEntity {
 
     public void updateRaisePet(RaisePet raisePet) {
         this.raisePet = raisePet;
+    }
+
+    public void updateCompleteMessage(String completeMessage) {
+        this.completeMessage = completeMessage;
     }
 }

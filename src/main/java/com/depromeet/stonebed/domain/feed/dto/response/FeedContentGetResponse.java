@@ -7,6 +7,8 @@ import java.time.LocalDate;
 public record FeedContentGetResponse(
         @Schema(description = "미션 ID", example = "1") Long missionId,
         @Schema(description = "미션 제목", example = "산책하기") String missionTitle,
+        @Schema(description = "미션 완료 메시지", example = "산책하기 미션을 수행했어요!")
+                String missionCompleteMessage,
         @Schema(description = "미션 기록 ID", example = "1") Long missionRecordId,
         @Schema(description = "작성자 ID", example = "1") Long authorId,
         @Schema(description = "작성자 프로필 닉네임") String authorProfileNickname,
@@ -20,6 +22,7 @@ public record FeedContentGetResponse(
         return new FeedContentGetResponse(
                 missionRecord.mission().getId(),
                 missionRecord.mission().getTitle(),
+                missionRecord.mission().getCompleteMessage(),
                 missionRecord.missionRecord().getId(),
                 missionRecord.author().getId(),
                 missionRecord.author().getProfile().getNickname(),

@@ -45,7 +45,8 @@ class MissionControllerTest {
     @Test
     void 미션_생성_성공() throws Exception {
         // Given
-        MissionCreateResponse missionCreateResponse = new MissionCreateResponse(1L, "Test Mission");
+        MissionCreateResponse missionCreateResponse =
+                new MissionCreateResponse(1L, "Test Mission", "");
         when(missionService.createMission(any(MissionCreateRequest.class)))
                 .thenReturn(missionCreateResponse);
 
@@ -53,7 +54,8 @@ class MissionControllerTest {
         mockMvc.perform(
                         post("/missions")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"title\":\"Test Mission\", \"raisePet\":\"DOG\"}"))
+                                .content(
+                                        "{\"title\":\"Test Mission\", \"raisePet\":\"DOG\", \"completeMessage\":\"Complete\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("Test Mission"));
     }
@@ -74,7 +76,8 @@ class MissionControllerTest {
     @Test
     void 미션_조회_성공() throws Exception {
         // Given
-        MissionGetOneResponse missionGetOneResponse = new MissionGetOneResponse(1L, "Test Mission");
+        MissionGetOneResponse missionGetOneResponse =
+                new MissionGetOneResponse(1L, "Test Mission", "");
         when(missionService.getMission(1L)).thenReturn(missionGetOneResponse);
 
         // When & Then
@@ -87,13 +90,14 @@ class MissionControllerTest {
     void 미션_수정_성공() throws Exception {
         // Given
         when(missionService.updateMission(anyLong(), any(MissionUpdateRequest.class)))
-                .thenReturn(new MissionUpdateResponse(1L, "Updated Mission"));
+                .thenReturn(new MissionUpdateResponse(1L, "Updated Mission", ""));
 
         // When & Then
         mockMvc.perform(
                         patch("/missions/1")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"title\":\"Test Mission\", \"raisePet\":\"DOG\"}"))
+                                .content(
+                                        "{\"title\":\"Test Mission\", \"raisePet\":\"DOG\", \"completeMessage\":\"Complete\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("Updated Mission"));
     }

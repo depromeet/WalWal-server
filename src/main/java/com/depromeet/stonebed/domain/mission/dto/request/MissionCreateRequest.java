@@ -11,4 +11,7 @@ public record MissionCreateRequest(
                 String title,
         @Schema(description = "반려동물 유형", example = "DOG")
                 @NotNull(message = "RaisePet cannot be null")
-                RaisePet raisePet) {}
+                RaisePet raisePet,
+        @Schema(description = "미션 완료 메시지", example = "산책 미션을 수행했어요!")
+                @NotBlank(message = "CompleteMessage cannot be blank")
+                String completeMessage) {}
