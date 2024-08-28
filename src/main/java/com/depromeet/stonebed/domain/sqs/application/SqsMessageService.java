@@ -50,7 +50,7 @@ public class SqsMessageService {
         List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
         for (String token : tokens) {
             try {
-                FcmMessage fcmMessage = new FcmMessage(title, message, token);
+                FcmMessage fcmMessage = FcmMessage.of(title, message, token);
                 String messageBody = objectMapper.writeValueAsString(fcmMessage);
                 SendMessageBatchRequestEntry entry =
                         SendMessageBatchRequestEntry.builder()

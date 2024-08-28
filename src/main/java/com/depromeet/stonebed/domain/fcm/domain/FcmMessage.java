@@ -1,14 +1,8 @@
 package com.depromeet.stonebed.domain.fcm.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public record FcmMessage(String title, String body, String token) {
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class FcmMessage {
-    private String title;
-    private String body;
-    private String token;
+    public static FcmMessage of(String title, String body, String token) {
+        return new FcmMessage(title, body, token);
+    }
 }

@@ -24,15 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -160,7 +159,7 @@ public class FcmNotificationService {
                         .orElseThrow(() -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
 
         FcmMessage fcmMessage =
-                new FcmMessage(
+                FcmMessage.of(
                         notificationConstants.getTitle(),
                         notificationConstants.getMessage(),
                         token);
@@ -218,11 +217,12 @@ public class FcmNotificationService {
     }
 
     private List<List<String>> createBatches(List<String> tokens, int batchSize) {
-        List<List<String>> batches = new ArrayList<>();
-        for (int i = 0; i < tokens.size(); i += batchSize) {
-            int end = Math.min(tokens.size(), i + batchSize);
-            batches.add(tokens.subList(i, end));
-        }
-        return batches;
+        return IntStream.range(0, (tokens.size() + batchSize - 1) / batchSize)
+                .mapToObj(
+                        i ->
+                                tokens.subList(
+                                        i * batchSize,
+                                        Math.min(tokens.size(), (i + 1) * batchSize)))
+                .collect(Collectors.toList());
     }
 }
