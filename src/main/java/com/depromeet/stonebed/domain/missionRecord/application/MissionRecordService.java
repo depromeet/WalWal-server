@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -123,6 +124,10 @@ public class MissionRecordService {
                 missionRecordRepository
                         .findById(missionRecordId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
+
+        if (Objects.equals(currentMember.getId(), missionRecord.getMember().getId())) {
+            throw new CustomException(ErrorCode.BOOST_UNAVAILABLE_MY_FEED);
+        }
 
         MissionRecordBoost missionRecordBoost =
                 MissionRecordBoost.builder()
