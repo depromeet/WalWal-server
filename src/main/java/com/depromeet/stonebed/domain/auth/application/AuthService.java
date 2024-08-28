@@ -55,7 +55,8 @@ public class AuthService {
     public AuthTokenResponse socialLogin(
             OAuthProvider oAuthProvider, String oauthId, String email) {
         Optional<Member> memberOptional =
-                memberRepository.findByMemberOauthInfo(oAuthProvider.getValue(), email);
+                memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
+                        oAuthProvider.getValue(), oauthId);
 
         return memberOptional
                 .map(
@@ -66,8 +67,8 @@ public class AuthService {
                                             ? getTemporaryLoginResponse(member)
                                             : getLoginResponse(member);
                             member.updateLastLoginAt();
-                            member.updateOauthId(oauthId);
                             updateMemberNormalStatus(member);
+                            log.info("소셜 로그인 진행: {}", member.getId());
                             return AuthTokenResponse.of(
                                     tokenPair, member.getRole() == MemberRole.TEMPORARY);
                         })
@@ -82,6 +83,7 @@ public class AuthService {
                             TokenPairResponse temporaryTokenPair =
                                     jwtTokenService.generateTemporaryTokenPair(newMember);
                             newMember.updateLastLoginAt();
+                            log.info("임시 회원가입 진행: {}", newMember.getId());
                             return AuthTokenResponse.of(temporaryTokenPair, true);
                         });
     }
@@ -96,6 +98,7 @@ public class AuthService {
 
             // 새 토큰 생성
             TokenPairResponse tokenPair = getLoginResponse(registerMember);
+            log.info("일반 회원가입 진행: {}", registerMember.getId());
             return AuthTokenResponse.of(tokenPair, false);
         }
         throw new CustomException(ErrorCode.ALREADY_EXISTS_MEMBER);

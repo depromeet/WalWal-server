@@ -11,8 +11,8 @@ public interface MissionRecordBoostRepository extends JpaRepository<MissionRecor
             "SELECT SUM(mrb.count) FROM MissionRecordBoost mrb WHERE mrb.missionRecord.id = :missionRecordId")
     Long sumBoostCountByMissionRecord(@Param("missionRecordId") Long missionRecordId);
 
+    // Delete
     @Modifying
-    @Query(
-            "UPDATE MissionRecordBoost mrb SET mrb.deletedAt = CURRENT_TIMESTAMP WHERE mrb.member.id = :memberId")
+    @Query("DELETE FROM MissionRecordBoost mrb WHERE mrb.member.id = :memberId")
     void deleteAllByMember(@Param("memberId") Long memberId);
 }
