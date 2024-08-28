@@ -1,19 +1,14 @@
 package com.depromeet.stonebed.domain.fcm.api;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
-import com.depromeet.stonebed.domain.fcm.application.FcmService;
 import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
-import com.depromeet.stonebed.domain.fcm.dto.request.FcmSendRequest;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmTokenRequest;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
-import com.depromeet.stonebed.global.util.FcmNotificationUtil;
-import com.google.firebase.messaging.Notification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,21 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/alarm")
 @RequiredArgsConstructor
 public class FcmController {
-    private final FcmService fcmService;
     private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
-
-    @Operation(summary = "푸시 메시지 전송", description = "저장된 모든 토큰에 푸시 메시지를 전송합니다.")
-    @PostMapping("/send")
-    public ResponseEntity<Void> pushMessageToAll(
-            @RequestBody @Validated FcmSendRequest fcmSendRequest) {
-        Notification notification =
-                FcmNotificationUtil.buildNotification(
-                        fcmSendRequest.title(), fcmSendRequest.body());
-        List<String> tokens = fcmTokenService.getAllTokens();
-        fcmService.sendMulticastMessage(notification, tokens);
-        return ResponseEntity.ok().build();
-    }
 
     @Operation(summary = "FCM 토큰 저장", description = "로그인 시 FCM 토큰을 저장합니다.")
     @PostMapping("/token")
