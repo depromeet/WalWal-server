@@ -1,6 +1,6 @@
 package com.depromeet.stonebed.domain.missionRecord.domain;
 
-import com.depromeet.stonebed.domain.common.BaseFullTimeEntity;
+import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,22 +9,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        name = "mission_record",
-        uniqueConstraints = {
-            @UniqueConstraint(
-                    name = "uk_member_mission_history",
-                    columnNames = {"member_id", "mission_history_id"})
-        })
-@SQLDelete(sql = "UPDATE mission_record SET deleted_at = NOW() WHERE record_id = ?")
-@SQLRestriction("deleted_at IS NULL")
-public class MissionRecord extends BaseFullTimeEntity {
+@Table(name = "mission_record")
+public class MissionRecord extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

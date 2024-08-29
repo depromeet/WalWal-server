@@ -12,7 +12,6 @@ import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
-import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.Optional;
@@ -36,7 +35,6 @@ class AuthServiceTest extends FixtureMonkeySetUp {
 
     @Mock private FcmNotificationRepository fcmNotificationRepository;
     @Mock private MissionRecordRepository missionRecordRepository;
-    @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
 
     @Mock private MemberUtil memberUtil;
 
@@ -57,7 +55,8 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         // given
         OAuthProvider provider = OAuthProvider.KAKAO;
 
-        when(memberRepository.findByMemberOauthInfo(provider.getValue(), email))
+        when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
+                        provider.getValue(), oauthId))
                 .thenReturn(Optional.of(member));
         when(jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER))
                 .thenReturn(new TokenPairResponse("accessToken", "refreshToken"));
@@ -74,7 +73,8 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         // given
         OAuthProvider provider = OAuthProvider.APPLE;
 
-        when(memberRepository.findByMemberOauthInfo(provider.getValue(), email))
+        when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
+                        provider.getValue(), oauthId))
                 .thenReturn(Optional.of(member));
         when(jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER))
                 .thenReturn(new TokenPairResponse("accessToken", "refreshToken"));
@@ -93,7 +93,8 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         TokenPairResponse temporaryTokenPair = new TokenPairResponse("accessToken", "refreshToken");
         Member newMember = Member.createOAuthMember(provider, oauthId, email);
 
-        when(memberRepository.findByMemberOauthInfo(provider.getValue(), email))
+        when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
+                        provider.getValue(), oauthId))
                 .thenReturn(Optional.empty());
         when(memberRepository.save(any(Member.class))).thenReturn(newMember);
         when(jwtTokenService.generateTemporaryTokenPair(any(Member.class)))

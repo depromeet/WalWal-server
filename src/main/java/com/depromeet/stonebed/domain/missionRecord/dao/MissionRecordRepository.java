@@ -31,8 +31,8 @@ public interface MissionRecordRepository
             LocalDateTime startDateTime,
             LocalDateTime endDateTime);
 
+    // Delete
     @Modifying
-    @Query(
-            "UPDATE MissionRecord mr SET mr.deletedAt = CURRENT_TIMESTAMP WHERE mr.member.id = :memberId")
+    @Query("DELETE FROM MissionRecord mr WHERE mr.member.id = :memberId")
     void deleteAllByMember(@Param("memberId") Long memberId);
 }

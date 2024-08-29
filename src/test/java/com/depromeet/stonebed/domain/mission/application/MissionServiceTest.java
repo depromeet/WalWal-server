@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import com.depromeet.stonebed.domain.mission.dao.MissionRepository;
@@ -23,13 +24,15 @@ import java.time.LocalDate;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
-class MissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class MissionServiceTest extends FixtureMonkeySetUp {
 
     @Mock private MissionRepository missionRepository;
     @Mock private MissionHistoryRepository missionHistoryRepository;
@@ -47,10 +50,14 @@ class MissionServiceTest {
     public void setUp() {
         today = LocalDate.now();
         beforeDayByStandard = LocalDate.now().minusDays(3);
-        mission = Mission.builder().title("Test Mission").raisePet(RaisePet.DOG).build();
+        mission =
+                fixtureMonkey
+                        .giveMeBuilder(Mission.class)
+                        .set("raisePet", RaisePet.DOG)
+                        .build()
+                        .sample();
         missionHistory = MissionHistory.createMissionHistory(mission, today, RaisePet.DOG);
         member = mock(Member.class);
-        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -58,14 +65,15 @@ class MissionServiceTest {
         // Given
         when(missionRepository.save(any(Mission.class))).thenReturn(mission);
         MissionCreateRequest missionCreateRequest =
-                new MissionCreateRequest("Test Mission", RaisePet.DOG);
+                new MissionCreateRequest(
+                        mission.getTitle(), mission.getRaisePet(), mission.getCompleteMessage());
 
         // When
         MissionCreateResponse missionCreateResponse =
                 missionService.createMission(missionCreateRequest);
 
         // Then
-        assertThat(missionCreateResponse.title()).isEqualTo("Test Mission");
+        assertThat(missionCreateResponse.title()).isEqualTo(mission.getTitle());
         verify(missionRepository, times(1)).save(any(Mission.class));
     }
 
@@ -78,34 +86,40 @@ class MissionServiceTest {
         MissionGetOneResponse missionGetOneResponse = missionService.getMission(1L);
 
         // Then
-        assertThat(missionGetOneResponse.title()).isEqualTo("Test Mission");
+        assertThat(missionGetOneResponse.title()).isEqualTo(mission.getTitle());
         verify(missionRepository, times(1)).findById(anyLong());
-        assertEquals(RaisePet.DOG, mission.getRaisePet());
     }
 
     @Test
     void 오늘의_미션_조회_성공_히스토리가_이미_존재하는_경우() {
         // Given
         LocalDate currentDate = LocalDate.now();
-        Mission localMission = new Mission("Test Mission", RaisePet.DOG);
+        Mission localMission =
+                fixtureMonkey
+                        .giveMeBuilder(Mission.class)
+                        .set("raisePet", mission.getRaisePet())
+                        .build()
+                        .sample();
         MissionHistory localMissionHistory =
-                MissionHistory.createMissionHistory(localMission, currentDate, RaisePet.DOG);
+                MissionHistory.createMissionHistory(
+                        localMission, currentDate, localMission.getRaisePet());
 
-        when(missionHistoryRepository.findByAssignedDateAndRaisePet(currentDate, RaisePet.DOG))
+        when(missionHistoryRepository.findByAssignedDateAndRaisePet(
+                        currentDate, localMission.getRaisePet()))
                 .thenReturn(Optional.of(localMissionHistory));
         when(memberUtil.getCurrentMember()).thenReturn(member);
-        when(member.getRaisePet()).thenReturn(RaisePet.DOG);
+        when(member.getRaisePet()).thenReturn(localMission.getRaisePet());
 
         // When
         MissionGetTodayResponse result = missionService.getOrCreateTodayMission();
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.title()).isEqualTo("Test Mission");
+        assertThat(result.title()).isEqualTo(localMission.getTitle());
         verify(missionHistoryRepository, times(1))
-                .findByAssignedDateAndRaisePet(today, RaisePet.DOG);
+                .findByAssignedDateAndRaisePet(today, localMission.getRaisePet());
         verify(missionHistoryRepository, times(0)).save(any(MissionHistory.class));
-        assertEquals(RaisePet.DOG, mission.getRaisePet());
+        assertEquals(localMission.getRaisePet(), mission.getRaisePet());
     }
 
     @Test
@@ -147,16 +161,14 @@ class MissionServiceTest {
         // Given: 초기 설정
         List<Mission> emptyMissionList = new ArrayList<>();
         when(memberUtil.getCurrentMember()).thenReturn(member);
-        when(member.getRaisePet()).thenReturn(RaisePet.DOG);
+        when(member.getRaisePet()).thenReturn(mission.getRaisePet());
 
-        when(missionRepository.findMissionsAssignedAfterAndByRaisePet(today, RaisePet.DOG))
+        when(missionHistoryRepository.findByAssignedDateAndRaisePet(today, mission.getRaisePet()))
+                .thenReturn(Optional.empty());
+
+        when(missionRepository.findNotInMissionsAndByRaisePet(
+                        emptyMissionList, mission.getRaisePet()))
                 .thenReturn(emptyMissionList);
-
-        when(missionRepository.findNotInMissionsAndByRaisePet(emptyMissionList, RaisePet.DOG))
-                .thenReturn(emptyMissionList);
-
-        when(missionHistoryRepository.save(any(MissionHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // When: getOrCreateTodayMission 을 호출하면
         CustomException exception =
@@ -185,9 +197,9 @@ class MissionServiceTest {
 
         // When
         MissionUpdateRequest updateRequest =
-                new MissionUpdateRequest("Updated Mission", RaisePet.DOG);
+                new MissionUpdateRequest("Updated Mission", RaisePet.DOG, "Complete");
         MissionUpdateResponse missionUpdateResponse =
-                missionService.updateMission(1L, updateRequest);
+                missionService.updateMission(mission.getId(), updateRequest);
 
         // Then
         assertThat(missionUpdateResponse.title()).isEqualTo("Updated Mission");
@@ -200,7 +212,8 @@ class MissionServiceTest {
     void 미션_수정_실패_미션이_없는_경우() {
         // Given
         when(missionRepository.findById(anyLong())).thenReturn(Optional.empty());
-        MissionUpdateRequest updateRequest = new MissionUpdateRequest("Test Mission", RaisePet.DOG);
+        MissionUpdateRequest updateRequest =
+                new MissionUpdateRequest("Test Mission", RaisePet.DOG, "Complete");
 
         // When & Then
         assertThrows(CustomException.class, () -> missionService.updateMission(1L, updateRequest));
