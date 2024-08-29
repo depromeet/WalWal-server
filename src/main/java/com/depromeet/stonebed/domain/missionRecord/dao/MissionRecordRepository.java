@@ -35,4 +35,6 @@ public interface MissionRecordRepository
     @Modifying
     @Query("DELETE FROM MissionRecord mr WHERE mr.member.id = :memberId")
     void deleteAllByMember(@Param("memberId") Long memberId);
+
+    List<MissionRecord> findAllByMember(Member member);
 }

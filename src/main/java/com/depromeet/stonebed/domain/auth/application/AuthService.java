@@ -15,10 +15,13 @@ import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ public class AuthService {
     private final FcmNotificationRepository fcmNotificationRepository;
     private final MemberRepository memberRepository;
     private final MissionRecordRepository missionRecordRepository;
+    private final MissionRecordBoostRepository missionRecordBoostRepository;
 
     private final AppleClient appleClient;
     private final KakaoClient kakaoClient;
@@ -131,11 +135,14 @@ public class AuthService {
          * appleClient.withdraw(member.getOauthInfo().getOauthId()); }
          */
         validateMemberStatusDelete(member.getStatus());
+
+        List<MissionRecord> missionRecords = missionRecordRepository.findAllByMember(member);
         member.updateMemberRole(MemberRole.TEMPORARY);
         member.updateProfile(Profile.createProfile("", ""));
         member.updateOauthId("");
         memberRepository.flush();
-        withdrawMemberRelationByMemberId(member.getId());
+        withdrawMemberRelationByMemberId(
+                missionRecords.stream().map(MissionRecord::getId).toList(), member.getId());
 
         jwtTokenService.deleteRefreshToken(member.getId());
 
@@ -164,7 +171,8 @@ public class AuthService {
         }
     }
 
-    private void withdrawMemberRelationByMemberId(Long memberId) {
+    private void withdrawMemberRelationByMemberId(List<Long> recordIds, Long memberId) {
+        missionRecordBoostRepository.deleteAllByMember(recordIds);
         missionRecordRepository.deleteAllByMember(memberId);
         fcmNotificationRepository.deleteAllByMember(memberId);
     }
