@@ -21,8 +21,8 @@ public interface FcmNotificationRepository extends JpaRepository<FcmNotification
 
     boolean existsByCreatedAtLessThan(LocalDateTime createdAt);
 
+    // Delete
     @Modifying
-    @Query(
-            "UPDATE FcmNotification fn SET fn.deletedAt = CURRENT_TIMESTAMP WHERE fn.member.id = :memberId")
+    @Query("DELETE FROM FcmNotification fn WHERE fn.member.id = :memberId")
     void deleteAllByMember(@Param("memberId") Long memberId);
 }
