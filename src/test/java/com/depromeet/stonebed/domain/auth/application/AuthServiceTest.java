@@ -12,6 +12,7 @@ import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
+import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.Optional;
@@ -35,6 +36,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
 
     @Mock private FcmNotificationRepository fcmNotificationRepository;
     @Mock private MissionRecordRepository missionRecordRepository;
+    @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
 
     @Mock private MemberUtil memberUtil;
 
