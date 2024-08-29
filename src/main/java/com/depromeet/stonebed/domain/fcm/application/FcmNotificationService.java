@@ -23,6 +23,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -127,27 +128,41 @@ public class FcmNotificationService {
         return hasNext ? lastNotification.getCreatedAt().format(DATE_FORMATTER) : null;
     }
 
+    @Transactional
     public void checkAndSendBoostNotification(MissionRecord missionRecord) {
         Long totalBoostCount =
                 missionRecordBoostRepository.sumBoostCountByMissionRecord(missionRecord.getId());
 
         if (totalBoostCount != null) {
-            FcmNotificationConstants notificationConstants =
+            Optional<FcmNotificationConstants> notificationType =
                     determineNotificationType(totalBoostCount);
 
-            if (notificationConstants != null) {
-                sendBoostNotification(missionRecord, notificationConstants);
-            }
+            notificationType.ifPresent(
+                    type -> {
+                        if (!notificationAlreadySent(missionRecord, type)) {
+                            sendBoostNotification(missionRecord, type);
+                        }
+                    });
         }
     }
 
-    private FcmNotificationConstants determineNotificationType(Long totalBoostCount) {
-        if (totalBoostCount == POPULAR_THRESHOLD) {
-            return FcmNotificationConstants.POPULAR;
-        } else if (totalBoostCount == SUPER_POPULAR_THRESHOLD) {
-            return FcmNotificationConstants.SUPER_POPULAR;
+    private boolean notificationAlreadySent(
+            MissionRecord missionRecord, FcmNotificationConstants notificationConstants) {
+        return notificationRepository.existsByTargetIdAndTypeAndTitle(
+                missionRecord.getId(),
+                FcmNotificationType.BOOSTER,
+                notificationConstants.getTitle());
+    }
+
+    private Optional<FcmNotificationConstants> determineNotificationType(Long totalBoostCount) {
+        if (totalBoostCount >= SUPER_POPULAR_THRESHOLD) {
+            return Optional.of(FcmNotificationConstants.SUPER_POPULAR);
         }
-        return null;
+        if (totalBoostCount >= POPULAR_THRESHOLD) {
+            return Optional.of(FcmNotificationConstants.POPULAR);
+        }
+
+        return Optional.empty();
     }
 
     private void sendBoostNotification(

@@ -1,6 +1,7 @@
 package com.depromeet.stonebed.domain.fcm.dao;
 
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
+import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +21,8 @@ public interface FcmNotificationRepository extends JpaRepository<FcmNotification
     Optional<FcmNotification> findByIdAndMember(Long id, Member member);
 
     boolean existsByCreatedAtLessThan(LocalDateTime createdAt);
+
+    boolean existsByTargetIdAndTypeAndTitle(Long targetId, FcmNotificationType type, String title);
 
     // Delete
     @Modifying
