@@ -38,6 +38,9 @@ public enum ErrorCode {
     NO_AVAILABLE_TODAY_MISSION(HttpStatus.INTERNAL_SERVER_ERROR, "할당 가능한 오늘의 미션이 없습니다."),
     DUPLICATE_MISSION_RECORD(HttpStatus.BAD_REQUEST, "오늘 완료한 미션이 존재합니다."),
 
+    // boost
+    BOOST_UNAVAILABLE_MY_FEED(HttpStatus.BAD_REQUEST, "내 피드에는 부스트를 추가할 수 없습니다."),
+
     // image
     IMAGE_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지 파일 확장자를 찾을 수 없습니다."),

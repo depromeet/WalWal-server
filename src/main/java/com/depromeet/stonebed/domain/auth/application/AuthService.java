@@ -15,7 +15,6 @@ import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.member.domain.Profile;
 import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
-import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.error.ErrorCode;
@@ -36,7 +35,6 @@ public class AuthService {
     private final FcmNotificationRepository fcmNotificationRepository;
     private final MemberRepository memberRepository;
     private final MissionRecordRepository missionRecordRepository;
-    private final MissionRecordBoostRepository missionRecordBoostRepository;
 
     private final AppleClient appleClient;
     private final KakaoClient kakaoClient;

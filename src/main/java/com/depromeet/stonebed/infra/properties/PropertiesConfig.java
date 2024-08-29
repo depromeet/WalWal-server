@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
     JwtProperties.class,
     AppleProperties.class,
     SwaggerProperties.class,
-    FcmProperties.class
+    SqsProperties.class
 })
 @Configuration
 public class PropertiesConfig {}
