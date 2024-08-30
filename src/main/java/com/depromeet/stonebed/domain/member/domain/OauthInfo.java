@@ -1,7 +1,6 @@
 package com.depromeet.stonebed.domain.member.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,7 +19,6 @@ public class OauthInfo {
     private String oauthProvider;
 
     @Schema(description = "소셜 이메일", example = "test@gmail.com")
-    @Column(unique = true)
     private String oauthEmail;
 
     @Builder(access = AccessLevel.PRIVATE)
