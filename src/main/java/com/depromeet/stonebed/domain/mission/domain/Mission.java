@@ -46,6 +46,14 @@ public class Mission extends BaseTimeEntity {
         this.completeMessage = completeMessage;
     }
 
+    public static Mission createMission(String title, RaisePet raisePet, String completeMessage) {
+        return Mission.builder()
+                .title(title)
+                .raisePet(raisePet)
+                .completeMessage(completeMessage)
+                .build();
+    }
+
     public void updateTitle(String title) {
         this.title = title;
     }

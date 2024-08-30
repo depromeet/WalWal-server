@@ -35,10 +35,10 @@ public class MissionService {
 
     public MissionCreateResponse createMission(MissionCreateRequest missionCreateRequest) {
         Mission mission =
-                Mission.builder()
-                        .title(missionCreateRequest.title())
-                        .raisePet(missionCreateRequest.raisePet())
-                        .build();
+                Mission.createMission(
+                        missionCreateRequest.title(),
+                        missionCreateRequest.raisePet(),
+                        missionCreateRequest.completeMessage());
 
         mission = missionRepository.save(mission);
         return MissionCreateResponse.from(mission);
