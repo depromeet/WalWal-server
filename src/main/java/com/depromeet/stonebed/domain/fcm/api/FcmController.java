@@ -1,7 +1,6 @@
 package com.depromeet.stonebed.domain.fcm.api;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
-import com.depromeet.stonebed.domain.fcm.application.FcmScheduledService;
 import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmTokenRequest;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class FcmController {
     private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
-    private final FcmScheduledService fcmScheduledService;
 
     @Operation(summary = "FCM 토큰 저장", description = "로그인 시 FCM 토큰을 저장합니다.")
     @PostMapping("/token")
@@ -59,12 +57,6 @@ public class FcmController {
     public ResponseEntity<Void> fcmNotificationAsRead(
             @PathVariable("notificationId") Long notificationId) {
         fcmNotificationService.markNotificationAsRead(notificationId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/test/ala")
-    public ResponseEntity<Void> testtets() {
-        fcmScheduledService.sendReminderToIncompleteMissions();
         return ResponseEntity.ok().build();
     }
 }
