@@ -49,7 +49,8 @@ public class FcmNotificationService {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private static final long POPULAR_THRESHOLD = 500;
+    private static final long FIRST_BOOST_THRESHOLD = 1;
+    private static final long POPULAR_THRESHOLD = 1000;
     private static final long SUPER_POPULAR_THRESHOLD = 5000;
 
     public void saveNotification(
@@ -138,7 +139,6 @@ public class FcmNotificationService {
         return hasNext ? lastNotification.getCreatedAt().format(DATE_FORMATTER) : null;
     }
 
-    @Transactional
     public void checkAndSendBoostNotification(MissionRecord missionRecord) {
         Long totalBoostCount =
                 missionRecordBoostRepository.sumBoostCountByMissionRecord(missionRecord.getId());
@@ -170,6 +170,9 @@ public class FcmNotificationService {
         }
         if (totalBoostCount >= POPULAR_THRESHOLD) {
             return Optional.of(FcmNotificationConstants.POPULAR);
+        }
+        if (totalBoostCount >= FIRST_BOOST_THRESHOLD) {
+            return Optional.of(FcmNotificationConstants.FIRST_BOOST);
         }
 
         return Optional.empty();
