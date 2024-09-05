@@ -8,6 +8,7 @@ import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationDto;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
+import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
@@ -42,6 +43,7 @@ public class FcmNotificationService {
     private final MissionRecordBoostRepository missionRecordBoostRepository;
     private final MissionRecordRepository missionRecordRepository;
     private final FcmRepository fcmRepository;
+    private final MemberRepository memberRepository;
     private final MemberUtil memberUtil;
 
     private static final DateTimeFormatter DATE_FORMATTER =
@@ -51,8 +53,16 @@ public class FcmNotificationService {
     private static final long SUPER_POPULAR_THRESHOLD = 5000;
 
     public void saveNotification(
-            FcmNotificationType type, String title, String message, Long targetId, Boolean isRead) {
-        final Member member = memberUtil.getCurrentMember();
+            FcmNotificationType type,
+            String title,
+            String message,
+            Long targetId,
+            Long memberId,
+            Boolean isRead) {
+        Member member =
+                memberRepository
+                        .findById(memberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         FcmNotification notification =
                 FcmNotification.create(type, title, message, member, targetId, isRead);
@@ -185,6 +195,7 @@ public class FcmNotificationService {
                 notificationConstants.getTitle(),
                 notificationConstants.getMessage(),
                 missionRecord.getId(),
+                missionRecord.getMember().getId(),
                 false);
     }
 
