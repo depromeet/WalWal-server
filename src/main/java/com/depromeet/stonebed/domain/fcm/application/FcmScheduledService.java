@@ -9,7 +9,7 @@ import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -63,20 +63,17 @@ public class FcmScheduledService {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-        return missionRecordRepository
-                .findAllByCreatedAtBetweenAndStatusNot(
-                        startOfDay, endOfDay, MissionRecordStatus.COMPLETED)
-                .stream()
-                .map(
-                        missionRecord -> {
-                            FcmToken fcmToken =
-                                    fcmRepository
-                                            .findByMemberAndMemberStatus(
-                                                    missionRecord.getMember(), MemberStatus.NORMAL)
-                                            .orElse(null);
-                            return fcmToken != null ? fcmToken.getToken() : null;
-                        })
-                .filter(Objects::nonNull)
-                .toList();
+        List<Long> completedMemberIds =
+                missionRecordRepository
+                        .findAllByCreatedAtBetweenAndStatus(
+                                startOfDay, endOfDay, MissionRecordStatus.COMPLETED)
+                        .stream()
+                        .map(missionRecord -> missionRecord.getMember().getId())
+                        .collect(Collectors.toList());
+
+        return fcmRepository.findAllByMemberStatus(MemberStatus.NORMAL).stream()
+                .filter(fcmToken -> !completedMemberIds.contains(fcmToken.getMember().getId()))
+                .map(FcmToken::getToken)
+                .collect(Collectors.toList());
     }
 }

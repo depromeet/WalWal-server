@@ -9,6 +9,7 @@ import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
+import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
@@ -35,6 +36,7 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
     @Mock private MissionRecordRepository missionRecordRepository;
     @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
     @Mock private FcmRepository fcmRepository;
+    @Mock private MemberRepository memberRepository;
     @Mock private MemberUtil memberUtil;
 
     @InjectMocks private FcmNotificationService fcmNotificationService;
@@ -43,11 +45,11 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
     void 정규알림_응답값_저장() {
         // given
         Member member = fixtureMonkey.giveMeOne(Member.class);
-        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
         // when
         fcmNotificationService.saveNotification(
-                FcmNotificationType.MISSION, "title", "message", 1L, false);
+                FcmNotificationType.MISSION, "title", "message", 1L, member.getId(), false);
 
         // then
         verify(notificationRepository, times(1)).save(any(FcmNotification.class));

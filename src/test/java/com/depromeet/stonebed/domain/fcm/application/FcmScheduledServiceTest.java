@@ -13,7 +13,6 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,29 +69,33 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
     @Test
     void 미완료_미션_사용자에게_리마인더를_전송하고_저장한다() {
         // given
-        List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 2);
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
-        when(missionRecordRepository.findAllByCreatedAtBetweenAndStatusNot(
-                        startOfDay, endOfDay, MissionRecordStatus.COMPLETED))
-                .thenReturn(missionRecords);
 
-        missionRecords.forEach(record -> record.getMember().updateStatus(MemberStatus.NORMAL));
+        List<Long> completedMemberIds = List.of(1L, 2L);
+        when(missionRecordRepository.findAllByCreatedAtBetweenAndStatus(
+                        startOfDay, endOfDay, MissionRecordStatus.COMPLETED))
+                .thenReturn(
+                        completedMemberIds.stream()
+                                .map(
+                                        id -> {
+                                            MissionRecord record =
+                                                    fixtureMonkey
+                                                            .giveMeBuilder(MissionRecord.class)
+                                                            .set("member.id", id)
+                                                            .sample();
+                                            record.getMember().updateStatus(MemberStatus.NORMAL);
+                                            return record;
+                                        })
+                                .collect(Collectors.toList()));
+
+        List<FcmToken> allTokens = fixtureMonkey.giveMe(FcmToken.class, 5);
+        when(fcmRepository.findAllByMemberStatus(MemberStatus.NORMAL)).thenReturn(allTokens);
 
         List<String> tokens =
-                missionRecords.stream()
-                        .map(
-                                missionRecord -> {
-                                    FcmToken token =
-                                            fixtureMonkey
-                                                    .giveMeBuilder(FcmToken.class)
-                                                    .set("member", missionRecord.getMember())
-                                                    .sample();
-                                    when(fcmRepository.findByMemberAndMemberStatus(
-                                                    missionRecord.getMember(), MemberStatus.NORMAL))
-                                            .thenReturn(Optional.of(token));
-                                    return token.getToken();
-                                })
+                allTokens.stream()
+                        .filter(token -> !completedMemberIds.contains(token.getMember().getId()))
+                        .map(FcmToken::getToken)
                         .collect(Collectors.toList());
 
         // when

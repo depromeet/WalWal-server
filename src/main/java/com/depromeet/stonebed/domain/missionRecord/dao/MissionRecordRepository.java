@@ -19,7 +19,7 @@ public interface MissionRecordRepository
 
     Long countByMemberIdAndStatus(Long memberId, MissionRecordStatus status);
 
-    List<MissionRecord> findAllByCreatedAtBetweenAndStatusNot(
+    List<MissionRecord> findAllByCreatedAtBetweenAndStatus(
             LocalDateTime startTime, LocalDateTime endTime, MissionRecordStatus status);
 
     List<MissionRecord> findByIdIn(List<Long> ids);
