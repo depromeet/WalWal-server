@@ -18,6 +18,4 @@ public interface FcmRepository extends JpaRepository<FcmToken, Long>, FcmReposit
     List<FcmToken> findAllByMemberStatus(MemberStatus status);
 
     List<FcmToken> findAllByUpdatedAtBefore(LocalDateTime cutoffDate);
-
-    Optional<FcmToken> findByMemberAndMemberStatus(Member member, MemberStatus status);
 }
