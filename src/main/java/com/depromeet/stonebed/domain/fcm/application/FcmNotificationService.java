@@ -186,11 +186,16 @@ public class FcmNotificationService {
                         .map(FcmToken::getToken)
                         .orElseThrow(() -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
 
+        String deepLink =
+                FcmNotification.generateDeepLink(
+                        FcmNotificationType.BOOSTER, missionRecord.getId());
+
         FcmMessage fcmMessage =
                 FcmMessage.of(
                         notificationConstants.getTitle(),
                         notificationConstants.getMessage(),
-                        token);
+                        token,
+                        deepLink);
         sqsMessageService.sendMessage(fcmMessage);
 
         saveNotification(
@@ -237,8 +242,10 @@ public class FcmNotificationService {
     public void sendAndNotifications(String title, String message, List<String> tokens) {
         List<List<String>> batches = createBatches(tokens, 10);
 
+        String deepLink = FcmNotification.generateDeepLink(FcmNotificationType.MISSION, null);
+
         for (List<String> batch : batches) {
-            sqsMessageService.sendBatchMessages(batch, title, message);
+            sqsMessageService.sendBatchMessages(batch, title, message, deepLink);
         }
 
         List<FcmNotification> notifications = buildNotificationList(title, message, tokens);

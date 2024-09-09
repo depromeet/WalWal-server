@@ -39,6 +39,8 @@ public class FcmNotification extends BaseTimeEntity {
     @Schema(description = "딥링크 URL", example = "myapp://notification/1")
     private String deepLink;
 
+    private static final String DEEP_LINK_PREFIX = "myapp://";
+
     private FcmNotification(
             FcmNotificationType type,
             String title,
@@ -71,11 +73,11 @@ public class FcmNotification extends BaseTimeEntity {
         this.isRead = true;
     }
 
-    private static String generateDeepLink(FcmNotificationType type, Long targetId) {
+    public static String generateDeepLink(FcmNotificationType type, Long targetId) {
         if (type == FcmNotificationType.MISSION) {
-            return "myapp://mission";
+            return DEEP_LINK_PREFIX + "mission";
         } else if (type == FcmNotificationType.BOOSTER) {
-            return "myapp://boost?id=" + targetId;
+            return DEEP_LINK_PREFIX + "boost?id=" + targetId;
         }
         return null;
     }
