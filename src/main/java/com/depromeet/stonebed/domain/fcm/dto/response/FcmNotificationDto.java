@@ -15,8 +15,8 @@ public record FcmNotificationDto(
                 String imageUrl,
         @Schema(description = "읽음 여부", example = "false") Boolean isRead,
         @Schema(description = "타겟 ID", example = "1") Long targetId,
-        @Schema(description = "알림 전송 시간", example = "2024-08-17 13:31:19") LocalDateTime createdAt,
-        @Schema(description = "딥링크 URL", example = "myapp://notification/1") String deepLink) {
+        @Schema(description = "알림 전송 시간", example = "2024-08-17 13:31:19")
+                LocalDateTime createdAt) {
 
     public static FcmNotificationDto from(
             FcmNotification notification, MissionRecord missionRecord) {
@@ -30,7 +30,6 @@ public record FcmNotificationDto(
                 imageUrl,
                 notification.getIsRead(),
                 notification.getTargetId(),
-                notification.getCreatedAt(),
-                notification.getDeepLink());
+                notification.getCreatedAt());
     }
 }
