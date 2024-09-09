@@ -47,15 +47,13 @@ public class FcmNotification extends BaseTimeEntity {
             String message,
             Member member,
             Long targetId,
-            Boolean isRead,
-            String deepLink) {
+            Boolean isRead) {
         this.type = type;
         this.title = title;
         this.message = message;
         this.member = member;
         this.targetId = targetId;
         this.isRead = isRead;
-        this.deepLink = deepLink;
     }
 
     public static FcmNotification create(
@@ -65,8 +63,7 @@ public class FcmNotification extends BaseTimeEntity {
             Member member,
             Long targetId,
             Boolean isRead) {
-        String deepLink = generateDeepLink(type, targetId);
-        return new FcmNotification(type, title, message, member, targetId, isRead, deepLink);
+        return new FcmNotification(type, title, message, member, targetId, isRead);
     }
 
     public void markAsRead() {
