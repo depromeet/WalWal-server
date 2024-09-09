@@ -219,7 +219,14 @@ public class MissionRecordService {
                         .orElse(null);
 
         if (missionRecord == null) {
-            return MissionTabResponse.of(null, MissionRecordStatus.NOT_COMPLETED);
+            return MissionTabResponse.of(
+                    null,
+                    null,
+                    MissionRecordStatus.NOT_COMPLETED,
+                    mission.getTitle(),
+                    mission.getIllustrationUrl(),
+                    null,
+                    null);
         }
 
         MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
@@ -228,7 +235,14 @@ public class MissionRecordService {
                         ? missionRecord.getImageUrl()
                         : null;
 
-        return MissionTabResponse.of(imageUrl, missionRecordStatus);
+        return MissionTabResponse.of(
+                missionRecord.getId(),
+                imageUrl,
+                missionRecordStatus,
+                mission.getTitle(),
+                mission.getIllustrationUrl(),
+                missionRecord.getContent(),
+                missionRecord.getUpdatedAt().toLocalDate());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
