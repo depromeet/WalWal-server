@@ -12,7 +12,6 @@
     <springProfile name="dev">
         <!-- 개발 환경 로그 설정 -->
         <root level="DEBUG">
-            <appender-ref ref="STDOUT"/>
             <appender-ref ref="DEBUG_FILE"/>
             <appender-ref ref="INFO_FILE"/>
             <appender-ref ref="WARN_FILE"/>
@@ -23,7 +22,6 @@
     <springProfile name="prod">
         <!-- 프로덕션 환경 로그 설정 -->
         <root level="INFO">
-            <appender-ref ref="STDOUT"/>
             <appender-ref ref="INFO_FILE"/>
             <appender-ref ref="WARN_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
@@ -34,7 +32,7 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>{"traceId":"%X{traceId}","time":"%d{yyyy-MM-dd HH:mm:ss.SSS}", "service.name":"%X{serviceName}", "level":"%level", "message":"%msg"}%n</pattern>
+                <pattern>{ "traceId":"%X{traceId}", "time":"%d{yyyy-MM-dd HH:mm:ss.SSS}", "service.name":"%X{serviceName}", "level":"%level", "message":"%msg"}%n</pattern>
             </layout>
         </encoder>
     </appender>
