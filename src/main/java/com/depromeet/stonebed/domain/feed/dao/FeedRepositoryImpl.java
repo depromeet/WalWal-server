@@ -47,7 +47,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                         ltMissionRecordId(missionRecordId),
                         eqMemberId(memberId))
                 .groupBy(missionRecord.id)
-                .orderBy(missionRecord.id.desc());
+                .orderBy(missionRecord.updatedAt.desc());
     }
 
     @Override

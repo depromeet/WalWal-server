@@ -315,6 +315,9 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         then(response).isNotNull();
         then(response.imageUrl()).isEqualTo(missionRecord.getImageUrl());
         then(response.status()).isEqualTo(MissionRecordStatus.COMPLETED);
+        then(response.recordId()).isEqualTo(missionRecord.getId());
+        then(response.completedAt()).isEqualTo(missionRecord.getUpdatedAt().toLocalDate());
+        then(response.content()).isEqualTo(missionRecord.getContent());
 
         verify(memberUtil).getCurrentMember();
         verify(missionRepository).findById(missionId);
