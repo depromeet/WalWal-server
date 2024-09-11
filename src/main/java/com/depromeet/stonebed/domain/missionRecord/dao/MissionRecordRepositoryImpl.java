@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.missionRecord.dao;
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
 
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -19,10 +20,11 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<MissionRecord> findByMemberIdWithPagination(Long memberId, Pageable pageable) {
+    public List<MissionRecord> findByMemberIdWithPagination(
+            Long memberId, List<MissionRecordDisplay> displays, Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
-                .where(isMemberId(memberId))
+                .where(isMemberId(memberId).and(InDisplays(displays)))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -31,10 +33,17 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
 
     @Override
     public List<MissionRecord> findByMemberIdAndCreatedAtFromWithPagination(
-            Long memberId, LocalDateTime createdAt, Pageable pageable) {
+            Long memberId,
+            LocalDateTime createdAt,
+            List<MissionRecordDisplay> displays,
+            Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
-                .where(isMemberId(memberId).and(createdAtFrom(createdAt)).and(isCompleted()))
+                .where(
+                        isMemberId(memberId)
+                                .and(createdAtFrom(createdAt))
+                                .and(isCompleted())
+                                .and(InDisplays(displays)))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -65,5 +74,9 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
 
     private BooleanExpression isCompleted() {
         return missionRecord.status.eq(MissionRecordStatus.COMPLETED);
+    }
+
+    private BooleanExpression InDisplays(List<MissionRecordDisplay> displays) {
+        return missionRecord.display.in(displays);
     }
 }
