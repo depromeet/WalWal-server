@@ -29,10 +29,19 @@ public class MissionRecordBoost extends BaseTimeEntity {
     @Column(name = "count", nullable = false)
     private Long count;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     public MissionRecordBoost(MissionRecord missionRecord, Member member, Long count) {
         this.missionRecord = missionRecord;
         this.member = member;
         this.count = count;
+    }
+
+    public static MissionRecordBoost createMissionRecordBoost(
+            MissionRecord missionRecord, Member member, Long count) {
+        return MissionRecordBoost.builder()
+                .missionRecord(missionRecord)
+                .member(member)
+                .count(count)
+                .build();
     }
 }
