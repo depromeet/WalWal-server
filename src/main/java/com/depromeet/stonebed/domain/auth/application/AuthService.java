@@ -156,9 +156,7 @@ public class AuthService {
     }
 
     private Member registerMember(Member member, CreateMemberRequest request) {
-        member.updateProfile(
-                Profile.createProfile(
-                        request.nickname(), member.getProfile().getProfileImageUrl()));
+        member.updateProfile(Profile.createProfile(request.nickname(), request.profileImageUrl()));
         member.updateRaisePet(request.raisePet());
         member.updateMemberRole(MemberRole.USER);
         memberRepository.save(member);
