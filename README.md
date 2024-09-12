@@ -23,12 +23,17 @@
 <br/>
 
 ## ✨ IA(Information Architecture)
+
 <img src="./images/IA.png">
 
+<br>
+
+---
+
 ## 📌 Package Architecture
-왈왈 서버 패키지 아키텍처는 레이어드 아키텍처로 구성하였습니다. <br/> 
+왈왈 서버 패키지 아키텍처는 레이어드 아키텍처로 구성하였습니다. <br> 
 위 소개한 IA에서 큰 규모의 기능이 정의되지 않아, 당장은 클린 아키텍처 또는 헥사고날 아키텍처의 도입이 필요하지 않다고 판단하였습니다. 
-<br/>
+<br>
 
 ```
 // 프로젝트 전체 구조
@@ -69,8 +74,16 @@
 // ...
 ```
 
+<br>
+
+---
+
 ## 💻 Tech Stack
 <img src="./images/tech-stack.png">
+
+<br>
+
+---
 
 ## 🏛️ System Architecture
 <img src="./images/cloud-architecture.png">
@@ -80,10 +93,15 @@
 - Docker Hub
 - Docker compose
 
+---
+
 ## 🖥️ Monitoring
-모니터링은 Prometheus를 사용하여 서버의 상태에 대한 메트릭 수집과, Grafana를 사용하여 모니터링 대시보드를 구성하였습니다. <br/>
+모니터링은 Prometheus를 사용하여 서버의 상태에 대한 메트릭 수집과, Grafana를 사용하여 대시보드를 구성하였고, <br/>
+Loki, Promtail을 사용하여 로그 수집 및 저장을 구성하였습니다. <br />
 또한, MySQL에 대한 SlowQuery 발생 시 Slack Webhook을 통한 알림 전송을 Lambda 함수로 작성하여 구성하였습니다.<br/>
-Loki, Promtail을 사용하여 로그 수집 및 저장을 구성하였습니다.
+
+
+---
 
 <div align="center">
 
