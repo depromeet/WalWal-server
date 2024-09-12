@@ -11,7 +11,7 @@
 
 <br/>
 
-[![App Store](https://img.shields.io/badge/AppStore-0D96F6.svg?style=flat&logo=app-store&logoColor=white&link=https://play.google.com/store/apps/details?id=com.dpm.spot)](https://apps.apple.com/kr/app/%EC%99%88%EC%99%88/id6553981069)
+[![App Store](https://img.shields.io/badge/AppStore-0D96F6.svg?style=flat&logo=app-store&logoColor=white&link=https://apps.apple.com/kr/app/%EC%99%88%EC%99%88/id6553981069)](https://apps.apple.com/kr/app/%EC%99%88%EC%99%88/id6553981069)
 [![Instagram](http://img.shields.io/badge/Instagram-E4405F?style=flat&logo=instagram&logoColor=white&link=https://www.instagram.com/walwal._.official/)](https://www.instagram.com/walwal._.official/)
 <br>
 [![서비스 소개](http://img.shields.io/badge/서비스_소개-%23000000?style=flat&logo=notion&logoColor=white&link=https://yapp-workspace.notion.site/5-8a385156703047aabf1e3706f4753cc6?pvs=4)](https://yapp-workspace.notion.site/5-8a385156703047aabf1e3706f4753cc6?pvs=4)
