@@ -11,12 +11,22 @@
 
 <br/>
 
-[![App Store](https://img.shields.io/badge/AppStore-0D96F6.svg?style=flat&logo=app-store&logoColor=white&link=https://apps.apple.com/kr/app/%EC%99%88%EC%99%88/id6553981069)](https://apps.apple.com/kr/app/%EC%99%88%EC%99%88/id6553981069)
-[![Instagram](http://img.shields.io/badge/Instagram-E4405F?style=flat&logo=instagram&logoColor=white&link=https://www.instagram.com/walwal._.official/)](https://www.instagram.com/walwal._.official/)
+<a href="https://apps.apple.com/kr/app/%EC%99%88%EC%99%88/id6553981069" target="_blank">
+  <img src="https://img.shields.io/badge/AppStore-0D96F6.svg?style=flat&logo=app-store&logoColor=white" alt="App Store"/>
+</a>
+<a href="https://www.instagram.com/walwal._.official/" target="_blank">
+  <img src="http://img.shields.io/badge/Instagram-E4405F?style=flat&logo=instagram&logoColor=white" alt="Instagram"/>
+</a>
 <br>
-[![서비스 소개](http://img.shields.io/badge/서비스_소개-%23000000?style=flat&logo=notion&logoColor=white&link=https://yapp-workspace.notion.site/5-8a385156703047aabf1e3706f4753cc6?pvs=4)](https://yapp-workspace.notion.site/5-8a385156703047aabf1e3706f4753cc6?pvs=4)
-[![서버파트 개발 로그](http://img.shields.io/badge/개발_로그-12100E?style=flat&logo=medium&logoColor=white&link=https://medium.com/@olderstonebed)](https://medium.com/@olderstonebed)
-[![메이커 로그](http://img.shields.io/badge/메이커_로그-0000FF?style=flat&logo=Pinboard&logoColor=white&link=https://dis.qa/e6J)](https://dis.qa/e6J)
+<a href="https://yapp-workspace.notion.site/5-8a385156703047aabf1e3706f4753cc6?pvs=4" target="_blank">
+  <img src="http://img.shields.io/badge/서비스_소개-%23000000?style=flat&logo=notion&logoColor=white" alt="서비스 소개"/>
+</a>
+<a href="https://medium.com/@olderstonebed" target="_blank">
+  <img src="http://img.shields.io/badge/개발_로그-12100E?style=flat&logo=medium&logoColor=white" alt="개발 로그"/>
+</a>
+<a href="https://dis.qa/e6J" target="_blank">
+  <img src="http://img.shields.io/badge/메이커_로그-0000FF?style=flat&logo=Pinboard&logoColor=white" alt="메이커 로그"/>
+</a>
 
 </div>
 
