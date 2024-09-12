@@ -1,6 +1,6 @@
 <div align=center>
 
-<img style="border-radius: 10%;" src="./images/introduction.png" alt="NotFound">
+<img src="./images/intro.png" alt="NotFound">
 
 
 ## 세상 모든 반려동물을 한 자리에서! 왈왈🐶
