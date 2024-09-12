@@ -1,6 +1,6 @@
 <div align=center>
 
-<img style="border-radius: 16%;" src="./images/introduction.png" alt="NotFound">
+<img style="border-radius: 10%;" src="./images/introduction.png" alt="NotFound">
 
 
 ## 세상 모든 반려동물을 한 자리에서! 왈왈🐶
@@ -78,10 +78,10 @@ Loki, Promtail을 사용하여 로그 수집 및 저장을 구성하였습니다
 <h2> 🧑‍💻 Server Developer </h2>
 <div align=center>
 
-|                                                                             차윤범                                                                              |                                                               노관옥                                                               |                                                                              박윤찬                                                                              |
-|:------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| <a href="https://github.com/char-yb"> <img style="border-radius: 30%;" src="https://avatars.githubusercontent.com/u/68099546?v=4" width=100px alt="_" /> </a> | <a href="https://github.com/kwanok"> <img src="https://avatars.githubusercontent.com/u/61671343?v=4" width=100px alt="_"/> </a> | <a href="https://github.com/dbscks97"> <img style="border-radius: 30%;" src="https://avatars.githubusercontent.com/u/75676309?v=4" width=100px alt="_"/> </a> |
-|                                                                     **Server** (Leader)                                                                      | **Server** |                                                                          **Server**                                                                           |
+|                                                                              차윤범                                                                              |                                                               노관옥                                                               |                                                                              박윤찬                                                                              |
+|:-------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| <a href="https://github.com/char-yb"> <img style="border-radius: 20%;" src="https://avatars.githubusercontent.com/u/68099546?v=4" width=100px alt="_" /> </a> | <a href="https://github.com/kwanok"> <img src="https://avatars.githubusercontent.com/u/61671343?v=4" width=100px alt="_"/> </a> | <a href="https://github.com/dbscks97"> <img style="border-radius: 20%;" src="https://avatars.githubusercontent.com/u/75676309?v=4" width=100px alt="_"/> </a> |
+|                                                                      **Server** (Leader)                                                                      | **Server** |                                                                          **Server**                                                                           |
 
 </div>
 
