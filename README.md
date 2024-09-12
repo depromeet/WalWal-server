@@ -1,6 +1,6 @@
 <div align=center>
 
-<img src="./images/intro.png" alt="NotFound">
+<img src="./images/introduction.png" alt="NotFound">
 
 
 ## 세상 모든 반려동물을 한 자리에서! 왈왈🐶
