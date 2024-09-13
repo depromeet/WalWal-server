@@ -7,6 +7,7 @@ import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecordBoost.*;
 
 import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -44,10 +45,12 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .on(missionHistory.mission.eq(mission))
                 .where(
                         missionRecord.status.eq(MissionRecordStatus.COMPLETED),
+                        // TODO: 추후 피드 Request에 파라미터 전달받을 계획
+                        missionRecord.display.in(MissionRecordDisplay.PUBLIC),
                         ltMissionRecordId(missionRecordId),
                         eqMemberId(memberId))
                 .groupBy(missionRecord.id)
-                .orderBy(missionRecord.id.desc());
+                .orderBy(missionRecord.updatedAt.desc());
     }
 
     @Override

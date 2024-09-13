@@ -17,6 +17,7 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostReposit
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordSaveRequest;
@@ -130,10 +131,16 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
     void 본인의_미션_기록_캘린더를_조회합니다() {
         // given
         Member member = fixtureMonkey.giveMeOne(Member.class);
-        List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
+        List<MissionRecord> missionRecords =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("member", member)
+                        .set("display", MissionRecordDisplay.PUBLIC)
+                        .sampleList(10);
 
         when(memberUtil.getCurrentMember()).thenReturn(member);
-        when(missionRecordRepository.findByMemberIdWithPagination(anyLong(), any(Pageable.class)))
+        when(missionRecordRepository.findByMemberIdWithPagination(
+                        anyLong(), anyList(), any(Pageable.class)))
                 .thenReturn(missionRecords);
 
         String cursor = null;
@@ -155,6 +162,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         verify(missionRecordRepository)
                 .findByMemberIdWithPagination(
                         member.getId(),
+                        List.of(MissionRecordDisplay.PUBLIC, MissionRecordDisplay.PRIVATE),
                         PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt")));
     }
 
@@ -162,9 +170,15 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
     void 다른_사용자의_미션_기록_캘린더를_조회합니다() {
         // given
         Member member = fixtureMonkey.giveMeOne(Member.class);
-        List<MissionRecord> missionRecords = fixtureMonkey.giveMe(MissionRecord.class, 5);
+        List<MissionRecord> missionRecords =
+                fixtureMonkey
+                        .giveMeBuilder(MissionRecord.class)
+                        .set("member", member)
+                        .set("display", MissionRecordDisplay.PUBLIC)
+                        .sampleList(10);
 
-        when(missionRecordRepository.findByMemberIdWithPagination(anyLong(), any(Pageable.class)))
+        when(missionRecordRepository.findByMemberIdWithPagination(
+                        anyLong(), anyList(), any(Pageable.class)))
                 .thenReturn(missionRecords);
 
         String cursor = null;
@@ -184,6 +198,7 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         verify(missionRecordRepository)
                 .findByMemberIdWithPagination(
                         member.getId(),
+                        List.of(MissionRecordDisplay.PUBLIC),
                         PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "createdAt")));
     }
 
@@ -315,6 +330,9 @@ class MissionRecordServiceTest extends FixtureMonkeySetUp {
         then(response).isNotNull();
         then(response.imageUrl()).isEqualTo(missionRecord.getImageUrl());
         then(response.status()).isEqualTo(MissionRecordStatus.COMPLETED);
+        then(response.recordId()).isEqualTo(missionRecord.getId());
+        then(response.completedAt()).isEqualTo(missionRecord.getUpdatedAt().toLocalDate());
+        then(response.content()).isEqualTo(missionRecord.getContent());
 
         verify(memberUtil).getCurrentMember();
         verify(missionRepository).findById(missionId);

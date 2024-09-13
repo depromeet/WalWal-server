@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Entity
@@ -41,27 +42,34 @@ public class MissionRecord extends BaseTimeEntity {
     @Column(name = "content")
     private String content;
 
-    @Builder
+    @Enumerated(EnumType.STRING)
+    @Schema(description = "미션 기록 ", example = "PUBLIC")
+    @Column(name = "display", nullable = false)
+    @ColumnDefault("'PUBLIC'")
+    private MissionRecordDisplay display;
+
+    @Builder(access = AccessLevel.PRIVATE)
     public MissionRecord(
             Member member,
             MissionHistory missionHistory,
             String imageUrl,
             MissionRecordStatus status,
-            String content) {
+            String content,
+            MissionRecordDisplay display) {
         this.member = member;
         this.missionHistory = missionHistory;
         this.imageUrl = imageUrl;
         this.status = status;
         this.content = content;
+        this.display = display;
     }
 
-    public static MissionRecord createMissionRecord(
-            String content, Member member, MissionHistory missionHistory) {
+    public static MissionRecord createMissionRecord(Member member, MissionHistory missionHistory) {
         return MissionRecord.builder()
-                .content(content)
                 .member(member)
                 .missionHistory(missionHistory)
                 .status(MissionRecordStatus.IN_PROGRESS)
+                .display(MissionRecordDisplay.PUBLIC)
                 .build();
     }
 
@@ -75,5 +83,9 @@ public class MissionRecord extends BaseTimeEntity {
 
     public void updateStatus(MissionRecordStatus status) {
         this.status = status;
+    }
+
+    public void updateDisplay(MissionRecordDisplay display) {
+        this.display = display;
     }
 }

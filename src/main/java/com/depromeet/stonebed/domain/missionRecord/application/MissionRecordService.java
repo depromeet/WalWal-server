@@ -11,6 +11,7 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostReposit
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordBoost;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordCalendarRequest;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarDto;
@@ -63,13 +64,7 @@ public class MissionRecordService {
         MissionRecord missionRecord =
                 missionRecordRepository
                         .findByMemberAndMissionHistory(member, missionHistory)
-                        .orElseGet(
-                                () ->
-                                        MissionRecord.builder()
-                                                .member(member)
-                                                .missionHistory(missionHistory)
-                                                .status(MissionRecordStatus.IN_PROGRESS)
-                                                .build());
+                        .orElseGet(() -> MissionRecord.createMissionRecord(member, missionHistory));
 
         MissionRecord saveMissionRecord = missionRecordRepository.save(missionRecord);
         return MissionRecordIdResponse.of(saveMissionRecord.getId());
@@ -130,11 +125,8 @@ public class MissionRecordService {
         }
 
         MissionRecordBoost missionRecordBoost =
-                MissionRecordBoost.builder()
-                        .missionRecord(missionRecord)
-                        .member(currentMember)
-                        .count(boostCount)
-                        .build();
+                MissionRecordBoost.createMissionRecordBoost(
+                        missionRecord, currentMember, boostCount);
 
         missionRecordBoostRepository.save(missionRecordBoost);
 
@@ -150,12 +142,22 @@ public class MissionRecordService {
     @Transactional(readOnly = true)
     public MissionRecordCalendarResponse getMissionRecordsForCalendar(
             MissionRecordCalendarRequest request) {
-        Long findMemberId =
-                Optional.ofNullable(request.memberId())
-                        .orElseGet(() -> memberUtil.getCurrentMember().getId());
+        Long findMemberId;
+        List<MissionRecordDisplay> displays;
+
+        if (request.memberId() == null) {
+            // 요청한 memberId가 null인 경우: 자신의 기록을 조회
+            findMemberId = memberUtil.getCurrentMember().getId();
+            displays = List.of(MissionRecordDisplay.PUBLIC, MissionRecordDisplay.PRIVATE);
+        } else {
+            // 요청한 memberId가 있는 경우: 다른 회원의 기록을 조회
+            findMemberId = request.memberId();
+            displays = List.of(MissionRecordDisplay.PUBLIC);
+        }
 
         Pageable pageable = createPageable(request.limit());
-        List<MissionRecord> records = getMissionRecords(request.cursor(), findMemberId, pageable);
+        List<MissionRecord> records =
+                getMissionRecords(request.cursor(), findMemberId, displays, pageable);
         List<MissionRecordCalendarDto> calendarData = convertToCalendarDto(records);
         String nextCursor = getNextCursor(records, request.limit());
 
@@ -172,15 +174,17 @@ public class MissionRecordService {
                 .toList();
     }
 
-    private List<MissionRecord> getMissionRecords(String cursor, Long memberId, Pageable pageable) {
+    private List<MissionRecord> getMissionRecords(
+            String cursor, Long memberId, List<MissionRecordDisplay> displays, Pageable pageable) {
         if (cursor == null) {
-            return missionRecordRepository.findByMemberIdWithPagination(memberId, pageable);
+            return missionRecordRepository.findByMemberIdWithPagination(
+                    memberId, displays, pageable);
         }
 
         try {
             LocalDateTime cursorDate = LocalDate.parse(cursor, DATE_FORMATTER).atStartOfDay();
             return missionRecordRepository.findByMemberIdAndCreatedAtFromWithPagination(
-                    memberId, cursorDate, pageable);
+                    memberId, cursorDate, displays, pageable);
         } catch (DateTimeParseException e) {
             throw new CustomException(ErrorCode.INVALID_CURSOR_DATE_FORMAT);
         }
@@ -219,7 +223,14 @@ public class MissionRecordService {
                         .orElse(null);
 
         if (missionRecord == null) {
-            return MissionTabResponse.of(null, MissionRecordStatus.NOT_COMPLETED);
+            return MissionTabResponse.of(
+                    null,
+                    null,
+                    MissionRecordStatus.NOT_COMPLETED,
+                    mission.getTitle(),
+                    mission.getIllustrationUrl(),
+                    null,
+                    null);
         }
 
         MissionRecordStatus missionRecordStatus = missionRecord.getStatus();
@@ -228,7 +239,14 @@ public class MissionRecordService {
                         ? missionRecord.getImageUrl()
                         : null;
 
-        return MissionTabResponse.of(imageUrl, missionRecordStatus);
+        return MissionTabResponse.of(
+                missionRecord.getId(),
+                imageUrl,
+                missionRecordStatus,
+                mission.getTitle(),
+                mission.getIllustrationUrl(),
+                missionRecord.getContent(),
+                missionRecord.getUpdatedAt().toLocalDate());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

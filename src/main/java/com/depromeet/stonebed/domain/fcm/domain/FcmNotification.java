@@ -2,6 +2,7 @@ package com.depromeet.stonebed.domain.fcm.domain;
 
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,6 +36,11 @@ public class FcmNotification extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @Schema(description = "딥링크 URL", example = "myapp://notification/1")
+    private String deepLink;
+
+    private static final String DEEP_LINK_PREFIX = "myapp://";
+
     private FcmNotification(
             FcmNotificationType type,
             String title,
@@ -62,5 +68,14 @@ public class FcmNotification extends BaseTimeEntity {
 
     public void markAsRead() {
         this.isRead = true;
+    }
+
+    public static String generateDeepLink(FcmNotificationType type, Long targetId) {
+        if (type == FcmNotificationType.MISSION) {
+            return DEEP_LINK_PREFIX + "mission";
+        } else if (type == FcmNotificationType.BOOSTER) {
+            return DEEP_LINK_PREFIX + "boost?id=" + targetId;
+        }
+        return null;
     }
 }

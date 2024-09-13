@@ -8,6 +8,7 @@ import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationDto;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
+import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
@@ -23,6 +24,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -41,17 +43,27 @@ public class FcmNotificationService {
     private final MissionRecordBoostRepository missionRecordBoostRepository;
     private final MissionRecordRepository missionRecordRepository;
     private final FcmRepository fcmRepository;
+    private final MemberRepository memberRepository;
     private final MemberUtil memberUtil;
 
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private static final long POPULAR_THRESHOLD = 500;
+    private static final long FIRST_BOOST_THRESHOLD = 1;
+    private static final long POPULAR_THRESHOLD = 1000;
     private static final long SUPER_POPULAR_THRESHOLD = 5000;
 
     public void saveNotification(
-            FcmNotificationType type, String title, String message, Long targetId, Boolean isRead) {
-        final Member member = memberUtil.getCurrentMember();
+            FcmNotificationType type,
+            String title,
+            String message,
+            Long targetId,
+            Long memberId,
+            Boolean isRead) {
+        Member member =
+                memberRepository
+                        .findById(memberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         FcmNotification notification =
                 FcmNotification.create(type, title, message, member, targetId, isRead);
@@ -132,22 +144,38 @@ public class FcmNotificationService {
                 missionRecordBoostRepository.sumBoostCountByMissionRecord(missionRecord.getId());
 
         if (totalBoostCount != null) {
-            FcmNotificationConstants notificationConstants =
+            Optional<FcmNotificationConstants> notificationType =
                     determineNotificationType(totalBoostCount);
 
-            if (notificationConstants != null) {
-                sendBoostNotification(missionRecord, notificationConstants);
-            }
+            notificationType.ifPresent(
+                    type -> {
+                        if (!notificationAlreadySent(missionRecord, type)) {
+                            sendBoostNotification(missionRecord, type);
+                        }
+                    });
         }
     }
 
-    private FcmNotificationConstants determineNotificationType(Long totalBoostCount) {
-        if (totalBoostCount == POPULAR_THRESHOLD) {
-            return FcmNotificationConstants.POPULAR;
-        } else if (totalBoostCount == SUPER_POPULAR_THRESHOLD) {
-            return FcmNotificationConstants.SUPER_POPULAR;
+    private boolean notificationAlreadySent(
+            MissionRecord missionRecord, FcmNotificationConstants notificationConstants) {
+        return notificationRepository.existsByTargetIdAndTypeAndTitle(
+                missionRecord.getId(),
+                FcmNotificationType.BOOSTER,
+                notificationConstants.getTitle());
+    }
+
+    private Optional<FcmNotificationConstants> determineNotificationType(Long totalBoostCount) {
+        if (totalBoostCount >= SUPER_POPULAR_THRESHOLD) {
+            return Optional.of(FcmNotificationConstants.SUPER_POPULAR);
         }
-        return null;
+        if (totalBoostCount >= POPULAR_THRESHOLD) {
+            return Optional.of(FcmNotificationConstants.POPULAR);
+        }
+        if (totalBoostCount >= FIRST_BOOST_THRESHOLD) {
+            return Optional.of(FcmNotificationConstants.FIRST_BOOST);
+        }
+
+        return Optional.empty();
     }
 
     private void sendBoostNotification(
@@ -158,11 +186,16 @@ public class FcmNotificationService {
                         .map(FcmToken::getToken)
                         .orElseThrow(() -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
 
+        String deepLink =
+                FcmNotification.generateDeepLink(
+                        FcmNotificationType.BOOSTER, missionRecord.getId());
+
         FcmMessage fcmMessage =
                 FcmMessage.of(
                         notificationConstants.getTitle(),
                         notificationConstants.getMessage(),
-                        token);
+                        token,
+                        deepLink);
         sqsMessageService.sendMessage(fcmMessage);
 
         saveNotification(
@@ -170,6 +203,7 @@ public class FcmNotificationService {
                 notificationConstants.getTitle(),
                 notificationConstants.getMessage(),
                 missionRecord.getId(),
+                missionRecord.getMember().getId(),
                 false);
     }
 
@@ -208,8 +242,10 @@ public class FcmNotificationService {
     public void sendAndNotifications(String title, String message, List<String> tokens) {
         List<List<String>> batches = createBatches(tokens, 10);
 
+        String deepLink = FcmNotification.generateDeepLink(FcmNotificationType.MISSION, null);
+
         for (List<String> batch : batches) {
-            sqsMessageService.sendBatchMessages(batch, title, message);
+            sqsMessageService.sendBatchMessages(batch, title, message, deepLink);
         }
 
         List<FcmNotification> notifications = buildNotificationList(title, message, tokens);
