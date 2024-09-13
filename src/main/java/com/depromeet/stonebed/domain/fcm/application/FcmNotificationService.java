@@ -147,10 +147,12 @@ public class FcmNotificationService {
             Optional<FcmNotificationConstants> notificationType =
                     determineNotificationType(totalBoostCount);
 
+            long boostCount = determineBoostCount(totalBoostCount);
+
             notificationType.ifPresent(
                     type -> {
                         if (!notificationAlreadySent(missionRecord, type)) {
-                            sendBoostNotification(missionRecord, type);
+                            sendBoostNotification(missionRecord, type, boostCount);
                         }
                     });
         }
@@ -178,8 +180,24 @@ public class FcmNotificationService {
         return Optional.empty();
     }
 
+    private long determineBoostCount(Long totalBoostCount) {
+        if (totalBoostCount >= SUPER_POPULAR_THRESHOLD) {
+            return SUPER_POPULAR_THRESHOLD;
+        }
+        if (totalBoostCount >= POPULAR_THRESHOLD) {
+            return POPULAR_THRESHOLD;
+        }
+        if (totalBoostCount >= FIRST_BOOST_THRESHOLD) {
+            return FIRST_BOOST_THRESHOLD;
+        }
+
+        return 0;
+    }
+
     private void sendBoostNotification(
-            MissionRecord missionRecord, FcmNotificationConstants notificationConstants) {
+            MissionRecord missionRecord,
+            FcmNotificationConstants notificationConstants,
+            long boostCount) {
         String token =
                 fcmRepository
                         .findByMember(missionRecord.getMember())
@@ -188,7 +206,7 @@ public class FcmNotificationService {
 
         String deepLink =
                 FcmNotification.generateDeepLink(
-                        FcmNotificationType.BOOSTER, missionRecord.getId());
+                        FcmNotificationType.BOOSTER, missionRecord.getId(), boostCount);
 
         FcmMessage fcmMessage =
                 FcmMessage.of(
@@ -242,7 +260,7 @@ public class FcmNotificationService {
     public void sendAndNotifications(String title, String message, List<String> tokens) {
         List<List<String>> batches = createBatches(tokens, 10);
 
-        String deepLink = FcmNotification.generateDeepLink(FcmNotificationType.MISSION, null);
+        String deepLink = FcmNotification.generateDeepLink(FcmNotificationType.MISSION, null, null);
 
         for (List<String> batch : batches) {
             sqsMessageService.sendBatchMessages(batch, title, message, deepLink);

@@ -70,11 +70,12 @@ public class FcmNotification extends BaseTimeEntity {
         this.isRead = true;
     }
 
-    public static String generateDeepLink(FcmNotificationType type, Long targetId) {
+    public static String generateDeepLink(
+            FcmNotificationType type, Long targetId, Long boostCount) {
         if (type == FcmNotificationType.MISSION) {
             return DEEP_LINK_PREFIX + "mission";
         } else if (type == FcmNotificationType.BOOSTER) {
-            return DEEP_LINK_PREFIX + "boost?id=" + targetId;
+            return DEEP_LINK_PREFIX + "boost?id=" + targetId + "&type=" + boostCount;
         }
         return null;
     }
