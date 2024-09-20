@@ -1,8 +1,7 @@
 package com.depromeet.stonebed.scheduler.fcm;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
-import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
-import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
+import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
@@ -21,17 +20,16 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class FcmScheduler {
-    private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
-    private final FcmRepository fcmRepository;
+    private final FcmTokenRepository fcmTokenRepository;
     private final MissionRecordRepository missionRecordRepository;
 
     // 매일 0시 0분에 실행
     @Scheduled(cron = "0 0 0 * * ?")
     public void removeInactiveTokens() {
         LocalDateTime cutoffDate = LocalDateTime.now().minusMonths(2);
-        List<FcmToken> inactiveTokens = fcmRepository.findAllByUpdatedAtBefore(cutoffDate);
-        fcmRepository.deleteAll(inactiveTokens);
+        List<FcmToken> inactiveTokens = fcmTokenRepository.findAllByUpdatedAtBefore(cutoffDate);
+        fcmTokenRepository.deleteAll(inactiveTokens);
         log.info("비활성 토큰 {}개 삭제 완료", inactiveTokens.size());
     }
 
@@ -41,7 +39,7 @@ public class FcmScheduler {
         FcmNotificationConstants notificationConstants = FcmNotificationConstants.MISSION_START;
         String title = notificationConstants.getTitle();
         String message = notificationConstants.getMessage();
-        List<String> tokens = fcmTokenService.getAllTokens();
+        List<String> tokens = fcmNotificationService.getAllTokens();
 
         fcmNotificationService.sendAndNotifications(title, message, tokens);
 
@@ -73,7 +71,7 @@ public class FcmScheduler {
                         .map(missionRecord -> missionRecord.getMember().getId())
                         .collect(Collectors.toList());
 
-        return fcmRepository.findAllByMemberStatus(MemberStatus.NORMAL).stream()
+        return fcmTokenRepository.findAllByMemberStatus(MemberStatus.NORMAL).stream()
                 .filter(fcmToken -> !completedMemberIds.contains(fcmToken.getMember().getId()))
                 .map(FcmToken::getToken)
                 .collect(Collectors.toList());

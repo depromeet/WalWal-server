@@ -8,12 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface FcmRepository extends JpaRepository<FcmToken, Long>, FcmRepositoryCustom {
+public interface FcmTokenRepository
+        extends JpaRepository<FcmToken, Long>, FcmTokenRepositoryCustom {
     Optional<FcmToken> findByMember(Member member);
 
     Optional<FcmToken> findByToken(String token);
-
-    List<FcmToken> findAll();
 
     List<FcmToken> findAllByMemberStatus(MemberStatus status);
 
