@@ -42,7 +42,7 @@ public class FcmTokenService {
     }
 
     @Transactional
-    public void storeOrUpdateToken(String token) {
+    public void createFcmToken(String token) {
         if (token == null || token.isEmpty()) {
             throw new CustomException(ErrorCode.INVALID_FCM_TOKEN);
         }

@@ -10,6 +10,7 @@ import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.scheduler.fcm.FcmScheduler;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,13 +25,13 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
+public class FcmSchedulerTest extends FixtureMonkeySetUp {
     @Mock private FcmNotificationService fcmNotificationService;
     @Mock private FcmRepository fcmRepository;
     @Mock private FcmTokenService fcmTokenService;
     @Mock private MissionRecordRepository missionRecordRepository;
 
-    @InjectMocks private FcmScheduledService fcmScheduledService;
+    @InjectMocks private FcmScheduler fcmScheduler;
 
     @Test
     void 비활성화된_토큰을_삭제하면_정상적으로_삭제된다() {
@@ -39,7 +40,7 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
         when(fcmRepository.findAllByUpdatedAtBefore(any(LocalDateTime.class))).thenReturn(tokens);
 
         // when
-        fcmScheduledService.removeInactiveTokens();
+        fcmScheduler.removeInactiveTokens();
 
         // then
         ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
@@ -59,7 +60,7 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
         when(fcmTokenService.getAllTokens()).thenReturn(tokens);
 
         // when
-        fcmScheduledService.sendDailyNotification();
+        fcmScheduler.sendDailyNotification();
 
         // then
         verify(fcmNotificationService, times(1))
@@ -99,7 +100,7 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
                         .collect(Collectors.toList());
 
         // when
-        fcmScheduledService.sendReminderToIncompleteMissions();
+        fcmScheduler.sendReminderToIncompleteMissions();
 
         // then
         verify(fcmNotificationService, times(1))

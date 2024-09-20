@@ -33,7 +33,7 @@ public class FcmController {
     @PostMapping("/token")
     public ResponseEntity<Void> fcmTokenStore(
             @RequestBody @Validated FcmTokenRequest fcmTokenRequest) {
-        fcmTokenService.storeOrUpdateToken(fcmTokenRequest.token());
+        fcmTokenService.createFcmToken(fcmTokenRequest.token());
         return ResponseEntity.ok().build();
     }
 

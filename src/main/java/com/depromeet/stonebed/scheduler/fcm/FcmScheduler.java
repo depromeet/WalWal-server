@@ -1,5 +1,7 @@
-package com.depromeet.stonebed.domain.fcm.application;
+package com.depromeet.stonebed.scheduler.fcm;
 
+import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
+import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
 import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FcmScheduledService {
+public class FcmScheduler {
     private final FcmTokenService fcmTokenService;
     private final FcmNotificationService fcmNotificationService;
     private final FcmRepository fcmRepository;

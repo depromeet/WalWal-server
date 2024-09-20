@@ -17,12 +17,12 @@ public class SqsConfig {
 
     @Bean
     public SqsClient sqsClient() {
-        AwsBasicCredentials awsCreds =
+        AwsBasicCredentials awsBasicCredentials =
                 AwsBasicCredentials.create(sqsProperties.accessKey(), sqsProperties.secretKey());
 
         return SqsClient.builder()
                 .region(Region.of(sqsProperties.region()))
-                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+                .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
                 .build();
     }
 }
