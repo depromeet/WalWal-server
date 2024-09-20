@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.domain.auth.application;
+package com.depromeet.stonebed.global.security;
 
 import static com.depromeet.stonebed.global.common.constants.SecurityConstants.*;
 
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class JwtTokenService {
+public class JwtTokenProvider {
 
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;

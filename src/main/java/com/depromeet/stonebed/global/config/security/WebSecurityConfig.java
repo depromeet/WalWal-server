@@ -5,9 +5,9 @@ import static com.depromeet.stonebed.global.common.constants.SwaggerUrlConstants
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.security.config.Customizer.*;
 
-import com.depromeet.stonebed.domain.auth.application.JwtTokenService;
 import com.depromeet.stonebed.global.annotation.ConditionalOnProfile;
 import com.depromeet.stonebed.global.filter.JwtAuthenticationFilter;
+import com.depromeet.stonebed.global.security.JwtTokenProvider;
 import com.depromeet.stonebed.global.util.CookieUtil;
 import com.depromeet.stonebed.global.util.SpringEnvironmentUtil;
 import com.depromeet.stonebed.infra.properties.SwaggerProperties;
@@ -34,7 +34,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    private final JwtTokenService jwtTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
     private final SpringEnvironmentUtil springEnvironmentUtil;
 
@@ -69,7 +69,7 @@ public class WebSecurityConfig {
                                                 response.setStatus(401)));
 
         http.addFilterBefore(
-                jwtAuthenticationFilter(jwtTokenService, cookieUtil),
+                jwtAuthenticationFilter(jwtTokenProvider, cookieUtil),
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -123,7 +123,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtTokenService jwtTokenService, CookieUtil cookieUtil) {
-        return new JwtAuthenticationFilter(jwtTokenService, cookieUtil);
+            JwtTokenProvider jwtTokenProvider, CookieUtil cookieUtil) {
+        return new JwtAuthenticationFilter(jwtTokenProvider, cookieUtil);
     }
 }
