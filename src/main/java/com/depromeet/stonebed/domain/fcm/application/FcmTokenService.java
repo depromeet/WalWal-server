@@ -36,17 +36,6 @@ public class FcmTokenService {
                         });
     }
 
-    @Transactional
-    public void invalidateToken(String token) {
-        fcmRepository
-                .findByToken(token)
-                .ifPresentOrElse(
-                        fcmToken -> updateToken(fcmToken, null),
-                        () -> {
-                            throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
-                        });
-    }
-
     private void updateToken(FcmToken fcmToken, String token) {
         fcmToken.updateToken(token);
         fcmRepository.save(fcmToken);
@@ -73,7 +62,7 @@ public class FcmTokenService {
                 .ifPresentOrElse(
                         fcmToken -> fcmToken.updateToken(token),
                         () -> {
-                            FcmToken fcmToken = new FcmToken(member, token);
+                            FcmToken fcmToken = FcmToken.createFcmToken(member, token);
                             fcmRepository.save(fcmToken);
                         });
     }

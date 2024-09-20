@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,12 +26,17 @@ public class FcmToken extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(unique = true, nullable = true)
+    @Column(unique = true)
     private String token;
 
+    @Builder(access = AccessLevel.PRIVATE)
     public FcmToken(Member member, String token) {
         this.member = member;
         this.token = token;
+    }
+
+    public static FcmToken createFcmToken(Member member, String token) {
+        return FcmToken.builder().member(member).token(token).build();
     }
 
     public void updateToken(String token) {
