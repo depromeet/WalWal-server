@@ -1,4 +1,4 @@
-package com.depromeet.stonebed;
+package com.depromeet.stonebed.config;
 
 import com.depromeet.stonebed.infra.config.redis.RedisConfig;
 import com.depromeet.stonebed.infra.properties.RedisProperties;

@@ -2,7 +2,7 @@ package com.depromeet.stonebed.domain.auth.dao;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.depromeet.stonebed.TestRedisConfig;
+import com.depromeet.stonebed.config.TestRedisConfig;
 import com.depromeet.stonebed.domain.auth.domain.RefreshToken;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;

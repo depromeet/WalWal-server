@@ -1,4 +1,4 @@
-package com.depromeet.stonebed;
+package com.depromeet.stonebed.config;
 
 import com.querydsl.jpa.JPQLTemplates;
 import com.querydsl.jpa.impl.JPAQueryFactory;
