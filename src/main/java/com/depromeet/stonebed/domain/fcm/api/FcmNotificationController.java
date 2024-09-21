@@ -1,7 +1,6 @@
 package com.depromeet.stonebed.domain.fcm.api;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
-import com.depromeet.stonebed.domain.fcm.application.FcmTokenService;
 import com.depromeet.stonebed.domain.fcm.dto.request.FcmTokenRequest;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,22 +24,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/alarm")
 @RequiredArgsConstructor
-public class FcmController {
-    private final FcmTokenService fcmTokenService;
+public class FcmNotificationController {
     private final FcmNotificationService fcmNotificationService;
 
     @Operation(summary = "FCM 토큰 저장", description = "로그인 시 FCM 토큰을 저장합니다.")
     @PostMapping("/token")
-    public ResponseEntity<Void> fcmTokenStore(
+    public ResponseEntity<Void> fcmTokenSave(
             @RequestBody @Validated FcmTokenRequest fcmTokenRequest) {
-        fcmTokenService.createFcmToken(fcmTokenRequest.token());
+        fcmNotificationService.saveFcmToken(fcmTokenRequest.token());
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "FCM 토큰 삭제", description = "로그아웃 시 FCM 토큰을 삭제합니다.")
     @DeleteMapping("/token")
     public ResponseEntity<Void> fcmTokenDelete() {
-        fcmTokenService.invalidateTokenForCurrentMember();
+        fcmNotificationService.invalidateTokenForCurrentMember();
         return ResponseEntity.ok().build();
     }
 

@@ -5,13 +5,11 @@ import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
-import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.dto.response.FcmNotificationResponse;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.error.ErrorCode;
@@ -34,8 +32,6 @@ import org.springframework.test.context.ActiveProfiles;
 public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
     @Mock private FcmNotificationRepository notificationRepository;
     @Mock private MissionRecordRepository missionRecordRepository;
-    @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
-    @Mock private FcmRepository fcmRepository;
     @Mock private MemberRepository memberRepository;
     @Mock private MemberUtil memberUtil;
 

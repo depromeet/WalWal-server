@@ -1,7 +1,7 @@
 package com.depromeet.stonebed.domain.fcm.application;
 
 import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
-import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
+import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmMessage;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
@@ -42,7 +42,7 @@ public class FcmNotificationService {
     private final FcmNotificationRepository notificationRepository;
     private final MissionRecordBoostRepository missionRecordBoostRepository;
     private final MissionRecordRepository missionRecordRepository;
-    private final FcmRepository fcmRepository;
+    private final FcmTokenRepository fcmTokenRepository;
     private final MemberRepository memberRepository;
     private final MemberUtil memberUtil;
 
@@ -199,7 +199,7 @@ public class FcmNotificationService {
             FcmNotificationConstants notificationConstants,
             long boostCount) {
         String token =
-                fcmRepository
+                fcmTokenRepository
                         .findByMember(missionRecord.getMember())
                         .map(FcmToken::getToken)
                         .orElseThrow(() -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
@@ -242,7 +242,7 @@ public class FcmNotificationService {
 
         for (String token : tokens) {
             Member member =
-                    fcmRepository
+                    fcmTokenRepository
                             .findByToken(token)
                             .map(FcmToken::getMember)
                             .orElseThrow(
@@ -278,5 +278,53 @@ public class FcmNotificationService {
                                         i * batchSize,
                                         Math.min(tokens.size(), (i + 1) * batchSize)))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAllTokens() {
+        return fcmTokenRepository.findAllValidTokens();
+    }
+
+    @Transactional
+    public void invalidateTokenForCurrentMember() {
+        Member currentMember = memberUtil.getCurrentMember();
+        fcmTokenRepository
+                .findByMember(currentMember)
+                .ifPresentOrElse(
+                        fcmToken -> updateToken(fcmToken, null),
+                        () -> {
+                            throw new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN);
+                        });
+    }
+
+    private void updateToken(FcmToken fcmToken, String token) {
+        fcmToken.updateToken(token);
+        fcmTokenRepository.save(fcmToken);
+    }
+
+    @Transactional
+    public void saveFcmToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_FCM_TOKEN);
+        }
+
+        Member member = memberUtil.getCurrentMember();
+        Optional<FcmToken> existingTokenOptional = fcmTokenRepository.findByToken(token);
+
+        existingTokenOptional.ifPresent(
+                existingToken -> {
+                    if (!existingToken.getMember().equals(member)) {
+                        fcmTokenRepository.delete(existingToken);
+                    }
+                });
+
+        fcmTokenRepository
+                .findByMember(member)
+                .ifPresentOrElse(
+                        fcmToken -> fcmToken.updateToken(token),
+                        () -> {
+                            FcmToken fcmToken = FcmToken.createFcmToken(member, token);
+                            fcmTokenRepository.save(fcmToken);
+                        });
     }
 }
