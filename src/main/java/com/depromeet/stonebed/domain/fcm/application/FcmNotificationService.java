@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.parsers.ReturnTypeParser;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -52,6 +53,7 @@ public class FcmNotificationService {
     private static final long FIRST_BOOST_THRESHOLD = 1;
     private static final long POPULAR_THRESHOLD = 1000;
     private static final long SUPER_POPULAR_THRESHOLD = 5000;
+    private final ReturnTypeParser genericReturnTypeParser;
 
     public void saveNotification(
             FcmNotificationType type,
@@ -194,27 +196,38 @@ public class FcmNotificationService {
         return 0;
     }
 
+    private Optional<String> getTokenForMember(Member member) {
+        return fcmTokenRepository.findByMember(member).map(FcmToken::getToken);
+    }
+
+    private Optional<String> validateTokenForMember(Member member) {
+        return getTokenForMember(member).filter(token -> !token.isEmpty());
+    }
+
+    private String generateDeepLink(MissionRecord missionRecord, long boostCount) {
+        return FcmNotification.generateDeepLink(
+                FcmNotificationType.BOOSTER, missionRecord.getId(), boostCount);
+    }
+
+    private void createAndSendFcmMessage(
+            String title, String message, String token, String deepLink) {
+        FcmMessage fcmMessage = FcmMessage.of(title, message, token, deepLink);
+        sqsMessageService.sendMessage(fcmMessage);
+    }
+
     private void sendBoostNotification(
             MissionRecord missionRecord,
             FcmNotificationConstants notificationConstants,
             long boostCount) {
-        String token =
-                fcmTokenRepository
-                        .findByMember(missionRecord.getMember())
-                        .map(FcmToken::getToken)
-                        .orElseThrow(() -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
+        String token = validateTokenForMember(missionRecord.getMember()).orElse(null);
+        if (token == null) return;
 
-        String deepLink =
-                FcmNotification.generateDeepLink(
-                        FcmNotificationType.BOOSTER, missionRecord.getId(), boostCount);
-
-        FcmMessage fcmMessage =
-                FcmMessage.of(
-                        notificationConstants.getTitle(),
-                        notificationConstants.getMessage(),
-                        token,
-                        deepLink);
-        sqsMessageService.sendMessage(fcmMessage);
+        String deepLink = generateDeepLink(missionRecord, boostCount);
+        createAndSendFcmMessage(
+                notificationConstants.getTitle(),
+                notificationConstants.getMessage(),
+                token,
+                deepLink);
 
         saveNotification(
                 FcmNotificationType.BOOSTER,
