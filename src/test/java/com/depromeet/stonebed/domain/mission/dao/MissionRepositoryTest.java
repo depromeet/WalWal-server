@@ -2,7 +2,7 @@ package com.depromeet.stonebed.domain.mission.dao;
 
 import static org.assertj.core.api.Assertions.*;
 
-import com.depromeet.stonebed.TestQuerydslConfig;
+import com.depromeet.stonebed.config.TestQuerydslConfig;
 import com.depromeet.stonebed.domain.member.domain.RaisePet;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import org.junit.jupiter.api.Test;

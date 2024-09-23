@@ -20,6 +20,7 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
+import com.depromeet.stonebed.global.security.JwtTokenProvider;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class AuthService {
 
     private final AppleClient appleClient;
     private final KakaoClient kakaoClient;
-    private final JwtTokenService jwtTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final MemberUtil memberUtil;
 
     public SocialClientResponse authenticateFromProvider(OAuthProvider provider, String token) {
@@ -83,7 +84,7 @@ public class AuthService {
 
                             // 임시 토큰 발행
                             TokenPairResponse temporaryTokenPair =
-                                    jwtTokenService.generateTemporaryTokenPair(newMember);
+                                    jwtTokenProvider.generateTemporaryTokenPair(newMember);
                             newMember.updateLastLoginAt();
                             log.info("임시 회원가입 진행: {}", newMember.getId());
                             return AuthTokenResponse.of(temporaryTokenPair, true);
@@ -110,9 +111,9 @@ public class AuthService {
     public AuthTokenResponse reissueTokenPair(RefreshTokenRequest request) {
         // 리프레시 토큰을 이용해 새로운 액세스 토큰 발급
         RefreshTokenDto refreshTokenDto =
-                jwtTokenService.retrieveRefreshToken(request.refreshToken());
+                jwtTokenProvider.retrieveRefreshToken(request.refreshToken());
         RefreshTokenDto refreshToken =
-                jwtTokenService.createRefreshTokenDto(refreshTokenDto.memberId());
+                jwtTokenProvider.createRefreshTokenDto(refreshTokenDto.memberId());
 
         Member member = memberUtil.getMemberByMemberId(refreshToken.memberId());
 
@@ -121,11 +122,11 @@ public class AuthService {
     }
 
     private TokenPairResponse getLoginResponse(Member member) {
-        return jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER);
+        return jwtTokenProvider.generateTokenPair(member.getId(), MemberRole.USER);
     }
 
     private TokenPairResponse getTemporaryLoginResponse(Member member) {
-        return jwtTokenService.generateTokenPair(member.getId(), MemberRole.TEMPORARY);
+        return jwtTokenProvider.generateTokenPair(member.getId(), MemberRole.TEMPORARY);
     }
 
     public void withdraw() {
@@ -144,7 +145,7 @@ public class AuthService {
         withdrawMemberRelationByMemberId(
                 missionRecords.stream().map(MissionRecord::getId).toList(), member.getId());
 
-        jwtTokenService.deleteRefreshToken(member.getId());
+        jwtTokenProvider.deleteRefreshToken(member.getId());
 
         memberRepository.deleteById(member.getId());
     }

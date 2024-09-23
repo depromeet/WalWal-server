@@ -10,7 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class FcmRepositoryImpl implements FcmRepositoryCustom {
+public class FcmTokenRepositoryImpl implements FcmTokenRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 

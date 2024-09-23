@@ -4,12 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
-import com.depromeet.stonebed.domain.fcm.dao.FcmRepository;
+import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.scheduler.fcm.FcmScheduler;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,42 +25,42 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
+public class FcmSchedulerTest extends FixtureMonkeySetUp {
     @Mock private FcmNotificationService fcmNotificationService;
-    @Mock private FcmRepository fcmRepository;
-    @Mock private FcmTokenService fcmTokenService;
+    @Mock private FcmTokenRepository fcmTokenRepository;
     @Mock private MissionRecordRepository missionRecordRepository;
 
-    @InjectMocks private FcmScheduledService fcmScheduledService;
+    @InjectMocks private FcmScheduler fcmScheduler;
 
     @Test
     void 비활성화된_토큰을_삭제하면_정상적으로_삭제된다() {
         // given
         List<FcmToken> tokens = fixtureMonkey.giveMe(FcmToken.class, 5);
-        when(fcmRepository.findAllByUpdatedAtBefore(any(LocalDateTime.class))).thenReturn(tokens);
+        when(fcmTokenRepository.findAllByUpdatedAtBefore(any(LocalDateTime.class)))
+                .thenReturn(tokens);
 
         // when
-        fcmScheduledService.removeInactiveTokens();
+        fcmScheduler.removeInactiveTokens();
 
         // then
         ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
-        verify(fcmRepository).findAllByUpdatedAtBefore(captor.capture());
+        verify(fcmTokenRepository).findAllByUpdatedAtBefore(captor.capture());
 
         LocalDateTime actualCutoffDate = captor.getValue();
 
         assertNotNull(actualCutoffDate);
         assertTrue(actualCutoffDate.isBefore(LocalDateTime.now()));
-        verify(fcmRepository).deleteAll(tokens);
+        verify(fcmTokenRepository).deleteAll(tokens);
     }
 
     @Test
     void 매일_정기_알림을_모든_사용자에게_전송하고_저장한다() {
         // given
         List<String> tokens = fixtureMonkey.giveMe(String.class, 5);
-        when(fcmTokenService.getAllTokens()).thenReturn(tokens);
+        when(fcmNotificationService.getAllTokens()).thenReturn(tokens);
 
         // when
-        fcmScheduledService.sendDailyNotification();
+        fcmScheduler.sendDailyNotification();
 
         // then
         verify(fcmNotificationService, times(1))
@@ -90,7 +91,7 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
                                 .collect(Collectors.toList()));
 
         List<FcmToken> allTokens = fixtureMonkey.giveMe(FcmToken.class, 5);
-        when(fcmRepository.findAllByMemberStatus(MemberStatus.NORMAL)).thenReturn(allTokens);
+        when(fcmTokenRepository.findAllByMemberStatus(MemberStatus.NORMAL)).thenReturn(allTokens);
 
         List<String> tokens =
                 allTokens.stream()
@@ -99,7 +100,7 @@ public class FcmScheduledServiceTest extends FixtureMonkeySetUp {
                         .collect(Collectors.toList());
 
         // when
-        fcmScheduledService.sendReminderToIncompleteMissions();
+        fcmScheduler.sendReminderToIncompleteMissions();
 
         // then
         verify(fcmNotificationService, times(1))

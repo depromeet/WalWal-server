@@ -7,6 +7,7 @@ import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
@@ -20,6 +21,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class SwaggerConfig {
+
+    private static final String SERVER_NAME = "WalWal";
+    private static final String GITHUB_URL = "https://github.com/depromeet/WalWal-server";
     private static final String PACKAGES_TO_SCAN = "com.depromeet.stonebed";
     private static final String SWAGGER_API_TITLE = "WalWal 프로젝트 API 문서";
     private static final String SWAGGER_API_DESCRIPTION = "WalWal 프로젝트 API 문서입니다.";
@@ -36,11 +40,19 @@ public class SwaggerConfig {
                 .servers(swaggerServers())
                 .addSecurityItem(securityRequirement())
                 .components(authSetting())
-                .info(
-                        new Info()
-                                .title(SWAGGER_API_TITLE)
-                                .version(apiVersion)
-                                .description(SWAGGER_API_DESCRIPTION));
+                .info(swaggerInfo());
+    }
+
+    private Info swaggerInfo() {
+        License license = new License();
+        license.setUrl(GITHUB_URL);
+        license.setName(SERVER_NAME);
+
+        return new Info()
+                .title(SWAGGER_API_TITLE)
+                .version("v" + apiVersion)
+                .description(SWAGGER_API_DESCRIPTION)
+                .license(license);
     }
 
     private String getServerUrl() {

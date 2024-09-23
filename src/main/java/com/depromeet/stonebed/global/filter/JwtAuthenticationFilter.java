@@ -2,10 +2,10 @@ package com.depromeet.stonebed.global.filter;
 
 import static com.depromeet.stonebed.global.common.constants.SecurityConstants.*;
 
-import com.depromeet.stonebed.domain.auth.application.JwtTokenService;
 import com.depromeet.stonebed.domain.auth.dto.AccessTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
+import com.depromeet.stonebed.global.security.JwtTokenProvider;
 import com.depromeet.stonebed.global.security.PrincipalDetails;
 import com.depromeet.stonebed.global.util.CookieUtil;
 import jakarta.servlet.FilterChain;
@@ -29,7 +29,7 @@ import org.springframework.web.util.WebUtils;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenService jwtTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
 
     private static String extractAccessTokenFromHeader(HttpServletRequest request) {
@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 헤더에 AT가 있으면 우선적으로 검증
         if (accessTokenHeaderValue != null) {
             AccessTokenDto accessTokenDto =
-                    jwtTokenService.retrieveAccessToken(accessTokenHeaderValue);
+                    jwtTokenProvider.retrieveAccessToken(accessTokenHeaderValue);
             if (accessTokenDto != null) {
                 setAuthenticationToContext(accessTokenDto.memberId(), accessTokenDto.memberRole());
                 filterChain.doFilter(request, response);
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        AccessTokenDto accessTokenDto = jwtTokenService.retrieveAccessToken(accessTokenValue);
+        AccessTokenDto accessTokenDto = jwtTokenProvider.retrieveAccessToken(accessTokenValue);
 
         // AT가 유효하면 통과
         if (accessTokenDto != null) {
@@ -76,15 +76,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // AT가 만료된 경우 AT 재발급, 만료되지 않은 경우 null 반환
         Optional<AccessTokenDto> reissuedAccessToken =
-                Optional.ofNullable(jwtTokenService.reissueAccessTokenIfExpired(accessTokenValue));
+                Optional.ofNullable(jwtTokenProvider.reissueAccessTokenIfExpired(accessTokenValue));
         // RT 유효하면 파싱, 유효하지 않으면 null 반환
-        RefreshTokenDto refreshTokenDto = jwtTokenService.retrieveRefreshToken(refreshTokenValue);
+        RefreshTokenDto refreshTokenDto = jwtTokenProvider.retrieveRefreshToken(refreshTokenValue);
 
         // AT가 만료되었고, RT가 유효하면 AT, RT 재발급
         if (reissuedAccessToken.isPresent() && refreshTokenDto != null) {
             AccessTokenDto accessToken = reissuedAccessToken.get(); // 재발급된 AT
             RefreshTokenDto refreshToken =
-                    jwtTokenService.createRefreshTokenDto(refreshTokenDto.memberId());
+                    jwtTokenProvider.createRefreshTokenDto(refreshTokenDto.memberId());
 
             // 쿠키에 재발급된 AT, RT 저장
             HttpHeaders httpHeaders =

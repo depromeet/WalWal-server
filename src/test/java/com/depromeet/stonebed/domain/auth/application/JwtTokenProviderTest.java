@@ -12,6 +12,7 @@ import com.depromeet.stonebed.domain.auth.dto.RefreshTokenDto;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
+import com.depromeet.stonebed.global.security.JwtTokenProvider;
 import com.depromeet.stonebed.global.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Optional;
@@ -24,9 +25,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class JwtTokenServiceTest extends FixtureMonkeySetUp {
+class JwtTokenProviderTest extends FixtureMonkeySetUp {
 
-    @InjectMocks private JwtTokenService jwtTokenService;
+    @InjectMocks private JwtTokenProvider jwtTokenProvider;
 
     @Mock private JwtUtil jwtUtil;
     @Mock private RefreshTokenRepository refreshTokenRepository;
@@ -43,7 +44,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
         when(jwtUtil.generateRefreshToken(memberId)).thenReturn(refreshToken);
 
         // when
-        TokenPairResponse tokenPair = jwtTokenService.generateTokenPair(memberId, memberRole);
+        TokenPairResponse tokenPair = jwtTokenProvider.generateTokenPair(memberId, memberRole);
 
         // then
         assertNotNull(tokenPair);
@@ -63,7 +64,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
         when(jwtUtil.generateRefreshToken(temporaryMember.getId())).thenReturn(refreshToken);
 
         // when
-        TokenPairResponse tokenPair = jwtTokenService.generateTemporaryTokenPair(temporaryMember);
+        TokenPairResponse tokenPair = jwtTokenProvider.generateTemporaryTokenPair(temporaryMember);
 
         // then
         assertNotNull(tokenPair);
@@ -81,7 +82,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(new AccessTokenDto(memberId, memberRole, tokenValue));
 
         // when
-        AccessTokenDto accessTokenDto = jwtTokenService.createAccessTokenDto(memberId, memberRole);
+        AccessTokenDto accessTokenDto = jwtTokenProvider.createAccessTokenDto(memberId, memberRole);
 
         // then
         assertNotNull(accessTokenDto);
@@ -101,7 +102,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
         when(jwtUtil.parseAccessToken(accessTokenValue)).thenReturn(accessTokenDto);
 
         // when
-        AccessTokenDto result = jwtTokenService.retrieveAccessToken(accessTokenValue);
+        AccessTokenDto result = jwtTokenProvider.retrieveAccessToken(accessTokenValue);
 
         // then
         assertNotNull(result);
@@ -120,7 +121,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(Optional.of(refreshToken));
 
         // when
-        RefreshTokenDto result = jwtTokenService.retrieveRefreshToken(refreshTokenValue);
+        RefreshTokenDto result = jwtTokenProvider.retrieveRefreshToken(refreshTokenValue);
 
         // then
         assertNotNull(result);
@@ -134,7 +135,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
         when(jwtUtil.parseAccessToken(accessTokenValue)).thenThrow(new RuntimeException());
 
         // when
-        AccessTokenDto result = jwtTokenService.retrieveAccessToken(accessTokenValue);
+        AccessTokenDto result = jwtTokenProvider.retrieveAccessToken(accessTokenValue);
 
         // then
         assertNull(result);
@@ -151,7 +152,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(Optional.empty());
 
         // when
-        RefreshTokenDto result = jwtTokenService.retrieveRefreshToken(refreshTokenValue);
+        RefreshTokenDto result = jwtTokenProvider.retrieveRefreshToken(refreshTokenValue);
 
         // then
         assertNull(result);
@@ -165,7 +166,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
                 .thenReturn(new AccessTokenDto(1L, MemberRole.USER, accessTokenValue));
 
         // when
-        AccessTokenDto result = jwtTokenService.reissueAccessTokenIfExpired(accessTokenValue);
+        AccessTokenDto result = jwtTokenProvider.reissueAccessTokenIfExpired(accessTokenValue);
 
         // then
         assertNull(result);
@@ -182,7 +183,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
         when(jwtUtil.generateRefreshTokenDto(memberId)).thenReturn(refreshTokenDto);
 
         // when
-        RefreshTokenDto result = jwtTokenService.createRefreshTokenDto(memberId);
+        RefreshTokenDto result = jwtTokenProvider.createRefreshTokenDto(memberId);
 
         // then
         assertNotNull(result);
@@ -208,7 +209,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
         when(jwtUtil.generateAccessTokenDto(memberId, memberRole)).thenReturn(accessTokenDto);
 
         // when
-        AccessTokenDto result = jwtTokenService.reissueAccessTokenIfExpired(accessTokenValue);
+        AccessTokenDto result = jwtTokenProvider.reissueAccessTokenIfExpired(accessTokenValue);
 
         // then
         assertNotNull(result);
@@ -221,7 +222,7 @@ class JwtTokenServiceTest extends FixtureMonkeySetUp {
         Long memberId = fixtureMonkey.giveMeOne(Long.class);
 
         // when
-        jwtTokenService.deleteRefreshToken(memberId);
+        jwtTokenProvider.deleteRefreshToken(memberId);
 
         // then
         verify(refreshTokenRepository).deleteById(memberId);

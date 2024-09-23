@@ -14,6 +14,7 @@ import com.depromeet.stonebed.domain.member.domain.MemberRole;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
+import com.depromeet.stonebed.global.security.JwtTokenProvider;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private AuthService authService;
 
-    @Mock private JwtTokenService jwtTokenService;
+    @Mock private JwtTokenProvider jwtTokenProvider;
 
     @Mock private MemberRepository memberRepository;
 
@@ -60,7 +61,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
                         provider.getValue(), oauthId))
                 .thenReturn(Optional.of(member));
-        when(jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER))
+        when(jwtTokenProvider.generateTokenPair(member.getId(), MemberRole.USER))
                 .thenReturn(new TokenPairResponse("accessToken", "refreshToken"));
 
         // when
@@ -78,7 +79,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         when(memberRepository.findByOauthInfoOauthProviderAndOauthInfoOauthId(
                         provider.getValue(), oauthId))
                 .thenReturn(Optional.of(member));
-        when(jwtTokenService.generateTokenPair(member.getId(), MemberRole.USER))
+        when(jwtTokenProvider.generateTokenPair(member.getId(), MemberRole.USER))
                 .thenReturn(new TokenPairResponse("accessToken", "refreshToken"));
 
         // when
@@ -99,7 +100,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
                         provider.getValue(), oauthId))
                 .thenReturn(Optional.empty());
         when(memberRepository.save(any(Member.class))).thenReturn(newMember);
-        when(jwtTokenService.generateTemporaryTokenPair(any(Member.class)))
+        when(jwtTokenProvider.generateTemporaryTokenPair(any(Member.class)))
                 .thenReturn(temporaryTokenPair);
 
         // when
@@ -111,7 +112,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         assertEquals("refreshToken", response.refreshToken());
         assertTrue(response.isTemporaryToken());
         verify(memberRepository).save(any(Member.class));
-        verify(jwtTokenService).generateTemporaryTokenPair(any(Member.class));
+        verify(jwtTokenProvider).generateTemporaryTokenPair(any(Member.class));
     }
 
     @Test
@@ -147,7 +148,7 @@ class AuthServiceTest extends FixtureMonkeySetUp {
         assertEquals("", member.getProfile().getNickname());
 
         // jwtTokenService에서 리프레시 토큰 삭제가 호출되었는지 확인
-        verify(jwtTokenService).deleteRefreshToken(member.getId());
+        verify(jwtTokenProvider).deleteRefreshToken(member.getId());
 
         // MemberStatus가 DELETED로 변경되었는지 확인
         assertEquals(MemberStatus.DELETED, member.getStatus());
