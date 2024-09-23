@@ -1,11 +1,11 @@
 package com.depromeet.stonebed.domain.sqs.application;
 
+import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmMessage;
 import com.depromeet.stonebed.infra.properties.SqsProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +29,7 @@ public class SqsMessageService {
     private final SqsProperties sqsProperties;
 
     private final ObjectMapper objectMapper;
+    private final FcmTokenRepository fcmTokenRepository;
 
     public void sendMessage(Object message) {
         try {
@@ -49,13 +50,14 @@ public class SqsMessageService {
     public void sendBatchMessages(
             List<String> tokens, String title, String message, String deepLink) {
         List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
+        List<String> failedTokens = new ArrayList<>();
         for (String token : tokens) {
             try {
                 FcmMessage fcmMessage = FcmMessage.of(title, message, token, deepLink);
                 String messageBody = objectMapper.writeValueAsString(fcmMessage);
                 SendMessageBatchRequestEntry entry =
                         SendMessageBatchRequestEntry.builder()
-                                .id(UUID.randomUUID().toString())
+                                .id(token)
                                 .messageBody(messageBody)
                                 .build();
                 entries.add(entry);
@@ -64,25 +66,34 @@ public class SqsMessageService {
             }
         }
 
-        SendMessageBatchRequest batchRequest =
-                SendMessageBatchRequest.builder()
-                        .queueUrl(sqsProperties.queueUrl())
-                        .entries(entries)
-                        .build();
+        if (!entries.isEmpty()) {
+            SendMessageBatchRequest batchRequest =
+                    SendMessageBatchRequest.builder()
+                            .queueUrl(sqsProperties.queueUrl())
+                            .entries(entries)
+                            .build();
 
-        try {
-            SendMessageBatchResponse batchResponse = sqsClient.sendMessageBatch(batchRequest);
+            try {
+                SendMessageBatchResponse batchResponse = sqsClient.sendMessageBatch(batchRequest);
 
-            // 실패한 메시지 처리
-            List<BatchResultErrorEntry> failedMessages = batchResponse.failed();
-            if (!failedMessages.isEmpty()) {
+                // 실패한 메시지 처리
+                List<BatchResultErrorEntry> failedMessages = batchResponse.failed();
                 for (BatchResultErrorEntry failed : failedMessages) {
                     log.error("메시지 전송 실패, ID {}: {}", failed.id(), failed.message());
+                    failedTokens.add(failed.id());
                 }
-            }
 
-        } catch (Exception e) {
-            log.error("SQS 배치 메시지 전송 실패: {}", e.getMessage());
+                // 실패한 토큰 삭제 등의 후속 작업
+                for (String failedToken : failedTokens) {
+                    fcmTokenRepository.deleteByToken(failedToken);
+                    log.info("비활성화된 FCM 토큰 삭제: {}", failedToken);
+                }
+
+            } catch (Exception e) {
+                log.error("SQS 배치 메시지 전송 실패: {}", e.getMessage());
+            }
+        } else {
+            log.warn("전송할 메시지가 없습니다.");
         }
     }
 }
