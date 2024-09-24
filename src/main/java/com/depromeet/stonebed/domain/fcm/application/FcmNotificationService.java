@@ -28,13 +28,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.parsers.ReturnTypeParser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -53,7 +54,7 @@ public class FcmNotificationService {
     private static final long FIRST_BOOST_THRESHOLD = 1;
     private static final long POPULAR_THRESHOLD = 1000;
     private static final long SUPER_POPULAR_THRESHOLD = 5000;
-    private final ReturnTypeParser genericReturnTypeParser;
+    private static final int BATCH_SIZE = 10;
 
     public void saveNotification(
             FcmNotificationType type,
@@ -271,7 +272,7 @@ public class FcmNotificationService {
     }
 
     public void sendAndNotifications(String title, String message, List<String> tokens) {
-        List<List<String>> batches = createBatches(tokens, 10);
+        List<List<String>> batches = createBatches(tokens, BATCH_SIZE);
 
         String deepLink = FcmNotification.generateDeepLink(FcmNotificationType.MISSION, null, null);
 
