@@ -73,6 +73,7 @@ public class FcmScheduler {
 
         return fcmTokenRepository.findAllByMemberStatus(MemberStatus.NORMAL).stream()
                 .filter(fcmToken -> !completedMemberIds.contains(fcmToken.getMember().getId()))
+                .filter(fcmToken -> fcmToken.getToken() != null)
                 .map(FcmToken::getToken)
                 .collect(Collectors.toList());
     }
