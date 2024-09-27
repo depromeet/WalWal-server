@@ -62,7 +62,17 @@ public class Comment extends BaseTimeEntity {
         this.parent = parent;
     }
 
-    public static Comment createComment(
+    public static Comment createCommentParent(
+            MissionRecord missionRecord, Member writer, String content, Comment parent) {
+        return Comment.builder()
+                .missionRecord(missionRecord)
+                .writer(writer)
+                .content(content)
+                .parent(parent)
+                .build();
+    }
+
+    public static Comment createCommentChild(
             MissionRecord missionRecord, Member writer, String content, Comment parent) {
         return Comment.builder()
                 .missionRecord(missionRecord)
