@@ -1,10 +1,15 @@
 package com.depromeet.stonebed.domain.missionRecord.dao;
 
+import static com.depromeet.stonebed.domain.mission.domain.QMission.*;
+import static com.depromeet.stonebed.domain.missionHistory.domain.QMissionHistory.*;
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
 
+import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
@@ -24,7 +29,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
             Long memberId, List<MissionRecordDisplay> displays, Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
-                .where(isMemberId(memberId).and(InDisplays(displays)))
+                .where(isMemberId(memberId).and(inDisplays(displays)))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -43,7 +48,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                         isMemberId(memberId)
                                 .and(createdAtFrom(createdAt))
                                 .and(isCompleted())
-                                .and(InDisplays(displays)))
+                                .and(inDisplays(displays)))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -64,6 +69,29 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                 .execute();
     }
 
+    @Override
+    public List<MissionTabResponse> findAllTabMissionsByMemberAndStatus(
+            Member member, MissionRecordStatus status) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                MissionTabResponse.class,
+                                missionRecord.id,
+                                missionRecord.imageUrl,
+                                missionRecord.status,
+                                mission.title,
+                                mission.illustrationUrl,
+                                missionRecord.content,
+                                missionRecord.updatedAt))
+                .from(missionRecord)
+                .leftJoin(missionRecord.missionHistory, missionHistory)
+                .on(missionRecord.missionHistory.eq(missionHistory))
+                .leftJoin(missionHistory.mission, mission)
+                .on(missionHistory.mission.eq(mission))
+                .where(missionRecord.member.eq(member).and(missionRecord.status.eq(status)))
+                .fetch();
+    }
+
     private BooleanExpression isMemberId(Long memberId) {
         return missionRecord.member.id.eq(memberId);
     }
@@ -76,7 +104,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
         return missionRecord.status.eq(MissionRecordStatus.COMPLETED);
     }
 
-    private BooleanExpression InDisplays(List<MissionRecordDisplay> displays) {
+    private BooleanExpression inDisplays(List<MissionRecordDisplay> displays) {
         return missionRecord.display.in(displays);
     }
 }

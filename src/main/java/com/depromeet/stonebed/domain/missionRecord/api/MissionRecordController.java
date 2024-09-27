@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,12 @@ import org.springframework.web.bind.annotation.*;
 public class MissionRecordController {
 
     private final MissionRecordService missionRecordService;
+
+    @Operation(summary = "미션 탭 완료된 기록 리스트", description = "미션 탭에서 완료된 기록 리스트를 조회한다.")
+    @GetMapping
+    public List<MissionTabResponse> missionRecordsFind() {
+        return missionRecordService.findCompleteMissionRecords();
+    }
 
     @Operation(summary = "미션 탭 상태 조회", description = "미션 탭의 상태를 조회한다.")
     @GetMapping("/status")

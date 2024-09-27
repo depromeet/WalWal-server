@@ -275,4 +275,11 @@ public class MissionRecordService {
         LocalDateTime endOfYesterday = LocalDate.now().minusDays(1).atTime(23, 59, 59);
         missionRecordRepository.updateExpiredMissionsToNotCompleted(endOfYesterday);
     }
+
+    @Transactional(readOnly = true)
+    public List<MissionTabResponse> findCompleteMissionRecords() {
+        final Member member = memberUtil.getCurrentMember();
+        return missionRecordRepository.findAllTabMissionsByMemberAndStatus(
+                member, MissionRecordStatus.COMPLETED);
+    }
 }
