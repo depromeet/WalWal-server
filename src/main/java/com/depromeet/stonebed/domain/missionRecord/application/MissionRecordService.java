@@ -246,7 +246,7 @@ public class MissionRecordService {
                 mission.getTitle(),
                 mission.getIllustrationUrl(),
                 missionRecord.getContent(),
-                missionRecord.getUpdatedAt().toLocalDate());
+                missionRecord.getUpdatedAt().toLocalDate().toString());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

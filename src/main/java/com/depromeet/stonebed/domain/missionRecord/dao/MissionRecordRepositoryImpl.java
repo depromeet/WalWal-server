@@ -9,8 +9,11 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
+import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,23 +75,30 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
     @Override
     public List<MissionTabResponse> findAllTabMissionsByMemberAndStatus(
             Member member, MissionRecordStatus status) {
+        DateTemplate<String> completedAt =
+                Expressions.dateTemplate(
+                        String.class,
+                        "DATE_FORMAT({0}, {1})",
+                        missionRecord.updatedAt,
+                        ConstantImpl.create("%Y-%m-%d"));
         return queryFactory
                 .select(
                         Projections.constructor(
                                 MissionTabResponse.class,
-                                missionRecord.id,
+                                missionRecord.id.as("recordId"),
                                 missionRecord.imageUrl,
                                 missionRecord.status,
-                                mission.title,
+                                mission.title.as("missionTitle"),
                                 mission.illustrationUrl,
                                 missionRecord.content,
-                                missionRecord.updatedAt))
+                                completedAt))
                 .from(missionRecord)
                 .leftJoin(missionRecord.missionHistory, missionHistory)
-                .on(missionRecord.missionHistory.eq(missionHistory))
+                .on(missionHistory.id.eq(missionRecord.missionHistory.id))
                 .leftJoin(missionHistory.mission, mission)
-                .on(missionHistory.mission.eq(mission))
+                .on(mission.id.eq(missionHistory.mission.id))
                 .where(missionRecord.member.eq(member).and(missionRecord.status.eq(status)))
+                .orderBy(missionRecord.updatedAt.desc())
                 .fetch();
     }
 
