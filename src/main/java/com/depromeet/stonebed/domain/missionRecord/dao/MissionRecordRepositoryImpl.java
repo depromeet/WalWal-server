@@ -15,6 +15,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -81,6 +82,15 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                         "DATE_FORMAT({0}, {1})",
                         missionRecord.updatedAt,
                         ConstantImpl.create("%Y-%m-%d"));
+
+        DateTemplate<Integer> year =
+                Expressions.dateTemplate(Integer.class, "YEAR({0})", missionRecord.updatedAt);
+        DateTemplate<Integer> month =
+                Expressions.dateTemplate(Integer.class, "MONTH({0})", missionRecord.updatedAt);
+
+        int currentYear = LocalDate.now().getYear();
+        int currentMonth = LocalDate.now().getMonthValue();
+
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -97,7 +107,13 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                 .on(missionHistory.id.eq(missionRecord.missionHistory.id))
                 .leftJoin(missionHistory.mission, mission)
                 .on(mission.id.eq(missionHistory.mission.id))
-                .where(missionRecord.member.eq(member).and(missionRecord.status.eq(status)))
+                .where(
+                        missionRecord
+                                .member
+                                .eq(member)
+                                .and(missionRecord.status.eq(status))
+                                .and(year.eq(currentYear))
+                                .and(month.eq(currentMonth)))
                 .orderBy(missionRecord.updatedAt.desc())
                 .fetch();
     }

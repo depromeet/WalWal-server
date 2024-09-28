@@ -8,12 +8,12 @@ import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordStar
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordIdResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordTabListResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class MissionRecordController {
 
     @Operation(summary = "미션 탭 완료된 기록 리스트", description = "미션 탭에서 완료된 기록 리스트를 조회한다.")
     @GetMapping
-    public List<MissionTabResponse> missionRecordsFind() {
+    public MissionRecordTabListResponse missionRecordsFind() {
         return missionRecordService.findCompleteMissionRecords();
     }
 
