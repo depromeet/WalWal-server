@@ -18,6 +18,7 @@ import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCal
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordIdResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordTabListResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
@@ -246,7 +247,7 @@ public class MissionRecordService {
                 mission.getTitle(),
                 mission.getIllustrationUrl(),
                 missionRecord.getContent(),
-                missionRecord.getUpdatedAt().toLocalDate());
+                missionRecord.getUpdatedAt().toLocalDate().toString());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -274,5 +275,13 @@ public class MissionRecordService {
     public void expiredMissionsToNotCompletedUpdate() {
         LocalDateTime endOfYesterday = LocalDate.now().minusDays(1).atTime(23, 59, 59);
         missionRecordRepository.updateExpiredMissionsToNotCompleted(endOfYesterday);
+    }
+
+    @Transactional(readOnly = true)
+    public MissionRecordTabListResponse findCompleteMissionRecords() {
+        final Member member = memberUtil.getCurrentMember();
+        return MissionRecordTabListResponse.from(
+                missionRecordRepository.findAllTabMissionsByMemberAndStatus(
+                        member, MissionRecordStatus.COMPLETED));
     }
 }
