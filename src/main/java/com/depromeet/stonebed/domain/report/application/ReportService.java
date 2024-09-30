@@ -5,15 +5,10 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.report.dao.ReportRepository;
 import com.depromeet.stonebed.domain.report.domain.Report;
-import com.depromeet.stonebed.domain.report.domain.ReportReason;
 import com.depromeet.stonebed.domain.report.dto.request.ReportRequest;
-import com.depromeet.stonebed.domain.report.dto.response.ReportReasonResponse;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,17 +29,10 @@ public class ReportService {
                         .findById(reportRequest.recordId())
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
-        ReportReason reportReason = ReportReason.fromName(reportRequest.reason());
-
         Report report =
-                Report.createReport(missionRecord, member, reportReason, reportRequest.details());
+                Report.createReport(
+                        missionRecord, member, reportRequest.reason(), reportRequest.details());
 
         reportRepository.save(report);
-    }
-
-    public List<ReportReasonResponse> getReportReasons() {
-        return Arrays.stream(ReportReason.values())
-                .map(reason -> new ReportReasonResponse(reason.name(), reason.getValue()))
-                .collect(Collectors.toList());
     }
 }

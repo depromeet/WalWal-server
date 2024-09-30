@@ -38,7 +38,7 @@ public class Report extends BaseTimeEntity {
 
     private String details;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private Report(MissionRecord missionRecord, Member member, String reason, String details) {
         this.missionRecord = missionRecord;
         this.member = member;
@@ -47,11 +47,11 @@ public class Report extends BaseTimeEntity {
     }
 
     public static Report createReport(
-            MissionRecord missionRecord, Member member, ReportReason reportReason, String details) {
+            MissionRecord missionRecord, Member member, String reportReason, String details) {
         return Report.builder()
                 .missionRecord(missionRecord)
                 .member(member)
-                .reason(reportReason.getValue())
+                .reason(reportReason)
                 .details(details)
                 .build();
     }

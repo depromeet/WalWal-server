@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 public record ReportRequest(
         @Schema(description = "신고할 대상 기록의 ID", example = "123", required = true) @NotNull
                 Long recordId,
-        @Schema(description = "신고 사유 (ENUM 값)", example = "HARASSMENT", required = true) @NotNull
+        @Schema(description = "신고 사유", example = "사기 또는 사칭", required = true) @NotNull
                 String reason,
         @Schema(
                         description = "신고 상세 내용 (최대 500자)",
