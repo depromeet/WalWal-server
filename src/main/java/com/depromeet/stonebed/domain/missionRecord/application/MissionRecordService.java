@@ -278,9 +278,27 @@ public class MissionRecordService {
     }
 
     @Transactional(readOnly = true)
-    public MissionRecordTabListResponse findCompleteMissionRecords() {
+    public MissionRecordTabListResponse findCompleteMissionRecords(Long missionId) {
         final Member member = memberUtil.getCurrentMember();
+        Mission mission =
+                missionRepository
+                        .findById(missionId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MISSION_NOT_FOUND));
+
+        MissionHistory missionHistory =
+                findMissionHistoryByIdAndRaisePet(missionId, mission.getRaisePet());
+
+        MissionRecord missionRecord =
+                missionRecordRepository
+                        .findByMemberAndMissionHistory(member, missionHistory)
+                        .orElse(null);
+
+        MissionRecordStatus missionRecordStatus = MissionRecordStatus.COMPLETED;
+        if (missionRecord == null) {
+            missionRecordStatus = MissionRecordStatus.NOT_COMPLETED;
+        }
         return MissionRecordTabListResponse.from(
+                missionRecordStatus,
                 missionRecordRepository.findAllTabMissionsByMemberAndStatus(
                         member, MissionRecordStatus.COMPLETED));
     }

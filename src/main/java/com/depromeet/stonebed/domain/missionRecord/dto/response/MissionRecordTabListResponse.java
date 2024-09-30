@@ -1,9 +1,11 @@
 package com.depromeet.stonebed.domain.missionRecord.dto.response;
 
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 public record MissionRecordTabListResponse(
+        @Schema(description = "미션 당일 상태", example = "NOT_COMPLETED") MissionRecordStatus status,
         @Schema(
                         description = "미션 탭 목록",
                         example =
@@ -19,7 +21,8 @@ public record MissionRecordTabListResponse(
                                         + "}"
                                         + "]")
                 List<MissionTabResponse> list) {
-    public static MissionRecordTabListResponse from(List<MissionTabResponse> list) {
-        return new MissionRecordTabListResponse(list);
+    public static MissionRecordTabListResponse from(
+            MissionRecordStatus status, List<MissionTabResponse> list) {
+        return new MissionRecordTabListResponse(status, list);
     }
 }

@@ -29,8 +29,8 @@ public class MissionRecordController {
 
     @Operation(summary = "미션 탭 완료된 기록 리스트", description = "미션 탭에서 완료된 기록 리스트를 조회한다.")
     @GetMapping
-    public MissionRecordTabListResponse missionRecordsFind() {
-        return missionRecordService.findCompleteMissionRecords();
+    public MissionRecordTabListResponse missionRecordsFind(@RequestParam Long missionId) {
+        return missionRecordService.findCompleteMissionRecords(missionId);
     }
 
     @Operation(summary = "미션 탭 상태 조회", description = "미션 탭의 상태를 조회한다.")
