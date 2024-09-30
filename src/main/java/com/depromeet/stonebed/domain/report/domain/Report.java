@@ -39,11 +39,20 @@ public class Report extends BaseTimeEntity {
     private String details;
 
     @Builder
-    public Report(
-            MissionRecord missionRecord, Member member, ReportReason reportReason, String details) {
+    private Report(MissionRecord missionRecord, Member member, String reason, String details) {
         this.missionRecord = missionRecord;
         this.member = member;
-        this.reason = reportReason.getValue();
+        this.reason = reason;
         this.details = details;
+    }
+
+    public static Report createReport(
+            MissionRecord missionRecord, Member member, ReportReason reportReason, String details) {
+        return Report.builder()
+                .missionRecord(missionRecord)
+                .member(member)
+                .reason(reportReason.getValue())
+                .details(details)
+                .build();
     }
 }

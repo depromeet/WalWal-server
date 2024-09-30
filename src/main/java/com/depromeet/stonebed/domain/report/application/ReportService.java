@@ -37,12 +37,7 @@ public class ReportService {
         ReportReason reportReason = ReportReason.fromName(reportRequest.reason());
 
         Report report =
-                Report.builder()
-                        .missionRecord(missionRecord)
-                        .member(member)
-                        .reportReason(reportReason)
-                        .details(reportRequest.details())
-                        .build();
+                Report.createReport(missionRecord, member, reportReason, reportRequest.details());
 
         reportRepository.save(report);
     }
