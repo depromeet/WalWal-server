@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.domain.report.domain;
 
+import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "feed_report")
-public class Report {
+public class Report extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
