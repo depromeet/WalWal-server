@@ -24,8 +24,4 @@ public enum ReportReason {
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REPORT_REASON));
     }
-
-    public static String getValueFromName(String name) {
-        return fromName(name).getValue();
-    }
 }
