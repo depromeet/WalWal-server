@@ -22,7 +22,7 @@ public class ReportController {
     private final ReportService reportService;
 
     @Operation(summary = "신고 사유 목록 조회", description = "신고 사유 목록을 가져옵니다.")
-    @GetMapping("/reasons")
+    @GetMapping
     public ResponseEntity<List<ReportReasonResponse>> getReportReasons() {
         List<ReportReasonResponse> reasons = reportService.getReportReasons();
         return ResponseEntity.ok(reasons);
