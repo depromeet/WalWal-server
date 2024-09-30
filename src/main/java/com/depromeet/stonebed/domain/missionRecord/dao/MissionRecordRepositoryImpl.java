@@ -114,7 +114,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                                 .and(missionRecord.status.eq(status))
                                 .and(year.eq(currentYear))
                                 .and(month.eq(currentMonth)))
-                .orderBy(missionRecord.updatedAt.desc())
+                .orderBy(missionRecord.updatedAt.asc())
                 .fetch();
     }
 
