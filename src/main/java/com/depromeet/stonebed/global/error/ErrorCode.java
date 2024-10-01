@@ -57,7 +57,9 @@ public enum ErrorCode {
     // fcm
     INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "FCM 토큰값이 비어있습니다."),
     FAILED_TO_FIND_FCM_TOKEN(HttpStatus.NOT_FOUND, "해당 FCM 토큰을 찾을 수 없습니다."),
-    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다.");
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
+    ;
     private final HttpStatus httpStatus;
     private final String message;
 }

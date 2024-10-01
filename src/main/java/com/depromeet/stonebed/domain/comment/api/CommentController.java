@@ -3,15 +3,18 @@ package com.depromeet.stonebed.domain.comment.api;
 import com.depromeet.stonebed.domain.comment.application.CommentService;
 import com.depromeet.stonebed.domain.comment.dto.request.CommentCreateRequest;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentCreateResponse;
+import com.depromeet.stonebed.domain.comment.dto.response.CommentFindResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "8. [댓글]", description = "댓글 관련 API입니다.")
@@ -30,11 +33,9 @@ public class CommentController {
                 .body(commentService.createComment(request));
     }
 
-    // @Operation(summary = "댓글 조회", description = "댓글을 조회합니다.")
-    // @GetMapping("/{recordId}/feed")
-    // public CommentFindByRecordIdResponse commentGetList(
-    // 	@PathVariable("recordId") Long recordId
-    // ) {
-    // 	return commentService.findCommentsByRecordId(recordId);
-    // }
+    @Operation(summary = "댓글 조회", description = "댓글을 조회합니다.")
+    @GetMapping
+    public CommentFindResponse commentFind(@RequestParam Long recordId) {
+        return commentService.findCommentsByRecordId(recordId);
+    }
 }
