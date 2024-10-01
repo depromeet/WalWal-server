@@ -52,7 +52,7 @@ public class Comment extends BaseTimeEntity {
 
     // 자식 댓글
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
-    private List<Comment> children = new ArrayList<>();
+    private List<Comment> replyComments = new ArrayList<>();
 
     @Builder(access = AccessLevel.PRIVATE)
     public Comment(MissionRecord missionRecord, Member writer, String content, Comment parent) {

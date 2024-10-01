@@ -12,7 +12,7 @@ public record CommentFindOneResponse(
         @Schema(description = "작성자 프로필 이미지 URL", example = "https://default.walwal/profile.jpg")
                 String writerProfileImageUrl,
         @Schema(description = "작성일", example = "2021-10-01T00:00:00") String createdAt,
-        @Schema(description = "자식 댓글 목록") List<CommentFindOneResponse> children) {
+        @Schema(description = "자식 댓글 목록") List<CommentFindOneResponse> replyComments) {
     public static CommentFindOneResponse of(
             Long parentId,
             Long commentId,
@@ -21,7 +21,7 @@ public record CommentFindOneResponse(
             String writerNickname,
             String writerProfileImageUrl,
             String createdAt,
-            List<CommentFindOneResponse> children) {
+            List<CommentFindOneResponse> replyComments) {
         return new CommentFindOneResponse(
                 parentId,
                 commentId,
@@ -30,6 +30,6 @@ public record CommentFindOneResponse(
                 writerNickname,
                 writerProfileImageUrl,
                 createdAt,
-                children);
+                replyComments);
     }
 }

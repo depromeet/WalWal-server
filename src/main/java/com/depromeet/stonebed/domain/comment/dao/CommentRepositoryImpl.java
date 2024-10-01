@@ -19,7 +19,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .selectFrom(comment)
                 .leftJoin(comment.parent)
                 .fetchJoin()
-                .leftJoin(comment.children)
+                .leftJoin(comment.replyComments)
                 .fetchJoin()
                 .where(comment.missionRecord.eq(missionRecord))
                 .fetch();

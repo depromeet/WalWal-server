@@ -93,7 +93,7 @@ public class CommentService {
 
     private CommentFindOneResponse convertToCommentFindOneResponse(
             Comment comment, Map<Long, List<Comment>> commentsByParentId) {
-        List<CommentFindOneResponse> childrenResponses =
+        List<CommentFindOneResponse> replyCommentsResponses =
                 commentsByParentId.getOrDefault(comment.getId(), List.of()).stream()
                         .map(
                                 childComment ->
@@ -109,7 +109,7 @@ public class CommentService {
                 comment.getWriter().getProfile().getNickname(),
                 comment.getWriter().getProfile().getProfileImageUrl(),
                 comment.getCreatedAt().toString(),
-                childrenResponses);
+                replyCommentsResponses);
     }
 
     private MissionRecord findMissionRecordById(Long recordId) {
