@@ -60,7 +60,11 @@ public enum ErrorCode {
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
 
     // report
-    INVALID_REPORT_REASON(HttpStatus.NOT_FOUND, "해당 신고 사유를 찾을 수 없습니다.");
+    INVALID_REPORT_REASON(HttpStatus.NOT_FOUND, "해당 신고 사유를 찾을 수 없습니다."),
+
+    // comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
+    ;
     private final HttpStatus httpStatus;
     private final String message;
 }
