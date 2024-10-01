@@ -6,7 +6,6 @@ import com.depromeet.stonebed.domain.comment.dto.request.CommentCreateRequest;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentCreateResponse;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentFindOneResponse;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentFindResponse;
-import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
@@ -28,7 +27,7 @@ public class CommentService {
     private final MemberUtil memberUtil;
     private final CommentRepository commentRepository;
     private final MissionRecordRepository missionRecordRepository;
-    private final FcmNotificationService fcmNotificationService;
+    private static final Long ROOT_COMMENT_PARENT_ID = -1L;
 
     /**
      * 댓글을 생성합니다.
@@ -41,20 +40,19 @@ public class CommentService {
         final MissionRecord missionRecord = findMissionRecordById(request.recordId());
 
         // 부모 댓글이 존재하는 경우
-        if (request.parentId() != null) {
-            final Comment parentComment = findCommentById(request.parentId());
-            final Comment comment =
-                    Comment.createCommentChild(
-                            missionRecord, member, request.content(), parentComment);
-            Comment savedComment = commentRepository.save(comment);
-            return CommentCreateResponse.of(savedComment.getId());
-        } else {
-            // 부모 댓글이 존재하지 않는 경우, 부모 댓글 생성
-            final Comment comment =
-                    Comment.createCommentParent(missionRecord, member, request.content());
-            Comment savedComment = commentRepository.save(comment);
-            return CommentCreateResponse.of(savedComment.getId());
-        }
+
+        final Comment comment =
+                request.parentId() != null
+                        ? Comment.createComment(
+                                missionRecord,
+                                member,
+                                request.content(),
+                                findCommentById(request.parentId()))
+                        : Comment.createComment(missionRecord, member, request.content(), null);
+
+        Comment savedComment = commentRepository.save(comment);
+
+        return CommentCreateResponse.of(savedComment.getId());
     }
 
     /**
@@ -63,6 +61,7 @@ public class CommentService {
      * @param recordId 조회할 기록의 ID
      * @return 조회된 댓글 목록을 포함한 응답 객체
      */
+    @Transactional(readOnly = true)
     public CommentFindResponse findCommentsByRecordId(Long recordId) {
         final MissionRecord missionRecord = findMissionRecordById(recordId);
         final List<Comment> allComments =
@@ -75,12 +74,15 @@ public class CommentService {
                                 Collectors.groupingBy(
                                         comment -> {
                                             Comment parent = comment.getParent();
-                                            return (parent != null) ? parent.getId() : -1L;
+                                            return (parent != null)
+                                                    ? parent.getId()
+                                                    : ROOT_COMMENT_PARENT_ID;
                                         },
                                         Collectors.toList()));
 
         // 부모 댓글 (부모 댓글이 없는 댓글) 조회
-        List<Comment> rootComments = commentsByParentId.getOrDefault(-1L, List.of());
+        List<Comment> rootComments =
+                commentsByParentId.getOrDefault(ROOT_COMMENT_PARENT_ID, List.of());
 
         // 부모 댓글을 CommentFindOneResponse로 변환
         List<CommentFindOneResponse> rootResponses =

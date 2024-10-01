@@ -4,6 +4,7 @@ import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -62,18 +63,8 @@ public class Comment extends BaseTimeEntity {
         this.parent = parent;
     }
 
-    public static Comment createCommentParent(
-            MissionRecord missionRecord, Member writer, String content) {
-        return Comment.builder()
-                .missionRecord(missionRecord)
-                .writer(writer)
-                .content(content)
-                .parent(null)
-                .build();
-    }
-
-    public static Comment createCommentChild(
-            MissionRecord missionRecord, Member writer, String content, Comment parent) {
+    public static Comment createComment(
+            MissionRecord missionRecord, Member writer, String content, @Nullable Comment parent) {
         return Comment.builder()
                 .missionRecord(missionRecord)
                 .writer(writer)
