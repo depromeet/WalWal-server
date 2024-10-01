@@ -2,11 +2,11 @@ package com.depromeet.stonebed.domain.discord.application;
 
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
+import com.depromeet.stonebed.infra.properties.DiscordProperties;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,7 @@ import org.springframework.web.client.RestClient;
 @Transactional
 public class DiscordNotificationService {
 
-    @Value("${discord.webhook.url}")
-    private String discordWebhookUrl;
-
+    private final DiscordProperties discordProperties;
     private final RestClient restClient;
 
     public void sendDiscordMessage(String message) {
@@ -29,6 +27,7 @@ public class DiscordNotificationService {
         payload.put("content", message);
 
         try {
+            String discordWebhookUrl = discordProperties.url();
             log.info("Sending Discord notification to URL: {}", discordWebhookUrl);
 
             restClient
