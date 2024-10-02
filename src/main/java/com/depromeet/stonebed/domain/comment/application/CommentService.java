@@ -9,6 +9,7 @@ import com.depromeet.stonebed.domain.comment.dto.response.CommentFindResponse;
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
+import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
@@ -16,8 +17,12 @@ import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,32 +50,66 @@ public class CommentService {
         final Member member = memberUtil.getCurrentMember();
         final MissionRecord missionRecord = findMissionRecordById(request.recordId());
 
-        // 부모 댓글이 존재하는 경우
+        if (request.parentId() == null) {
+            final FcmNotificationConstants commentNotification = FcmNotificationConstants.COMMENT;
 
-        final Comment comment =
-                request.parentId() != null
-                        ? Comment.createComment(
-                                missionRecord,
-                                member,
-                                request.content(),
-                                findCommentById(request.parentId()))
-                        : Comment.createComment(missionRecord, member, request.content(), null);
+            final Comment comment =
+                    Comment.createComment(missionRecord, member, request.content(), null);
+            Comment savedComment = commentRepository.save(comment);
 
-        Comment savedComment = commentRepository.save(comment);
-        FcmNotificationConstants notificationConstants = FcmNotificationConstants.COMMENT;
+            sendCommentNotification(missionRecord, comment, commentNotification);
+            return CommentCreateResponse.of(savedComment.getId());
+        } else {
+            final FcmNotificationConstants reCommentNotification =
+                    FcmNotificationConstants.RE_COMMENT;
 
-        fcmTokenRepository
-                .findByMember(member)
-                .ifPresent(
-                        fcmToken -> {
-                            fcmNotificationService.sendAndNotifications(
-                                    notificationConstants.getTitle(),
-                                    notificationConstants.getMessage(),
-                                    List.of(fcmToken.getToken()),
-                                    FcmNotificationType.COMMENT);
-                        });
+            final Comment reComment =
+                    Comment.createComment(
+                            missionRecord,
+                            member,
+                            request.content(),
+                            findCommentById(request.parentId()));
+            Comment savedComment = commentRepository.save(reComment);
 
-        return CommentCreateResponse.of(savedComment.getId());
+            sendCommentNotification(missionRecord, reComment, reCommentNotification);
+            return CommentCreateResponse.of(savedComment.getId());
+        }
+    }
+
+    private void sendCommentNotification(
+            MissionRecord missionRecord,
+            Comment comment,
+            FcmNotificationConstants commentNotification) {
+        // Set to collect unique members who should receive notifications
+        Set<Member> notificationRecipients = new HashSet<>();
+
+        // Add the mission record owner
+        notificationRecipients.add(missionRecord.getMember());
+
+        // Add the parent comment writer if exists
+        Comment currentComment = comment;
+        while (currentComment.getParent() != null) {
+            currentComment = currentComment.getParent();
+            notificationRecipients.add(currentComment.getWriter());
+        }
+
+        // Retrieve FCM tokens for all unique members
+        List<String> tokens =
+                notificationRecipients.stream()
+                        .map(fcmTokenRepository::findByMember)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .map(FcmToken::getToken)
+                        .filter(Objects::nonNull)
+                        .filter(token -> !token.isEmpty() && !token.isBlank())
+                        .collect(Collectors.toList());
+
+        // Send notifications
+        fcmNotificationService.sendAndNotifications(
+                commentNotification.getTitle(),
+                commentNotification.getMessage(),
+                tokens,
+                FcmNotificationType.COMMENT);
     }
 
     /**
