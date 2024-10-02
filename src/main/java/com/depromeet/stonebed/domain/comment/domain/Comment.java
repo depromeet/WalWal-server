@@ -4,6 +4,7 @@ import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -52,7 +53,7 @@ public class Comment extends BaseTimeEntity {
 
     // 자식 댓글
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
-    private List<Comment> children = new ArrayList<>();
+    private List<Comment> replyComments = new ArrayList<>();
 
     @Builder(access = AccessLevel.PRIVATE)
     public Comment(MissionRecord missionRecord, Member writer, String content, Comment parent) {
@@ -63,7 +64,7 @@ public class Comment extends BaseTimeEntity {
     }
 
     public static Comment createComment(
-            MissionRecord missionRecord, Member writer, String content, Comment parent) {
+            MissionRecord missionRecord, Member writer, String content, @Nullable Comment parent) {
         return Comment.builder()
                 .missionRecord(missionRecord)
                 .writer(writer)

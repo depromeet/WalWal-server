@@ -62,8 +62,11 @@ public enum ErrorCode {
     // report
     INVALID_REPORT_REASON(HttpStatus.NOT_FOUND, "해당 신고 사유를 찾을 수 없습니다."),
 
-    // discord
-    DISCORD_NOTIFICATION_FAILED(HttpStatus.BAD_REQUEST, "디스코드 알림 전송이 실패했습니다.");
+    DISCORD_NOTIFICATION_FAILED(HttpStatus.BAD_REQUEST, "디스코드 알림 전송이 실패했습니다."),
+  
+    // comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다.");
+
     private final HttpStatus httpStatus;
     private final String message;
 }
