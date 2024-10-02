@@ -271,10 +271,14 @@ public class FcmNotificationService {
         return notifications;
     }
 
-    public void sendAndNotifications(String title, String message, List<String> tokens) {
+    public void sendAndNotifications(
+            String title,
+            String message,
+            List<String> tokens,
+            FcmNotificationType notificationType) {
         List<List<String>> batches = createBatches(tokens, BATCH_SIZE);
 
-        String deepLink = FcmNotification.generateDeepLink(FcmNotificationType.MISSION, null, null);
+        String deepLink = FcmNotification.generateDeepLink(notificationType, null, null);
 
         for (List<String> batch : batches) {
             sqsMessageService.sendBatchMessages(batch, title, message, deepLink);

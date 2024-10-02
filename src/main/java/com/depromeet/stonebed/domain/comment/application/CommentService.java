@@ -6,9 +6,13 @@ import com.depromeet.stonebed.domain.comment.dto.request.CommentCreateRequest;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentCreateResponse;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentFindOneResponse;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentFindResponse;
+import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
+import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
+import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -27,6 +31,8 @@ public class CommentService {
     private final MemberUtil memberUtil;
     private final CommentRepository commentRepository;
     private final MissionRecordRepository missionRecordRepository;
+    private final FcmNotificationService fcmNotificationService;
+    private final FcmTokenRepository fcmTokenRepository;
     private static final Long ROOT_COMMENT_PARENT_ID = -1L;
 
     /**
@@ -51,6 +57,18 @@ public class CommentService {
                         : Comment.createComment(missionRecord, member, request.content(), null);
 
         Comment savedComment = commentRepository.save(comment);
+        FcmNotificationConstants notificationConstants = FcmNotificationConstants.COMMENT;
+
+        fcmTokenRepository
+                .findByMember(member)
+                .ifPresent(
+                        fcmToken -> {
+                            fcmNotificationService.sendAndNotifications(
+                                    notificationConstants.getTitle(),
+                                    notificationConstants.getMessage(),
+                                    List.of(fcmToken.getToken()),
+                                    FcmNotificationType.COMMENT);
+                        });
 
         return CommentCreateResponse.of(savedComment.getId());
     }
