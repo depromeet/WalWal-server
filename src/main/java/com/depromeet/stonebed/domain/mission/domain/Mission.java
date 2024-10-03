@@ -34,6 +34,9 @@ public class Mission extends BaseTimeEntity {
     @Column(name = "raise_pet", nullable = false)
     private RaisePet raisePet;
 
+    @Column(name = "complete_image_url")
+    private String completeImageUrl;
+
     @NotBlank
     @Size(max = 100)
     @Column(name = "complete_message", nullable = false)
