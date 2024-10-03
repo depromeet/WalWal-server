@@ -99,7 +99,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                                 missionRecord.imageUrl,
                                 missionRecord.status,
                                 mission.title.as("missionTitle"),
-                                mission.illustrationUrl,
+                                mission.completeImageUrl,
                                 missionRecord.content,
                                 completedAt))
                 .from(missionRecord)
