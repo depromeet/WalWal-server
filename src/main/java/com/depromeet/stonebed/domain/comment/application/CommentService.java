@@ -45,9 +45,8 @@ public class CommentService {
         final MissionRecord missionRecord = findMissionRecordById(request.recordId());
 
         final Comment comment = createAndSaveComment(request, member, missionRecord);
-        final FcmNotificationConstants notificationType = getNotificationType(request);
 
-        sendCommentNotification(missionRecord, comment, notificationType);
+        sendCommentNotification(missionRecord, comment);
         return CommentCreateResponse.of(comment.getId());
     }
 
@@ -65,25 +64,58 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    private FcmNotificationConstants getNotificationType(CommentCreateRequest request) {
-        return request.parentId() == null
-                ? FcmNotificationConstants.COMMENT
-                : FcmNotificationConstants.RE_COMMENT;
-    }
+    private void sendCommentNotification(MissionRecord missionRecord, Comment comment) {
+        Set<Member> members = collectNotificationRecipients(missionRecord, comment);
+        // 	.forEach(member -> {
+        // 	String title = FcmNotificationConstants.COMMENT.getTitle();
+        // 	String message = comment.getWriter().getProfile().getNickname() +
+        // FcmNotificationConstants.COMMENT.getMessage();
+        // 	List<String> tokens = retrieveFcmTokens(Set.of(member));
+        // 	fcmNotificationService.sendAndNotifications(title, message, tokens,
+        // FcmNotificationType.COMMENT);
+        // });
 
-    private void sendCommentNotification(
-            MissionRecord missionRecord,
-            Comment comment,
-            FcmNotificationConstants commentNotification) {
-        Set<Member> notificationRecipients = collectNotificationRecipients(missionRecord, comment);
-        List<String> tokens = retrieveFcmTokens(notificationRecipients);
+        // 게시물 작성자
+        Member missionRecordOwner = missionRecord.getMember();
+        Member commentWriter = comment.getWriter();
 
-        FcmNotificationType fcmNotificationType = getFcmNotificationType(commentNotification);
-        fcmNotificationService.sendAndNotifications(
-                commentNotification.getTitle(),
-                commentNotification.getMessage(),
-                tokens,
-                fcmNotificationType);
+        // 1. 게시물 작성자가 댓글 작성자가 아닐 때 알림
+        if (!missionRecordOwner.equals(commentWriter)) {
+            String title = FcmNotificationConstants.COMMENT.getTitle();
+            String message =
+                    commentWriter.getProfile().getNickname()
+                            + FcmNotificationConstants.COMMENT.getMessage();
+            List<String> tokens = retrieveFcmTokens(Set.of(missionRecordOwner));
+            fcmNotificationService.sendAndNotifications(
+                    title, message, tokens, FcmNotificationType.COMMENT);
+        }
+
+        // 2. 대댓글 작성 시 부모 댓글 작성자에게 RE_COMMENT 알림
+        if (comment.getParent() != null) {
+            Member parentCommentWriter = comment.getParent().getWriter();
+
+            // 부모 댓글 작성자가 대댓글 작성자가 아닌 경우에만 알림 전송
+            if (!parentCommentWriter.equals(commentWriter)) {
+                String title = FcmNotificationConstants.RE_COMMENT.getTitle();
+                String message =
+                        commentWriter.getProfile().getNickname()
+                                + FcmNotificationConstants.RE_COMMENT.getMessage();
+                List<String> tokens = retrieveFcmTokens(Set.of(parentCommentWriter));
+                fcmNotificationService.sendAndNotifications(
+                        title, message, tokens, FcmNotificationType.RE_COMMENT);
+            }
+
+            // 게시물 작성자에게는 RECORD_RE_COMMENT 알림
+            if (!missionRecordOwner.equals(commentWriter)) {
+                String title = FcmNotificationConstants.RECORD_RE_COMMENT.getTitle();
+                String message =
+                        commentWriter.getProfile().getNickname()
+                                + FcmNotificationConstants.RECORD_RE_COMMENT.getMessage();
+                List<String> tokens = retrieveFcmTokens(Set.of(missionRecordOwner));
+                fcmNotificationService.sendAndNotifications(
+                        title, message, tokens, FcmNotificationType.RE_COMMENT);
+            }
+        }
     }
 
     private Set<Member> collectNotificationRecipients(
@@ -111,13 +143,6 @@ public class CommentService {
                 .filter(Objects::nonNull)
                 .filter(token -> !token.isEmpty() && !token.isBlank())
                 .collect(Collectors.toList());
-    }
-
-    private FcmNotificationType getFcmNotificationType(
-            FcmNotificationConstants commentNotification) {
-        return FcmNotificationConstants.RE_COMMENT.equals(commentNotification)
-                ? FcmNotificationType.RE_COMMENT
-                : FcmNotificationType.COMMENT;
     }
 
     @Transactional(readOnly = true)
