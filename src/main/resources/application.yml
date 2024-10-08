@@ -20,3 +20,6 @@ logging:
     com.depromeet.stonebed.*.*.application.*: debug
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+
+discord:
+    url: ${DISCORD_WEBHOOK_URL}

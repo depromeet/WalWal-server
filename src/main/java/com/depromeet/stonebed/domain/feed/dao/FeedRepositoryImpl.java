@@ -31,6 +31,8 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                                 mission,
                                 missionRecord,
                                 member,
+                                Expressions.asNumber(missionRecord.comments.size())
+                                        .as("totalCommentCount"),
                                 Expressions.asNumber(
                                                 missionRecordBoost.count.sumLong().coalesce(0L))
                                         .as("totalBoostCount")))

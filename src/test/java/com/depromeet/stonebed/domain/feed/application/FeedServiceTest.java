@@ -28,6 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 class FeedServiceTest extends FixtureMonkeySetUp {
     int DEFAULT_LIMIT = 5;
     Long DEFAULT_TOTAL_BOOST_COUNT = 100L;
+    Integer DEFAULT_TOTAL_COMMENT_COUNT = 13;
     String DEFAULT_CURSOR = "5";
     String INVALID_CURSOR = "2024-08-01";
 
@@ -46,6 +47,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
+                            DEFAULT_TOTAL_COMMENT_COUNT,
                             DEFAULT_TOTAL_BOOST_COUNT));
         }
 
@@ -75,6 +77,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
+                            DEFAULT_TOTAL_COMMENT_COUNT,
                             DEFAULT_TOTAL_BOOST_COUNT));
         }
 
@@ -87,6 +90,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                         fixtureMonkey.giveMeOne(Mission.class),
                         fixtureMonkey.giveMeOne(MissionRecord.class),
                         fixtureMonkey.giveMeOne(Member.class),
+                        DEFAULT_TOTAL_COMMENT_COUNT,
                         DEFAULT_TOTAL_BOOST_COUNT);
 
         when(feedRepository.getNextFeedContent(
@@ -114,6 +118,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
+                            DEFAULT_TOTAL_COMMENT_COUNT,
                             DEFAULT_TOTAL_BOOST_COUNT));
         }
 

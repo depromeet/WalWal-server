@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
+import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
@@ -64,7 +65,11 @@ public class FcmSchedulerTest extends FixtureMonkeySetUp {
 
         // then
         verify(fcmNotificationService, times(1))
-                .sendAndNotifications(eq("미션 시작!"), eq("새로운 미션을 지금 시작해보세요!"), eq(tokens));
+                .sendAndNotifications(
+                        eq("미션 시작!"),
+                        eq("새로운 미션을 지금 시작해보세요!"),
+                        eq(tokens),
+                        eq(FcmNotificationType.MISSION));
     }
 
     @Test
@@ -104,6 +109,10 @@ public class FcmSchedulerTest extends FixtureMonkeySetUp {
 
         // then
         verify(fcmNotificationService, times(1))
-                .sendAndNotifications(eq("미션 리마인드"), eq("미션 종료까지 5시간 남았어요!"), eq(tokens));
+                .sendAndNotifications(
+                        eq("미션 리마인드"),
+                        eq("미션 종료까지 5시간 남았어요!"),
+                        eq(tokens),
+                        eq(FcmNotificationType.MISSION));
     }
 }

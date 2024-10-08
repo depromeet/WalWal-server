@@ -17,4 +17,6 @@ public interface FcmTokenRepository
     List<FcmToken> findAllByMemberStatus(MemberStatus status);
 
     List<FcmToken> findAllByUpdatedAtBefore(LocalDateTime cutoffDate);
+
+    void deleteByToken(String token);
 }

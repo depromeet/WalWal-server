@@ -41,4 +41,9 @@ public class MemberService {
         Profile profile = Profile.createProfile(request.nickname(), request.profileImageUrl());
         member.updateProfile(profile);
     }
+
+    public MemberInfoResponse findMemberInfoByNickname(String nickname) {
+        Member member = memberUtil.getMemberByNickname(nickname);
+        return MemberInfoResponse.from(member);
+    }
 }
