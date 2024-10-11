@@ -59,7 +59,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
 
         // When
         FeedGetResponse feedGetResponse =
-                feedService.getFeed(new FeedGetRequest(null, null, DEFAULT_LIMIT));
+                feedService.findFeed(new FeedGetRequest(null, null, DEFAULT_LIMIT));
 
         // Then
         assertThat(feedGetResponse.list().size()).isEqualTo(5);
@@ -99,7 +99,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
 
         // When
         FeedGetResponse feedGetResponse =
-                feedService.getFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
+                feedService.findFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
 
         // Then
         assertThat(feedGetResponse.list().size()).isEqualTo(5);
@@ -131,7 +131,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
 
         // When
         FeedGetResponse feedGetResponse =
-                feedService.getFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
+                feedService.findFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
 
         // Then
         assertThat(feedGetResponse.list().size()).isEqualTo(3);
@@ -145,7 +145,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                 assertThrows(
                         CustomException.class,
                         () ->
-                                feedService.getFeed(
+                                feedService.findFeed(
                                         new FeedGetRequest(INVALID_CURSOR, null, DEFAULT_LIMIT)));
 
         // Then: 에러코드 검증

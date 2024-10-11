@@ -23,38 +23,6 @@ import org.springframework.stereotype.Repository;
 public class FeedRepositoryImpl implements FeedRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
-    private JPAQuery<FindFeedDto> getFeedBaseQuery(Long missionRecordId, Long memberId) {
-        return queryFactory
-                .select(
-                        Projections.constructor(
-                                FindFeedDto.class,
-                                mission,
-                                missionRecord,
-                                member,
-                                Expressions.asNumber(missionRecord.comments.size())
-                                        .as("totalCommentCount"),
-                                Expressions.asNumber(
-                                                missionRecordBoost.count.sumLong().coalesce(0L))
-                                        .as("totalBoostCount")))
-                .from(missionRecord)
-                .leftJoin(missionRecordBoost)
-                .on(missionRecordBoost.missionRecord.eq(missionRecord))
-                .leftJoin(member)
-                .on(missionRecord.member.eq(member))
-                .leftJoin(missionHistory)
-                .on(missionRecord.missionHistory.eq(missionHistory))
-                .leftJoin(mission)
-                .on(missionHistory.mission.eq(mission))
-                .where(
-                        missionRecord.status.eq(MissionRecordStatus.COMPLETED),
-                        // TODO: 추후 피드 Request에 파라미터 전달받을 계획
-                        missionRecord.display.in(MissionRecordDisplay.PUBLIC),
-                        ltMissionRecordId(missionRecordId),
-                        eqMemberId(memberId))
-                .groupBy(missionRecord.id)
-                .orderBy(missionRecord.updatedAt.desc());
-    }
-
     @Override
     public List<FindFeedDto> getFeedContentsUsingCursor(
             Long missionRecordId, Long memberId, int limit) {
@@ -66,11 +34,59 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
         return getFeedBaseQuery(missionRecordId, memberId).fetchFirst();
     }
 
+    @Override
+    public FindFeedDto findOneFeedContent(Long recordId) {
+        // findOneFeedContent는 eqMissionRecordId 조건만 사용
+        return applyJoinsAndConditions(getBaseSelectQuery())
+                .where(eqMissionRecordId(recordId))
+                .orderBy(missionRecord.updatedAt.desc())
+                .fetchOne();
+    }
+
+    private JPAQuery<FindFeedDto> getFeedBaseQuery(Long missionRecordId, Long memberId) {
+        return applyJoinsAndConditions(getBaseSelectQuery())
+                .where(
+                        missionRecord.status.eq(MissionRecordStatus.COMPLETED),
+                        missionRecord.display.in(MissionRecordDisplay.PUBLIC),
+                        ltMissionRecordId(missionRecordId),
+                        eqMemberId(memberId))
+                .groupBy(missionRecord.id)
+                .orderBy(missionRecord.updatedAt.desc());
+    }
+
+    private JPAQuery<FindFeedDto> getBaseSelectQuery() {
+        return queryFactory.select(
+                Projections.constructor(
+                        FindFeedDto.class,
+                        mission,
+                        missionRecord,
+                        member,
+                        Expressions.asNumber(missionRecord.comments.size()).as("totalCommentCount"),
+                        Expressions.asNumber(missionRecordBoost.count.sumLong().coalesce(0L))
+                                .as("totalBoostCount")));
+    }
+
+    private JPAQuery<FindFeedDto> applyJoinsAndConditions(JPAQuery<FindFeedDto> query) {
+        return query.from(missionRecord)
+                .leftJoin(missionRecordBoost)
+                .on(missionRecordBoost.missionRecord.eq(missionRecord))
+                .leftJoin(member)
+                .on(missionRecord.member.eq(member))
+                .leftJoin(missionHistory)
+                .on(missionRecord.missionHistory.eq(missionHistory))
+                .leftJoin(mission)
+                .on(missionHistory.mission.eq(mission));
+    }
+
     private BooleanExpression ltMissionRecordId(Long missionRecordId) {
         return missionRecordId != null ? missionRecord.id.lt(missionRecordId) : null;
     }
 
     private BooleanExpression eqMemberId(Long memberId) {
         return memberId != null ? missionRecord.member.id.eq(memberId) : null;
+    }
+
+    private BooleanExpression eqMissionRecordId(Long missionRecordId) {
+        return missionRecordId != null ? missionRecord.id.eq(missionRecordId) : null;
     }
 }
