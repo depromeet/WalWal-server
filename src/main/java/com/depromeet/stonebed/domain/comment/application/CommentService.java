@@ -65,29 +65,13 @@ public class CommentService {
     }
 
     private void sendCommentNotification(MissionRecord missionRecord, Comment comment) {
-        Set<Member> members = collectNotificationRecipients(missionRecord, comment);
-        // 	.forEach(member -> {
-        // 	String title = FcmNotificationConstants.COMMENT.getTitle();
-        // 	String message = comment.getWriter().getProfile().getNickname() +
-        // FcmNotificationConstants.COMMENT.getMessage();
-        // 	List<String> tokens = retrieveFcmTokens(Set.of(member));
-        // 	fcmNotificationService.sendAndNotifications(title, message, tokens,
-        // FcmNotificationType.COMMENT);
-        // });
-
-        // 게시물 작성자
         Member missionRecordOwner = missionRecord.getMember();
         Member commentWriter = comment.getWriter();
 
         // 1. 게시물 작성자가 댓글 작성자가 아닐 때 알림
         if (!missionRecordOwner.equals(commentWriter)) {
-            String title = FcmNotificationConstants.COMMENT.getTitle();
-            String message =
-                    commentWriter.getProfile().getNickname()
-                            + FcmNotificationConstants.COMMENT.getMessage();
-            List<String> tokens = retrieveFcmTokens(Set.of(missionRecordOwner));
-            fcmNotificationService.sendAndNotifications(
-                    title, message, tokens, FcmNotificationType.COMMENT);
+            System.out.println("1. missionRecordOwner member= " + missionRecordOwner.getId());
+            sendNotification(missionRecordOwner, FcmNotificationConstants.COMMENT, commentWriter);
         }
 
         // 2. 대댓글 작성 시 부모 댓글 작성자에게 RE_COMMENT 알림
@@ -96,26 +80,48 @@ public class CommentService {
 
             // 부모 댓글 작성자가 대댓글 작성자가 아닌 경우에만 알림 전송
             if (!parentCommentWriter.equals(commentWriter)) {
-                String title = FcmNotificationConstants.RE_COMMENT.getTitle();
-                String message =
-                        commentWriter.getProfile().getNickname()
-                                + FcmNotificationConstants.RE_COMMENT.getMessage();
-                List<String> tokens = retrieveFcmTokens(Set.of(parentCommentWriter));
-                fcmNotificationService.sendAndNotifications(
-                        title, message, tokens, FcmNotificationType.RE_COMMENT);
+                System.out.println("2. parentCommentWriter member= " + parentCommentWriter.getId());
+                sendNotification(
+                        parentCommentWriter, FcmNotificationConstants.RE_COMMENT, commentWriter);
             }
 
             // 게시물 작성자에게는 RECORD_RE_COMMENT 알림
             if (!missionRecordOwner.equals(commentWriter)) {
-                String title = FcmNotificationConstants.RECORD_RE_COMMENT.getTitle();
-                String message =
-                        commentWriter.getProfile().getNickname()
-                                + FcmNotificationConstants.RECORD_RE_COMMENT.getMessage();
-                List<String> tokens = retrieveFcmTokens(Set.of(missionRecordOwner));
-                fcmNotificationService.sendAndNotifications(
-                        title, message, tokens, FcmNotificationType.RE_COMMENT);
+                System.out.println("3. missionRecordOwner member= " + missionRecordOwner.getId());
+                sendNotification(
+                        missionRecordOwner,
+                        FcmNotificationConstants.RECORD_RE_COMMENT,
+                        commentWriter);
+            }
+
+            // Collect unique recipients for notifications
+            Set<Member> uniqueRecipients = new HashSet<>();
+            collectUniqueRecipients(comment.getParent(), uniqueRecipients);
+            uniqueRecipients.remove(commentWriter); // Remove the comment writer from recipients
+
+            // Send notifications to unique recipients
+            for (Member recipient : uniqueRecipients) {
+                System.out.println("4. recipient member= " + recipient.getId());
+                sendNotification(recipient, FcmNotificationConstants.RE_COMMENT, commentWriter);
             }
         }
+    }
+
+    private void collectUniqueRecipients(Comment comment, Set<Member> uniqueRecipients) {
+        for (Comment reply : comment.getReplyComments()) {
+            uniqueRecipients.add(reply.getWriter());
+            collectUniqueRecipients(
+                    reply, uniqueRecipients); // Recursively collect from nested replies
+        }
+    }
+
+    private void sendNotification(
+            Member recipient, FcmNotificationConstants notificationType, Member commentWriter) {
+        String title = notificationType.getTitle();
+        String message = commentWriter.getProfile().getNickname() + notificationType.getMessage();
+        List<String> tokens = retrieveFcmTokens(Set.of(recipient));
+        fcmNotificationService.sendAndNotifications(
+                title, message, tokens, FcmNotificationType.valueOf(notificationType.name()));
     }
 
     private Set<Member> collectNotificationRecipients(
