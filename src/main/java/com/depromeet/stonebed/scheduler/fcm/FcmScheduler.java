@@ -43,7 +43,7 @@ public class FcmScheduler {
         List<String> tokens = fcmNotificationService.getAllTokens();
 
         fcmNotificationService.sendAndNotifications(
-                title, message, tokens, FcmNotificationType.MISSION);
+                title, message, tokens, null, FcmNotificationType.MISSION);
 
         log.info("모든 사용자에게 정규 알림 전송 및 저장 완료");
     }
@@ -57,7 +57,7 @@ public class FcmScheduler {
 
         List<String> tokens = getIncompleteMissionTokens();
         fcmNotificationService.sendAndNotifications(
-                title, message, tokens, FcmNotificationType.MISSION);
+                title, message, tokens, null, FcmNotificationType.MISSION);
 
         log.info("미완료 미션 사용자에게 리마인더 전송 및 저장 완료. 총 토큰 수: {}", tokens.size());
     }

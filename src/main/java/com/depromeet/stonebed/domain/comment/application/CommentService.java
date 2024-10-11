@@ -50,6 +50,19 @@ public class CommentService {
         return CommentCreateResponse.of(comment.getId());
     }
 
+    @Transactional(readOnly = true)
+    public CommentFindResponse findCommentsByRecordId(Long recordId) {
+        final MissionRecord missionRecord = findMissionRecordById(recordId);
+        final List<Comment> allComments =
+                commentRepository.findAllCommentsByMissionRecord(missionRecord);
+
+        Map<Long, List<Comment>> commentsByParentId = groupCommentsByParentId(allComments);
+        List<CommentFindOneResponse> rootResponses =
+                convertToCommentFindOneResponses(commentsByParentId);
+
+        return CommentFindResponse.of(rootResponses);
+    }
+
     private Comment createAndSaveComment(
             CommentCreateRequest request, Member member, MissionRecord missionRecord) {
         final Comment comment =
@@ -70,7 +83,11 @@ public class CommentService {
 
         // 1. 게시물 작성자가 댓글 작성자가 아닐 때 알림
         if (!missionRecordOwner.equals(commentWriter)) {
-            sendNotification(missionRecordOwner, FcmNotificationConstants.COMMENT, commentWriter);
+            sendNotification(
+                    missionRecordOwner,
+                    FcmNotificationConstants.COMMENT,
+                    missionRecord,
+                    commentWriter);
         }
 
         // 2. 대댓글 작성 시 부모 댓글 작성자에게 RE_COMMENT 알림
@@ -80,7 +97,10 @@ public class CommentService {
             // 부모 댓글 작성자가 대댓글 작성자가 아닌 경우에만 알림 전송
             if (!parentCommentWriter.equals(commentWriter)) {
                 sendNotification(
-                        parentCommentWriter, FcmNotificationConstants.RE_COMMENT, commentWriter);
+                        parentCommentWriter,
+                        FcmNotificationConstants.RE_COMMENT,
+                        missionRecord,
+                        commentWriter);
             }
 
             // 게시물 작성자에게는 RECORD_RE_COMMENT 알림
@@ -88,6 +108,7 @@ public class CommentService {
                 sendNotification(
                         missionRecordOwner,
                         FcmNotificationConstants.RECORD_RE_COMMENT,
+                        missionRecord,
                         commentWriter);
             }
 
@@ -96,18 +117,29 @@ public class CommentService {
 
             // Send notifications to unique recipients
             for (Member recipient : commentRecipients) {
-                sendNotification(recipient, FcmNotificationConstants.RE_COMMENT, commentWriter);
+                sendNotification(
+                        recipient,
+                        FcmNotificationConstants.RE_COMMENT,
+                        missionRecord,
+                        commentWriter);
             }
         }
     }
 
     private void sendNotification(
-            Member recipient, FcmNotificationConstants notificationType, Member commentWriter) {
+            Member recipient,
+            FcmNotificationConstants notificationType,
+            MissionRecord missionRecord,
+            Member commentWriter) {
         String title = notificationType.getTitle();
         String message = commentWriter.getProfile().getNickname() + notificationType.getMessage();
         List<String> tokens = retrieveFcmTokens(Set.of(recipient));
         fcmNotificationService.sendAndNotifications(
-                title, message, tokens, FcmNotificationType.valueOf(notificationType.name()));
+                title,
+                message,
+                tokens,
+                missionRecord.getId(),
+                FcmNotificationType.valueOf(notificationType.name()));
     }
 
     private Set<Member> collectNotificationRecipients(
@@ -135,19 +167,6 @@ public class CommentService {
                 .filter(Objects::nonNull)
                 .filter(token -> !token.isEmpty() && !token.isBlank())
                 .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public CommentFindResponse findCommentsByRecordId(Long recordId) {
-        final MissionRecord missionRecord = findMissionRecordById(recordId);
-        final List<Comment> allComments =
-                commentRepository.findAllCommentsByMissionRecord(missionRecord);
-
-        Map<Long, List<Comment>> commentsByParentId = groupCommentsByParentId(allComments);
-        List<CommentFindOneResponse> rootResponses =
-                convertToCommentFindOneResponses(commentsByParentId);
-
-        return CommentFindResponse.of(rootResponses);
     }
 
     private Map<Long, List<Comment>> groupCommentsByParentId(List<Comment> allComments) {

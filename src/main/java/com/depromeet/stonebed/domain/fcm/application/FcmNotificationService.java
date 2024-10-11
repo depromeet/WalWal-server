@@ -254,6 +254,7 @@ public class FcmNotificationService {
             String title,
             String message,
             List<String> tokens,
+            Long targetId,
             FcmNotificationType notificationType) {
         List<FcmNotification> notifications = new ArrayList<>();
 
@@ -266,7 +267,8 @@ public class FcmNotificationService {
                                     () -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
 
             FcmNotification newNotification =
-                    FcmNotification.create(notificationType, title, message, member, null, false);
+                    FcmNotification.create(
+                            notificationType, title, message, member, targetId, false);
             notifications.add(newNotification);
         }
 
@@ -277,17 +279,18 @@ public class FcmNotificationService {
             String title,
             String message,
             List<String> tokens,
+            Long targetId,
             FcmNotificationType notificationType) {
         List<List<String>> batches = createBatches(tokens, BATCH_SIZE);
 
-        String deepLink = FcmNotification.generateDeepLink(notificationType, null, null);
+        String deepLink = FcmNotification.generateDeepLink(notificationType, targetId, null);
 
         for (List<String> batch : batches) {
             sqsMessageService.sendBatchMessages(batch, title, message, deepLink);
         }
 
         List<FcmNotification> notifications =
-                buildNotificationList(title, message, tokens, notificationType);
+                buildNotificationList(title, message, tokens, targetId, notificationType);
         notificationRepository.saveAll(notifications);
     }
 
