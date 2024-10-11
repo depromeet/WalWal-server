@@ -69,6 +69,7 @@ public class FcmSchedulerTest extends FixtureMonkeySetUp {
                         eq("미션 시작!"),
                         eq("새로운 미션을 지금 시작해보세요!"),
                         eq(tokens),
+                        eq(null),
                         eq(FcmNotificationType.MISSION));
     }
 
@@ -113,6 +114,7 @@ public class FcmSchedulerTest extends FixtureMonkeySetUp {
                         eq("미션 리마인드"),
                         eq("미션 종료까지 5시간 남았어요!"),
                         eq(tokens),
+                        eq(null),
                         eq(FcmNotificationType.MISSION));
     }
 }
