@@ -5,6 +5,7 @@ import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.infra.properties.DiscordProperties;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -42,7 +43,7 @@ public class DiscordNotificationService {
                                             ErrorCode.DISCORD_NOTIFICATION_FAILED);
                                 }
                                 log.info("Discord 알림 전송 성공: {}", message);
-                                return response.bodyTo(String.class);
+                                return Objects.requireNonNull(response.bodyTo(String.class));
                             });
 
         } catch (Exception e) {
