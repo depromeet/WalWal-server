@@ -7,4 +7,6 @@ public interface FeedRepositoryCustom {
     List<FindFeedDto> getFeedContentsUsingCursor(Long missionRecordId, Long memberId, int limit);
 
     FindFeedDto getNextFeedContent(Long missionRecordId, Long memberId);
+
+    FindFeedDto findOneFeedContent(Long recordId);
 }

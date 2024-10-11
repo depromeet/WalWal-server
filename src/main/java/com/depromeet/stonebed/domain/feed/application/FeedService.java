@@ -19,7 +19,7 @@ public class FeedService {
     private final FeedRepository feedRepository;
 
     @Transactional(readOnly = true)
-    public FeedGetResponse getFeed(FeedGetRequest request) {
+    public FeedGetResponse findFeed(FeedGetRequest request) {
         List<FindFeedDto> feeds = getFeeds(request.cursor(), request.memberId(), request.limit());
 
         List<FeedContentGetResponse> feedContentList =
@@ -73,5 +73,14 @@ public class FeedService {
         } catch (NumberFormatException e) {
             throw new CustomException(ErrorCode.INVALID_CURSOR_FORMAT);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public FeedContentGetResponse findFeedOne(Long recordId) {
+        FindFeedDto feedOne = feedRepository.findOneFeedContent(recordId);
+        if (feedOne == null) {
+            throw new CustomException(ErrorCode.FEED_NOT_FOUND);
+        }
+        return FeedContentGetResponse.from(feedOne);
     }
 }
