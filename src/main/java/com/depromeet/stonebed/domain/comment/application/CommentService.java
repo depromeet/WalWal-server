@@ -70,7 +70,6 @@ public class CommentService {
 
         // 1. 게시물 작성자가 댓글 작성자가 아닐 때 알림
         if (!missionRecordOwner.equals(commentWriter)) {
-            System.out.println("1. missionRecordOwner member= " + missionRecordOwner.getId());
             sendNotification(missionRecordOwner, FcmNotificationConstants.COMMENT, commentWriter);
         }
 
@@ -80,14 +79,12 @@ public class CommentService {
 
             // 부모 댓글 작성자가 대댓글 작성자가 아닌 경우에만 알림 전송
             if (!parentCommentWriter.equals(commentWriter)) {
-                System.out.println("2. parentCommentWriter member= " + parentCommentWriter.getId());
                 sendNotification(
                         parentCommentWriter, FcmNotificationConstants.RE_COMMENT, commentWriter);
             }
 
             // 게시물 작성자에게는 RECORD_RE_COMMENT 알림
             if (!missionRecordOwner.equals(commentWriter)) {
-                System.out.println("3. missionRecordOwner member= " + missionRecordOwner.getId());
                 sendNotification(
                         missionRecordOwner,
                         FcmNotificationConstants.RECORD_RE_COMMENT,
@@ -95,23 +92,12 @@ public class CommentService {
             }
 
             // Collect unique recipients for notifications
-            Set<Member> uniqueRecipients = new HashSet<>();
-            collectUniqueRecipients(comment.getParent(), uniqueRecipients);
-            uniqueRecipients.remove(commentWriter); // Remove the comment writer from recipients
+            Set<Member> commentRecipients = collectNotificationRecipients(missionRecord, comment);
 
             // Send notifications to unique recipients
-            for (Member recipient : uniqueRecipients) {
-                System.out.println("4. recipient member= " + recipient.getId());
+            for (Member recipient : commentRecipients) {
                 sendNotification(recipient, FcmNotificationConstants.RE_COMMENT, commentWriter);
             }
-        }
-    }
-
-    private void collectUniqueRecipients(Comment comment, Set<Member> uniqueRecipients) {
-        for (Comment reply : comment.getReplyComments()) {
-            uniqueRecipients.add(reply.getWriter());
-            collectUniqueRecipients(
-                    reply, uniqueRecipients); // Recursively collect from nested replies
         }
     }
 
