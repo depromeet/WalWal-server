@@ -92,7 +92,6 @@ public class FcmNotificationService {
     private List<FcmNotificationDto> convertToNotificationDto(List<FcmNotification> notifications) {
         List<Long> targetIds = notifications.stream().map(FcmNotification::getTargetId).toList();
 
-        System.out.println("targetIds: " + targetIds);
         Map<Long, MissionRecord> missionRecordMap =
                 missionRecordRepository.findByIdIn(targetIds).stream()
                         .collect(
