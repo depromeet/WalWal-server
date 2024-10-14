@@ -134,12 +134,16 @@ public class CommentService {
         String title = notificationType.getTitle();
         String message = commentWriter.getProfile().getNickname() + notificationType.getMessage();
         List<String> tokens = retrieveFcmTokens(Set.of(recipient));
+        String notificationTypeName = notificationType.name();
+        if (notificationType.name().equals(FcmNotificationConstants.RECORD_RE_COMMENT.name())) {
+            notificationTypeName = FcmNotificationConstants.RE_COMMENT.name();
+        }
         fcmNotificationService.sendAndNotifications(
                 title,
                 message,
                 tokens,
                 missionRecord.getId(),
-                FcmNotificationType.valueOf(notificationType.name()));
+                FcmNotificationType.valueOf(notificationTypeName));
     }
 
     private Set<Member> collectNotificationRecipients(
