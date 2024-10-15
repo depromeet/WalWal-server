@@ -274,11 +274,17 @@ public class FcmNotificationService {
             String title,
             String message,
             List<String> tokens,
+            Long sourceId,
             Long targetId,
             FcmNotificationType notificationType) {
         List<List<String>> batches = createBatches(tokens, BATCH_SIZE);
 
         String deepLink = FcmNotification.generateDeepLink(notificationType, targetId, null);
+
+        if (notificationType == FcmNotificationType.COMMENT
+                || notificationType == FcmNotificationType.RE_COMMENT) {
+            deepLink = FcmNotification.generateCommentDeepLink(sourceId, targetId);
+        }
 
         for (List<String> batch : batches) {
             sqsMessageService.sendBatchMessages(batch, title, message, deepLink);

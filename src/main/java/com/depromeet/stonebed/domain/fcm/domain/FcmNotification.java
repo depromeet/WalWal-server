@@ -79,9 +79,11 @@ public class FcmNotification extends BaseTimeEntity {
             return DEEP_LINK_PREFIX + "mission";
         } else if (type == FcmNotificationType.BOOSTER) {
             return DEEP_LINK_PREFIX + "boost?id=" + targetId + "&type=" + boostCount;
-        } else if (type == FcmNotificationType.COMMENT || type == FcmNotificationType.RE_COMMENT) {
-            return DEEP_LINK_PREFIX + "comment?id=" + targetId;
         }
         return null;
+    }
+
+    public static String generateCommentDeepLink(Long recordId, Long commentId) {
+        return DEEP_LINK_PREFIX + "comment?recordId=" + recordId + "&commentId=" + commentId;
     }
 }
