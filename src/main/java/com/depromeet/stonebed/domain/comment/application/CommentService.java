@@ -87,6 +87,7 @@ public class CommentService {
                     missionRecordOwner,
                     FcmNotificationConstants.COMMENT,
                     missionRecord,
+                    comment,
                     commentWriter);
         }
 
@@ -100,6 +101,7 @@ public class CommentService {
                         parentCommentWriter,
                         FcmNotificationConstants.RE_COMMENT,
                         missionRecord,
+                        comment,
                         commentWriter);
             }
 
@@ -109,6 +111,7 @@ public class CommentService {
                         missionRecordOwner,
                         FcmNotificationConstants.RECORD_RE_COMMENT,
                         missionRecord,
+                        comment,
                         commentWriter);
             }
 
@@ -121,6 +124,7 @@ public class CommentService {
                         recipient,
                         FcmNotificationConstants.RE_COMMENT,
                         missionRecord,
+                        comment,
                         commentWriter);
             }
         }
@@ -130,6 +134,7 @@ public class CommentService {
             Member recipient,
             FcmNotificationConstants notificationType,
             MissionRecord missionRecord,
+            Comment comment,
             Member commentWriter) {
         String title = notificationType.getTitle();
         String message = commentWriter.getProfile().getNickname() + notificationType.getMessage();
@@ -143,6 +148,7 @@ public class CommentService {
                 message,
                 tokens,
                 missionRecord.getId(),
+                comment.getId(),
                 FcmNotificationType.valueOf(notificationTypeName));
     }
 
