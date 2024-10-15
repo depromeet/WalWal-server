@@ -83,7 +83,7 @@ public class FcmNotification extends BaseTimeEntity {
         return null;
     }
 
-    public static String generateCommentDeepLink(Long recordId, Long commentId) {
+    public static String generateCommentDeepLink(Long commentId, Long recordId) {
         return DEEP_LINK_PREFIX + "comment?recordId=" + recordId + "&commentId=" + commentId;
     }
 }

@@ -147,8 +147,8 @@ public class CommentService {
                 title,
                 message,
                 tokens,
-                missionRecord.getId(),
                 comment.getId(),
+                missionRecord.getId(),
                 FcmNotificationType.valueOf(notificationTypeName));
     }
 
