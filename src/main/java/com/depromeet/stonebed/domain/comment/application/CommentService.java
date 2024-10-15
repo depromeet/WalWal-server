@@ -105,20 +105,19 @@ public class CommentService {
             // 부모 댓글 작성자
             Member parentCommentWriter = comment.getParent().getWriter();
 
-            // 부모 댓글 작성자가 대댓글 작성자가 아닌 경우에만 알림 전송
-            if (!parentCommentWriter.equals(commentWriter)) {
-                sendCommentNotification(
-                        parentCommentWriter,
-                        FcmNotificationConstants.RE_COMMENT,
-                        missionRecord,
-                        comment,
-                        commentWriter);
-            }
+            // 게시물 작성자에게는 RECORD_RE_COMMENT 알림
             if (!missionRecordOwner.equals(commentWriter)) {
-                // 게시물 작성자에게는 RECORD_RE_COMMENT 알림
                 sendCommentNotification(
                         missionRecordOwner,
                         FcmNotificationConstants.RECORD_RE_COMMENT,
+                        missionRecord,
+                        comment,
+                        commentWriter);
+            } else if (!parentCommentWriter.equals(commentWriter)) {
+                // 부모 댓글 작성자가 대댓글 작성자가 아닌 경우에만 알림 전송
+                sendCommentNotification(
+                        parentCommentWriter,
+                        FcmNotificationConstants.RE_COMMENT,
                         missionRecord,
                         comment,
                         commentWriter);
