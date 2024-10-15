@@ -62,14 +62,16 @@ public class FcmNotificationService {
             String message,
             Long targetId,
             Long memberId,
-            Boolean isRead) {
+            Boolean isRead,
+            String deepLink) {
         Member member =
                 memberRepository
                         .findById(memberId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         FcmNotification notification =
-                FcmNotification.create(type, title, message, member, targetId, isRead);
+                FcmNotification.createNotification(
+                        type, title, message, member, targetId, isRead, deepLink);
         notificationRepository.save(notification);
     }
 
@@ -199,11 +201,6 @@ public class FcmNotificationService {
         return getTokenForMember(member).filter(token -> !token.isEmpty());
     }
 
-    private String generateDeepLink(MissionRecord missionRecord, long boostCount) {
-        return FcmNotification.generateDeepLink(
-                FcmNotificationType.BOOSTER, missionRecord.getId(), boostCount);
-    }
-
     private void createAndSendFcmMessage(
             String title, String message, String token, String deepLink) {
         FcmMessage fcmMessage = FcmMessage.of(title, message, token, deepLink);
@@ -217,7 +214,9 @@ public class FcmNotificationService {
         String token = validateTokenForMember(missionRecord.getMember()).orElse(null);
         if (token == null) return;
 
-        String deepLink = generateDeepLink(missionRecord, boostCount);
+        String deepLink =
+                FcmNotification.generateDeepLink(
+                        FcmNotificationType.BOOSTER, missionRecord.getId(), boostCount);
         createAndSendFcmMessage(
                 notificationConstants.getTitle(),
                 notificationConstants.getMessage(),
@@ -230,7 +229,8 @@ public class FcmNotificationService {
                 notificationConstants.getMessage(),
                 missionRecord.getId(),
                 missionRecord.getMember().getId(),
-                false);
+                false,
+                deepLink);
     }
 
     public void markNotificationAsRead(Long notificationId) {
@@ -249,7 +249,8 @@ public class FcmNotificationService {
             String message,
             List<String> tokens,
             Long targetId,
-            FcmNotificationType notificationType) {
+            FcmNotificationType notificationType,
+            String deepLink) {
         List<FcmNotification> notifications = new ArrayList<>();
 
         for (String token : tokens) {
@@ -261,8 +262,8 @@ public class FcmNotificationService {
                                     () -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
 
             FcmNotification newNotification =
-                    FcmNotification.create(
-                            notificationType, title, message, member, targetId, false);
+                    FcmNotification.createNotification(
+                            notificationType, title, message, member, targetId, false, deepLink);
             notifications.add(newNotification);
         }
 
@@ -284,7 +285,7 @@ public class FcmNotificationService {
         }
 
         List<FcmNotification> notifications =
-                buildNotificationList(title, message, tokens, targetId, notificationType);
+                buildNotificationList(title, message, tokens, targetId, notificationType, deepLink);
         notificationRepository.saveAll(notifications);
     }
 
