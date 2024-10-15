@@ -3,8 +3,10 @@ package com.depromeet.stonebed.domain.feed.application;
 import com.depromeet.stonebed.domain.feed.dao.FeedRepository;
 import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
-import com.depromeet.stonebed.domain.feed.dto.response.FeedContentGetResponse;
-import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
+import com.depromeet.stonebed.domain.feed.dto.response.v1.FeedContentGetResponse;
+import com.depromeet.stonebed.domain.feed.dto.response.v1.FeedGetResponse;
+import com.depromeet.stonebed.domain.feed.dto.response.v2.FeedContentGetResponseV2;
+import com.depromeet.stonebed.domain.feed.dto.response.v2.FeedGetResponseV2;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import java.util.List;
@@ -82,5 +84,20 @@ public class FeedService {
             throw new CustomException(ErrorCode.FEED_NOT_FOUND);
         }
         return FeedContentGetResponse.from(feedOne);
+    }
+
+    public FeedGetResponseV2 findFeedV2(FeedGetRequest request) {
+        List<FindFeedDto> feeds = getFeeds(request.cursor(), request.memberId(), request.limit());
+
+        List<FeedContentGetResponseV2> feedContentList =
+                feeds.stream().map(FeedContentGetResponseV2::from).toList();
+
+        String nextCursor = getNextCursor(feeds, request.limit());
+
+        if (nextFeedNotExists(feeds, request.memberId())) {
+            nextCursor = null;
+        }
+
+        return FeedGetResponseV2.from(feedContentList, nextCursor);
     }
 }

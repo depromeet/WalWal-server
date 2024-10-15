@@ -8,7 +8,7 @@ import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.feed.dao.FeedRepository;
 import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
-import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
+import com.depromeet.stonebed.domain.feed.dto.response.v1.FeedGetResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
