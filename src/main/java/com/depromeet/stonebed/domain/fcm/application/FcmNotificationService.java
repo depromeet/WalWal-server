@@ -277,7 +277,7 @@ public class FcmNotificationService {
             Long sourceId,
             Long targetId,
             FcmNotificationType notificationType) {
-        List<List<String>> batches = createBatches(tokens, BATCH_SIZE);
+        List<List<String>> batches = createBatches(tokens);
 
         String deepLink = FcmNotification.generateDeepLink(notificationType, targetId, null);
 
@@ -295,13 +295,18 @@ public class FcmNotificationService {
         notificationRepository.saveAll(notifications);
     }
 
-    private List<List<String>> createBatches(List<String> tokens, int batchSize) {
-        return IntStream.range(0, (tokens.size() + batchSize - 1) / batchSize)
+    private List<List<String>> createBatches(List<String> tokens) {
+        return IntStream.range(
+                        0,
+                        (tokens.size() + FcmNotificationService.BATCH_SIZE - 1)
+                                / FcmNotificationService.BATCH_SIZE)
                 .mapToObj(
                         i ->
                                 tokens.subList(
-                                        i * batchSize,
-                                        Math.min(tokens.size(), (i + 1) * batchSize)))
+                                        i * FcmNotificationService.BATCH_SIZE,
+                                        Math.min(
+                                                tokens.size(),
+                                                (i + 1) * FcmNotificationService.BATCH_SIZE)))
                 .collect(Collectors.toList());
     }
 

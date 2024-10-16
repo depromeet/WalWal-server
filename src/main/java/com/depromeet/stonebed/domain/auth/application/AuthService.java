@@ -9,6 +9,7 @@ import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.SocialClientResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
 import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
+import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
@@ -38,6 +39,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final MissionRecordRepository missionRecordRepository;
     private final MissionRecordBoostRepository missionRecordBoostRepository;
+    private final FcmTokenRepository fcmTokenRepository;
 
     private final AppleClient appleClient;
     private final KakaoClient kakaoClient;
@@ -179,5 +181,6 @@ public class AuthService {
         missionRecordBoostRepository.deleteAllByMember(recordIds);
         missionRecordRepository.deleteAllByMember(memberId);
         fcmNotificationRepository.deleteAllByMember(memberId);
+        fcmTokenRepository.deleteAllByMember(memberId);
     }
 }

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 public interface FcmTokenRepository
         extends JpaRepository<FcmToken, Long>, FcmTokenRepositoryCustom {
@@ -19,4 +21,9 @@ public interface FcmTokenRepository
     List<FcmToken> findAllByUpdatedAtBefore(LocalDateTime cutoffDate);
 
     void deleteByToken(String token);
+
+    // Delete
+    @Modifying
+    @Query("DELETE FROM FcmToken ft WHERE ft.member.id = :memberId")
+    void deleteAllByMember(Long memberId);
 }
