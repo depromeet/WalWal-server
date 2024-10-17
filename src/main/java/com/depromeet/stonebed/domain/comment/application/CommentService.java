@@ -43,9 +43,7 @@ public class CommentService {
     public CommentCreateResponse createComment(CommentCreateRequest request) {
         final Member member = memberUtil.getCurrentMember();
         final MissionRecord missionRecord = findMissionRecordById(request.recordId());
-
         final Comment comment = createAndSaveComment(request, member, missionRecord);
-
         sendCommentNotification(missionRecord, comment, request.parentId());
         return CommentCreateResponse.of(comment.getId());
     }
@@ -55,11 +53,9 @@ public class CommentService {
         final MissionRecord missionRecord = findMissionRecordById(recordId);
         final List<Comment> allComments =
                 commentRepository.findAllCommentsByMissionRecord(missionRecord);
-
         Map<Long, List<Comment>> commentsByParentId = groupCommentsByParentId(allComments);
         List<CommentFindOneResponse> rootResponses =
                 convertToCommentFindOneResponses(commentsByParentId);
-
         return CommentFindResponse.of(rootResponses);
     }
 
@@ -73,68 +69,65 @@ public class CommentService {
                                 request.content(),
                                 findCommentById(request.parentId()))
                         : Comment.createComment(missionRecord, member, request.content(), null);
-
         return commentRepository.save(comment);
     }
 
-    /**
-     * 댓글 알림 메서드
-     *
-     * @param missionRecord: 작성된 미션 기록
-     * @param comment: 새로 생성한 댓글
-     * @param parentId: 부모 댓글의 ID
-     */
     private void sendCommentNotification(
             MissionRecord missionRecord, Comment comment, Long parentId) {
         Member missionRecordOwner = missionRecord.getMember();
         Member commentWriter = comment.getWriter();
 
-        // 1. 부모 댓글이 없는 경우 게시물 작성자에게만 COMMENT 알림
-        if (!missionRecordOwner.equals(commentWriter) && parentId == null) {
+        if (isRootComment(parentId, missionRecordOwner, commentWriter)) {
             sendCommentNotification(
                     missionRecordOwner,
                     FcmNotificationConstants.COMMENT,
                     missionRecord,
                     comment,
                     commentWriter);
-            return;
+        } else if (isReplyComment(comment)) {
+            sendReplyNotifications(missionRecord, comment, commentWriter);
+        }
+    }
+
+    private boolean isRootComment(Long parentId, Member missionRecordOwner, Member commentWriter) {
+        return !missionRecordOwner.equals(commentWriter) && parentId == null;
+    }
+
+    private boolean isReplyComment(Comment comment) {
+        return comment.getParent() != null;
+    }
+
+    private void sendReplyNotifications(
+            MissionRecord missionRecord, Comment comment, Member commentWriter) {
+        Member parentCommentWriter = comment.getParent().getWriter();
+        Member missionRecordOwner = missionRecord.getMember();
+
+        if (!missionRecordOwner.equals(commentWriter)) {
+            sendCommentNotification(
+                    missionRecordOwner,
+                    FcmNotificationConstants.RECORD_RE_COMMENT,
+                    missionRecord,
+                    comment,
+                    commentWriter);
+        } else if (!parentCommentWriter.equals(commentWriter)) {
+            sendCommentNotification(
+                    parentCommentWriter,
+                    FcmNotificationConstants.RE_COMMENT,
+                    missionRecord,
+                    comment,
+                    commentWriter);
         }
 
-        // 2. 대댓글 작성 시 부모 댓글 작성자에게 RE_COMMENT 알림
-        if (comment.getParent() != null) {
-            // 부모 댓글 작성자
-            Member parentCommentWriter = comment.getParent().getWriter();
+        Set<Member> commentRecipients = collectNotificationRecipients(comment);
+        commentRecipients.remove(parentCommentWriter);
 
-            // 게시물 작성자에게는 RECORD_RE_COMMENT 알림
-            if (!missionRecordOwner.equals(commentWriter)) {
-                sendCommentNotification(
-                        missionRecordOwner,
-                        FcmNotificationConstants.RECORD_RE_COMMENT,
-                        missionRecord,
-                        comment,
-                        commentWriter);
-            } else if (!parentCommentWriter.equals(commentWriter)) {
-                // 부모 댓글 작성자가 대댓글 작성자가 아닌 경우에만 알림 전송
-                sendCommentNotification(
-                        parentCommentWriter,
-                        FcmNotificationConstants.RE_COMMENT,
-                        missionRecord,
-                        comment,
-                        commentWriter);
-            }
-
-            Set<Member> commentRecipients = collectNotificationRecipients(comment);
-            commentRecipients.remove(parentCommentWriter);
-
-            // Send notifications to unique recipients
-            for (Member recipient : commentRecipients) {
-                sendCommentNotification(
-                        recipient,
-                        FcmNotificationConstants.RE_COMMENT,
-                        missionRecord,
-                        comment,
-                        commentWriter);
-            }
+        for (Member recipient : commentRecipients) {
+            sendCommentNotification(
+                    recipient,
+                    FcmNotificationConstants.RE_COMMENT,
+                    missionRecord,
+                    comment,
+                    commentWriter);
         }
     }
 
@@ -147,10 +140,10 @@ public class CommentService {
         String title = notificationType.getTitle();
         String message = commentWriter.getProfile().getNickname() + notificationType.getMessage();
         List<String> tokens = retrieveFcmTokens(Set.of(recipient));
-        String notificationTypeName = notificationType.name();
-        if (notificationType.name().equals(FcmNotificationConstants.RECORD_RE_COMMENT.name())) {
-            notificationTypeName = FcmNotificationConstants.RE_COMMENT.name();
-        }
+        String notificationTypeName =
+                notificationType.name().equals(FcmNotificationConstants.RECORD_RE_COMMENT.name())
+                        ? FcmNotificationConstants.RE_COMMENT.name()
+                        : notificationType.name();
         fcmNotificationService.sendAndNotifications(
                 title,
                 message,
@@ -162,16 +155,16 @@ public class CommentService {
 
     private Set<Member> collectNotificationRecipients(Comment comment) {
         Map<Long, Member> notificationRecipientsMap = new HashMap<>();
-
         Comment currentComment = comment;
+
         while (currentComment.getParent() != null) {
             currentComment = currentComment.getParent();
             currentComment.getReplyComments().stream()
                     .map(Comment::getWriter)
                     .forEach(writer -> notificationRecipientsMap.put(writer.getId(), writer));
         }
-        notificationRecipientsMap.remove(comment.getWriter().getId());
 
+        notificationRecipientsMap.remove(comment.getWriter().getId());
         return new HashSet<>(notificationRecipientsMap.values());
     }
 
@@ -193,8 +186,7 @@ public class CommentService {
                                     return (parent != null)
                                             ? parent.getId()
                                             : ROOT_COMMENT_PARENT_ID;
-                                },
-                                Collectors.toList()));
+                                }));
     }
 
     private List<CommentFindOneResponse> convertToCommentFindOneResponses(
