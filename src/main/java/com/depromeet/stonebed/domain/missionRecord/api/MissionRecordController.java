@@ -89,13 +89,13 @@ public class MissionRecordController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping
+    @PostMapping("/daily")
     public ResponseEntity<Void> dailyTest() {
         fcmScheduler.sendDailyNotification();
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping
+    @PostMapping("/remind")
     public ResponseEntity<Void> remindTest() {
         fcmScheduler.sendReminderToIncompleteMissions();
         return ResponseEntity.ok().build();
