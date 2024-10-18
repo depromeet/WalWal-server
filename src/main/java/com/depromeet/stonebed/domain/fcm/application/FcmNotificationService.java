@@ -1,5 +1,7 @@
 package com.depromeet.stonebed.domain.fcm.application;
 
+import static com.depromeet.stonebed.global.common.constants.NotificationConstants.*;
+
 import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
 import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmMessage;
@@ -19,7 +21,6 @@ import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,14 +49,6 @@ public class FcmNotificationService {
     private final MemberRepository memberRepository;
     private final MemberUtil memberUtil;
 
-    private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
-    private static final long FIRST_BOOST_THRESHOLD = 1;
-    private static final long POPULAR_THRESHOLD = 1000;
-    private static final long SUPER_POPULAR_THRESHOLD = 5000;
-    private static final int BATCH_SIZE = 10;
-
     public void saveNotification(
             FcmNotificationType type,
             String title,
@@ -79,16 +72,12 @@ public class FcmNotificationService {
     public FcmNotificationResponse getNotificationsForCurrentMember(String cursor, int limit) {
         Member member = memberUtil.getCurrentMember();
 
-        Pageable pageable = createPageable(limit);
+        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<FcmNotification> notifications = getNotifications(cursor, member.getId(), pageable);
         List<FcmNotificationDto> notificationData = convertToNotificationDto(notifications);
         String nextCursor = getNextCursor(notifications);
 
         return FcmNotificationResponse.from(notificationData, nextCursor);
-    }
-
-    private Pageable createPageable(int limit) {
-        return PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     private List<FcmNotificationDto> convertToNotificationDto(List<FcmNotification> notifications) {
@@ -298,15 +287,13 @@ public class FcmNotificationService {
     private List<List<String>> createBatches(List<String> tokens) {
         return IntStream.range(
                         0,
-                        (tokens.size() + FcmNotificationService.BATCH_SIZE - 1)
-                                / FcmNotificationService.BATCH_SIZE)
+                        (tokens.size() + SQS_BATCH_SIZE - 1)
+                                / SQS_BATCH_SIZE) // ceil(tokens.size() / SQS_BATCH_SIZE
                 .mapToObj(
                         i ->
                                 tokens.subList(
-                                        i * FcmNotificationService.BATCH_SIZE,
-                                        Math.min(
-                                                tokens.size(),
-                                                (i + 1) * FcmNotificationService.BATCH_SIZE)))
+                                        i * SQS_BATCH_SIZE,
+                                        Math.min(tokens.size(), (i + 1) * SQS_BATCH_SIZE)))
                 .collect(Collectors.toList());
     }
 
