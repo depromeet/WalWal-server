@@ -6,6 +6,7 @@ import com.depromeet.stonebed.infra.properties.SqsProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,51 +50,57 @@ public class SqsMessageService {
 
     public void sendBatchMessages(
             List<String> tokens, String title, String message, String deepLink) {
-        List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
+        // SQS 메시지의 최대 전송 크기는 10개이므로 이를 고려하여 분할합니다.
+        int batchSize = 10;
         List<String> failedTokens = new ArrayList<>();
-        for (String token : tokens) {
-            try {
-                FcmMessage fcmMessage = FcmMessage.of(title, message, token, deepLink);
-                String messageBody = objectMapper.writeValueAsString(fcmMessage);
-                SendMessageBatchRequestEntry entry =
-                        SendMessageBatchRequestEntry.builder()
-                                .id(token)
-                                .messageBody(messageBody)
+
+        for (int i = 0; i < tokens.size(); i += batchSize) {
+            List<String> batchTokens = tokens.subList(i, Math.min(i + batchSize, tokens.size()));
+            List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
+
+            for (String token : batchTokens) {
+                try {
+                    FcmMessage fcmMessage = FcmMessage.of(title, message, token, deepLink);
+                    String messageBody = objectMapper.writeValueAsString(fcmMessage);
+                    SendMessageBatchRequestEntry entry =
+                            SendMessageBatchRequestEntry.builder()
+                                    .id(UUID.randomUUID().toString())
+                                    .messageBody(messageBody)
+                                    .build();
+                    entries.add(entry);
+                } catch (Exception e) {
+                    log.error("메시지 직렬화 실패: {}", e.getMessage());
+                }
+            }
+
+            if (!entries.isEmpty()) {
+                SendMessageBatchRequest batchRequest =
+                        SendMessageBatchRequest.builder()
+                                .queueUrl(sqsProperties.queueUrl())
+                                .entries(entries)
                                 .build();
-                entries.add(entry);
-            } catch (Exception e) {
-                log.error("메시지 직렬화 실패: {}", e.getMessage());
-            }
-        }
 
-        if (!entries.isEmpty()) {
-            SendMessageBatchRequest batchRequest =
-                    SendMessageBatchRequest.builder()
-                            .queueUrl(sqsProperties.queueUrl())
-                            .entries(entries)
-                            .build();
+                try {
+                    SendMessageBatchResponse batchResponse =
+                            sqsClient.sendMessageBatch(batchRequest);
+                    log.info("배치 메시지 전송 응답: {}", batchResponse);
+                    // 실패한 메시지 처리
+                    List<BatchResultErrorEntry> failedMessages = batchResponse.failed();
+                    for (BatchResultErrorEntry failed : failedMessages) {
+                        log.error("메시지 전송 실패, ID {}: {}", failed.id(), failed.message());
+                        failedTokens.add(failed.id());
+                    }
 
-            try {
-                SendMessageBatchResponse batchResponse = sqsClient.sendMessageBatch(batchRequest);
+                    // 실패한 토큰 삭제
+                    for (String failedToken : failedTokens) {
+                        fcmTokenRepository.deleteByToken(failedToken);
+                        log.info("비활성화된 FCM 토큰 삭제: {}", failedToken);
+                    }
 
-                // 실패한 메시지 처리
-                List<BatchResultErrorEntry> failedMessages = batchResponse.failed();
-                for (BatchResultErrorEntry failed : failedMessages) {
-                    log.error("메시지 전송 실패, ID {}: {}", failed.id(), failed.message());
-                    failedTokens.add(failed.id());
+                } catch (Exception e) {
+                    log.error("SQS 배치 메시지 전송 실패: {}", e.getMessage());
                 }
-
-                // 실패한 토큰 삭제 등의 후속 작업
-                for (String failedToken : failedTokens) {
-                    fcmTokenRepository.deleteByToken(failedToken);
-                    log.info("비활성화된 FCM 토큰 삭제: {}", failedToken);
-                }
-
-            } catch (Exception e) {
-                log.error("SQS 배치 메시지 전송 실패: {}", e.getMessage());
             }
-        } else {
-            log.warn("전송할 메시지가 없습니다.");
         }
     }
 }
