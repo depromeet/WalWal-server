@@ -1,4 +1,4 @@
-package com.depromeet.stonebed.domain.feed.dto.response;
+package com.depromeet.stonebed.domain.feed.dto.response.v1;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;

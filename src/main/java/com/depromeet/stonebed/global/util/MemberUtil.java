@@ -55,4 +55,10 @@ public class MemberUtil {
             throw new CustomException(ErrorCode.MEMBER_ALREADY_NICKNAME);
         }
     }
+
+    public Member getMemberByNickname(String nickname) {
+        return memberRepository
+                .findByProfileNickname(nickname)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
 }
