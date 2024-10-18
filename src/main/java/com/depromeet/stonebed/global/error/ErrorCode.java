@@ -37,6 +37,7 @@ public enum ErrorCode {
     MISSION_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션 기록을 찾을 수 없습니다."),
     NO_AVAILABLE_TODAY_MISSION(HttpStatus.INTERNAL_SERVER_ERROR, "할당 가능한 오늘의 미션이 없습니다."),
     DUPLICATE_MISSION_RECORD(HttpStatus.BAD_REQUEST, "오늘 완료한 미션이 존재합니다."),
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 피드를 찾을 수 없습니다."),
 
     // boost
     BOOST_UNAVAILABLE_MY_FEED(HttpStatus.BAD_REQUEST, "내 피드에는 부스트를 추가할 수 없습니다."),
@@ -57,7 +58,16 @@ public enum ErrorCode {
     // fcm
     INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "FCM 토큰값이 비어있습니다."),
     FAILED_TO_FIND_FCM_TOKEN(HttpStatus.NOT_FOUND, "해당 FCM 토큰을 찾을 수 없습니다."),
-    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다.");
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
+
+    // report
+    INVALID_REPORT_REASON(HttpStatus.NOT_FOUND, "해당 신고 사유를 찾을 수 없습니다."),
+
+    DISCORD_NOTIFICATION_FAILED(HttpStatus.BAD_REQUEST, "디스코드 알림 전송이 실패했습니다."),
+
+    // comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
+    ;
     private final HttpStatus httpStatus;
     private final String message;
 }

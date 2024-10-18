@@ -1,12 +1,21 @@
 package com.depromeet.stonebed.domain.missionRecord.dao;
 
+import static com.depromeet.stonebed.domain.mission.domain.QMission.*;
+import static com.depromeet.stonebed.domain.missionHistory.domain.QMissionHistory.*;
 import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.missionRecord;
 
+import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
+import com.querydsl.core.types.ConstantImpl;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +33,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
             Long memberId, List<MissionRecordDisplay> displays, Pageable pageable) {
         return queryFactory
                 .selectFrom(missionRecord)
-                .where(isMemberId(memberId).and(InDisplays(displays)))
+                .where(isMemberId(memberId).and(inDisplays(displays)))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -43,7 +52,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                         isMemberId(memberId)
                                 .and(createdAtFrom(createdAt))
                                 .and(isCompleted())
-                                .and(InDisplays(displays)))
+                                .and(inDisplays(displays)))
                 .orderBy(missionRecord.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -64,6 +73,51 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
                 .execute();
     }
 
+    @Override
+    public List<MissionTabResponse> findAllTabMissionsByMemberAndStatus(
+            Member member, MissionRecordStatus status) {
+        DateTemplate<String> completedAt =
+                Expressions.dateTemplate(
+                        String.class,
+                        "DATE_FORMAT({0}, {1})",
+                        missionRecord.updatedAt,
+                        ConstantImpl.create("%Y-%m-%d"));
+
+        DateTemplate<Integer> year =
+                Expressions.dateTemplate(Integer.class, "YEAR({0})", missionRecord.updatedAt);
+        DateTemplate<Integer> month =
+                Expressions.dateTemplate(Integer.class, "MONTH({0})", missionRecord.updatedAt);
+
+        int currentYear = LocalDate.now().getYear();
+        int currentMonth = LocalDate.now().getMonthValue();
+
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                MissionTabResponse.class,
+                                missionRecord.id.as("recordId"),
+                                missionRecord.imageUrl,
+                                missionRecord.status,
+                                mission.title.as("missionTitle"),
+                                mission.completeImageUrl,
+                                missionRecord.content,
+                                completedAt))
+                .from(missionRecord)
+                .leftJoin(missionRecord.missionHistory, missionHistory)
+                .on(missionHistory.id.eq(missionRecord.missionHistory.id))
+                .leftJoin(missionHistory.mission, mission)
+                .on(mission.id.eq(missionHistory.mission.id))
+                .where(
+                        missionRecord
+                                .member
+                                .eq(member)
+                                .and(missionRecord.status.eq(status))
+                                .and(year.eq(currentYear))
+                                .and(month.eq(currentMonth)))
+                .orderBy(missionRecord.updatedAt.asc())
+                .fetch();
+    }
+
     private BooleanExpression isMemberId(Long memberId) {
         return missionRecord.member.id.eq(memberId);
     }
@@ -76,7 +130,7 @@ public class MissionRecordRepositoryImpl implements MissionRecordRepositoryCusto
         return missionRecord.status.eq(MissionRecordStatus.COMPLETED);
     }
 
-    private BooleanExpression InDisplays(List<MissionRecordDisplay> displays) {
+    private BooleanExpression inDisplays(List<MissionRecordDisplay> displays) {
         return missionRecord.display.in(displays);
     }
 }

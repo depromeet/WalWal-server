@@ -8,7 +8,9 @@ import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordStar
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCalendarResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordCompleteTotal;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordIdResponse;
+import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionRecordTabListResponse;
 import com.depromeet.stonebed.domain.missionRecord.dto.response.MissionTabResponse;
+import com.depromeet.stonebed.scheduler.fcm.FcmScheduler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +27,13 @@ import org.springframework.web.bind.annotation.*;
 public class MissionRecordController {
 
     private final MissionRecordService missionRecordService;
+    private final FcmScheduler fcmScheduler;
+
+    @Operation(summary = "미션 탭 완료된 기록 리스트", description = "미션 탭에서 완료된 기록 리스트를 조회한다.")
+    @GetMapping
+    public MissionRecordTabListResponse missionRecordsFind(@RequestParam Long missionId) {
+        return missionRecordService.findCompleteMissionRecords(missionId);
+    }
 
     @Operation(summary = "미션 탭 상태 조회", description = "미션 탭의 상태를 조회한다.")
     @GetMapping("/status")
@@ -78,5 +87,17 @@ public class MissionRecordController {
             final @Valid @RequestBody MissionRecordBoostRequest request) {
         missionRecordService.createBoost(recordId, request.count());
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/daily")
+    public ResponseEntity<Void> dailyTest() {
+        fcmScheduler.sendDailyNotification();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/remind")
+    public ResponseEntity<Void> remindTest() {
+        fcmScheduler.sendReminderToIncompleteMissions();
+        return ResponseEntity.ok().build();
     }
 }
