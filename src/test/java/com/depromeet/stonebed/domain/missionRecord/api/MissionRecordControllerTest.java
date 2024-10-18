@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.depromeet.stonebed.domain.missionRecord.application.MissionRecordService;
 import com.depromeet.stonebed.domain.missionRecord.dto.request.MissionRecordBoostRequest;
-import com.depromeet.stonebed.scheduler.fcm.FcmScheduler;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +31,6 @@ public class MissionRecordControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private MissionRecordService missionRecordService;
-    @MockBean private FcmScheduler fcmScheduler;
-
     private final Gson gson = new Gson();
 
     @Test
