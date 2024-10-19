@@ -2,7 +2,6 @@ package com.depromeet.stonebed.domain.comment.domain;
 
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
-import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
@@ -33,13 +32,13 @@ public class Comment extends BaseTimeEntity {
     @Column(name = "comment_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "record_id", nullable = false)
-    private MissionRecord missionRecord;
+    @Schema(description = "미션 기록 ID", example = "1")
+    @Column(name = "record_id", nullable = false)
+    private Long recordId;
 
     // 작성자
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer_id", nullable = false)
+    @JoinColumn(name = "writer_id")
     private Member writer;
 
     @Schema(description = "댓글 내용", example = "너무 이쁘자나~")
@@ -56,17 +55,17 @@ public class Comment extends BaseTimeEntity {
     private List<Comment> replyComments = new ArrayList<>();
 
     @Builder(access = AccessLevel.PRIVATE)
-    public Comment(MissionRecord missionRecord, Member writer, String content, Comment parent) {
-        this.missionRecord = missionRecord;
+    public Comment(Long recordId, Member writer, String content, Comment parent) {
+        this.recordId = recordId;
         this.writer = writer;
         this.content = content;
         this.parent = parent;
     }
 
     public static Comment createComment(
-            MissionRecord missionRecord, Member writer, String content, @Nullable Comment parent) {
+            Long recordId, Member writer, String content, @Nullable Comment parent) {
         return Comment.builder()
-                .missionRecord(missionRecord)
+                .recordId(recordId)
                 .writer(writer)
                 .content(content)
                 .parent(parent)
