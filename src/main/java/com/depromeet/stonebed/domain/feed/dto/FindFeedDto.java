@@ -8,13 +8,13 @@ public record FindFeedDto(
         Mission mission,
         MissionRecord missionRecord,
         Member author,
-        Integer totalCommentCount,
+        Long totalCommentCount,
         Long totalBoostCount) {
     public static FindFeedDto from(
             Mission mission,
             MissionRecord missionRecord,
             Member author,
-            Integer totalCommentCount,
+            Long totalCommentCount,
             Long totalBoostCount) {
         return new FindFeedDto(mission, missionRecord, author, totalCommentCount, totalBoostCount);
     }
