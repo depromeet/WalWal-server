@@ -1,5 +1,3 @@
-// src/test/java/com/depromeet/stonebed/domain/comment/application/CommentServiceTest.java
-
 package com.depromeet.stonebed.domain.comment.application;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +14,11 @@ import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.util.MemberUtil;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,30 +42,20 @@ class CommentServiceTest extends FixtureMonkeySetUp {
 
     @InjectMocks private CommentService commentService;
 
-    private Member member;
-    private MissionRecord missionRecord;
+    private static final int CHILD_COMMENT_COUNT = 5; // 자식 댓글 생성 횟수
 
     @Test
     void 부모_댓글_생성_성공() {
         // given
         Long recordId = 1L;
-        Long parentId = null;
         String content = "너무 이쁘자나~";
 
         Member member = fixtureMonkey.giveMeOne(Member.class);
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
-        CommentCreateRequest request = CommentCreateRequest.of(content, recordId, parentId);
-        Comment comment =
-                fixtureMonkey
-                        .giveMeBuilder(Comment.class)
-                        .set("missionRecord", missionRecord)
-                        .set("writer", member)
-                        .set("content", content)
-                        .sample();
+        CommentCreateRequest request = CommentCreateRequest.of(content, recordId, null);
+        Comment comment = createMockComment(member, missionRecord, content);
 
-        when(memberUtil.getCurrentMember()).thenReturn(member);
-        when(missionRecordRepository.findById(recordId)).thenReturn(Optional.of(missionRecord));
-        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+        mockCommonDependencies(member, missionRecord, recordId, comment);
 
         // when
         CommentCreateResponse response = commentService.createComment(request);
@@ -72,8 +64,137 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         assertNotNull(response);
         assertEquals(comment.getId(), response.commentId());
 
-        verify(memberUtil).getCurrentMember();
-        verify(missionRecordRepository).findById(recordId);
-        verify(commentRepository).save(any(Comment.class));
+        verifyCommonInvocations(recordId);
+    }
+
+    @Test
+    void 자식_댓글_생성_성공() {
+        // given
+        String content = "너무 이쁘자나~";
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
+        Long recordId = missionRecord.getId();
+        Comment parentComment = createMockComment(member, missionRecord, content);
+
+        mockCommonDependencies(member, missionRecord, recordId, parentComment);
+
+        // when: 부모 댓글 생성
+        CommentCreateResponse parentResponse =
+                commentService.createComment(CommentCreateRequest.of(content, recordId, null));
+
+        // 부모 댓글 조회
+        when(commentRepository.findById(parentResponse.commentId()))
+                .thenReturn(Optional.of(parentComment));
+
+        // 자식 댓글 생성 및 검증
+        Comment childComment = createMockComment(member, missionRecord, "자식 댓글 내용", parentComment);
+        when(commentRepository.save(any(Comment.class))).thenReturn(childComment);
+
+        CommentCreateResponse childResponse =
+                commentService.createComment(
+                        CommentCreateRequest.of(
+                                "자식 댓글 내용", missionRecord.getId(), parentResponse.commentId()));
+
+        // then: 검증
+        verifyCommonInvocations(recordId, 2); // 부모 + 자식 댓글 생성
+        verify(commentRepository, times(2)).save(any(Comment.class));
+
+        assertChildComment(childResponse, parentResponse, childComment, parentComment);
+    }
+
+    @Test
+    void 부모_댓글에_여러_자식_댓글_생성_성공() {
+        // given
+        String content = "부모 댓글 내용";
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
+        Long recordId = missionRecord.getId();
+        Comment parentComment = createMockComment(member, missionRecord, content);
+
+        mockCommonDependencies(member, missionRecord, recordId, parentComment);
+
+        CommentCreateResponse parentResponse =
+                commentService.createComment(CommentCreateRequest.of(content, recordId, null));
+
+        // 부모 댓글 조회
+        when(commentRepository.findById(parentResponse.commentId()))
+                .thenReturn(Optional.of(parentComment));
+
+        // 자식 댓글 생성 및 검증
+        List<CommentCreateResponse> childResponses = new ArrayList<>();
+        for (int i = 1; i <= CHILD_COMMENT_COUNT; i++) {
+            Comment childComment =
+                    createMockComment(member, missionRecord, "자식 댓글 내용 " + i, parentComment);
+            when(commentRepository.save(any(Comment.class))).thenReturn(childComment);
+
+            CommentCreateResponse childResponse =
+                    commentService.createComment(
+                            CommentCreateRequest.of(
+                                    "자식 댓글 내용 " + i,
+                                    missionRecord.getId(),
+                                    parentResponse.commentId()));
+            childResponses.add(childResponse);
+
+            assertChildComment(childResponse, parentResponse, childComment, parentComment);
+        }
+
+        // then: 모든 자식 댓글의 ID가 유일한지 확인
+        verifyCommonInvocations(recordId, CHILD_COMMENT_COUNT + 1); // 부모 + 자식 댓글 생성
+        verify(commentRepository, times(CHILD_COMMENT_COUNT + 1)).save(any(Comment.class));
+
+        Set<Long> uniqueChildCommentIds =
+                childResponses.stream()
+                        .map(CommentCreateResponse::commentId)
+                        .collect(Collectors.toSet());
+        assertEquals(
+                CHILD_COMMENT_COUNT, uniqueChildCommentIds.size()); // 자식 댓글 수와 고유한 ID 수가 동일해야 함
+    }
+
+    // 중복된 모의 객체 설정을 처리하는 메서드
+    private void mockCommonDependencies(
+            Member member, MissionRecord missionRecord, Long recordId, Comment comment) {
+        when(memberUtil.getCurrentMember()).thenReturn(member);
+        when(missionRecordRepository.findById(recordId)).thenReturn(Optional.of(missionRecord));
+        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+    }
+
+    // 부모/자식 댓글 공통 검증 메서드
+    private void assertChildComment(
+            CommentCreateResponse childResponse,
+            CommentCreateResponse parentResponse,
+            Comment childComment,
+            Comment parentComment) {
+        assertNotNull(childResponse);
+        assertNotNull(childResponse.commentId());
+        assertNotEquals(
+                parentResponse.commentId(), childResponse.commentId()); // 부모와 자식 댓글 ID는 달라야 함
+        assertEquals(childComment.getId(), childResponse.commentId()); // 자식 댓글 ID 확인
+        assertEquals(parentComment.getId(), childComment.getParent().getId()); // 자식 댓글의 부모가 올바른지 확인
+    }
+
+    // 중복된 verify 호출을 처리하는 메서드
+    private void verifyCommonInvocations(Long recordId, int totalInvocations) {
+        verify(memberUtil, times(totalInvocations)).getCurrentMember();
+        verify(missionRecordRepository, times(totalInvocations)).findById(recordId);
+    }
+
+    private void verifyCommonInvocations(Long recordId) {
+        verifyCommonInvocations(recordId, 1);
+    }
+
+    // Comment 모킹 생성을 처리하는 메서드
+    private Comment createMockComment(Member member, MissionRecord missionRecord, String content) {
+        return createMockComment(member, missionRecord, content, null);
+    }
+
+    private Comment createMockComment(
+            Member member, MissionRecord missionRecord, String content, Comment parent) {
+        return fixtureMonkey
+                .giveMeBuilder(Comment.class)
+                .set("missionRecord", missionRecord)
+                .set("writer", member)
+                .set("content", content)
+                .set("parent", parent)
+                .sample();
     }
 }
