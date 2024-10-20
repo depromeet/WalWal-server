@@ -2,6 +2,7 @@ package com.depromeet.stonebed.domain.comment.application;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.transaction.annotation.Isolation.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.comment.dao.CommentRepository;
@@ -57,7 +58,7 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         Member member = fixtureMonkey.giveMeOne(Member.class);
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
         CommentCreateRequest request = CommentCreateRequest.of(content, recordId, null);
-        Comment comment = createMockComment(member, missionRecord, content);
+        Comment comment = createMockParentComment(member, missionRecord, content);
 
         mockCommonDependencies(member, missionRecord, recordId, comment);
 
@@ -78,7 +79,7 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         Member member = fixtureMonkey.giveMeOne(Member.class);
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
         Long recordId = missionRecord.getId();
-        Comment parentComment = createMockComment(member, missionRecord, content);
+        Comment parentComment = createMockParentComment(member, missionRecord, content);
 
         mockCommonDependencies(member, missionRecord, recordId, parentComment);
 
@@ -113,7 +114,7 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         Member member = fixtureMonkey.giveMeOne(Member.class);
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
         Long recordId = missionRecord.getId();
-        Comment parentComment = createMockComment(member, missionRecord, content);
+        Comment parentComment = createMockParentComment(member, missionRecord, content);
 
         mockCommonDependencies(member, missionRecord, recordId, parentComment);
 
@@ -187,7 +188,8 @@ class CommentServiceTest extends FixtureMonkeySetUp {
     }
 
     // Comment 모킹 생성을 처리하는 메서드
-    private Comment createMockComment(Member member, MissionRecord missionRecord, String content) {
+    private Comment createMockParentComment(
+            Member member, MissionRecord missionRecord, String content) {
         return createMockComment(member, missionRecord, content, null);
     }
 
@@ -212,7 +214,7 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         Member member = fixtureMonkey.giveMeOne(Member.class);
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
         CommentCreateRequest request = CommentCreateRequest.of(content, recordId, null);
-        Comment comment = createMockComment(member, missionRecord, content); // 부모 댓글 생성
+        Comment comment = createMockParentComment(member, missionRecord, content); // 부모 댓글 생성
 
         mockCommonDependencies(member, missionRecord, recordId, comment); // 공통 모의 설정
 
@@ -285,5 +287,79 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         assertEquals(commentResponses.get(0).content(), content); // 첫 번째 댓글 내용 비교
         assertEquals(result.comments().get(0).content(), content);
         assertEquals(commentResponses.get(0).content(), result.comments().get(0).content());
+    }
+
+    @Test
+    void 자식_댓글을_조회합니다() {
+        // given
+        Long recordId = 1L;
+        String parentContent = "부모 댓글입니다.";
+        String childContentPrefix = "자식 댓글 내용 ";
+
+        // 부모 댓글 생성
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
+        Comment parentComment = createMockParentComment(member, missionRecord, parentContent);
+
+        // 자식 댓글 생성
+        List<Comment> childComments = new ArrayList<>();
+        for (int i = 1; i <= CHILD_COMMENT_COUNT; i++) {
+            String childContent = childContentPrefix + i;
+            Comment childComment =
+                    createMockComment(member, missionRecord, childContent, parentComment);
+            childComments.add(childComment);
+        }
+
+        // 부모 댓글과 자식 댓글이 포함된 댓글 리스트 생성
+        List<Comment> allComments = new ArrayList<>();
+        allComments.add(parentComment);
+        allComments.addAll(childComments);
+
+        // Mock 설정: 댓글 조회
+        when(missionRecordRepository.findById(recordId)).thenReturn(Optional.of(missionRecord));
+        when(commentRepository.findAllCommentsByMissionRecord(missionRecord))
+                .thenReturn(allComments);
+
+        // when: 댓글 조회 메서드 호출
+        CommentFindResponse result = commentService.findCommentsByRecordId(recordId);
+
+        // then: 부모 댓글 검증
+        assertNotNull(result);
+        assertEquals(1, result.comments().size(), "부모 댓글은 하나만 있어야 합니다.");
+
+        CommentFindOneResponse parentResponse = result.comments().get(0);
+        assertEquals(parentComment.getId(), parentResponse.commentId(), "부모 댓글 ID가 일치해야 합니다.");
+        assertEquals(parentComment.getContent(), parentResponse.content(), "부모 댓글 내용이 일치해야 합니다.");
+        assertEquals(
+                parentComment.getWriter().getId(),
+                parentResponse.writerId(),
+                "부모 댓글 작성자 ID가 일치해야 합니다.");
+        assertEquals(
+                CHILD_COMMENT_COUNT, parentResponse.replyComments().size(), "자식 댓글의 개수가 일치해야 합니다.");
+
+        // 자식 댓글 검증
+        for (int i = 0; i < CHILD_COMMENT_COUNT; i++) {
+            CommentFindOneResponse childResponse = parentResponse.replyComments().get(i);
+            Comment expectedChildComment = childComments.get(i);
+
+            assertEquals(
+                    expectedChildComment.getId(), childResponse.commentId(), "자식 댓글 ID가 일치해야 합니다.");
+            assertEquals(
+                    expectedChildComment.getContent(),
+                    childResponse.content(),
+                    "자식 댓글 내용이 일치해야 합니다.");
+            assertEquals(
+                    expectedChildComment.getWriter().getId(),
+                    childResponse.writerId(),
+                    "자식 댓글 작성자 ID가 일치해야 합니다.");
+            assertEquals(
+                    parentComment.getId(), childResponse.parentId(), "자식 댓글의 부모 ID가 일치해야 합니다.");
+        }
+
+        // 자식 댓글의 부모가 부모 댓글로 설정되었는지 확인
+        assertTrue(
+                parentResponse.replyComments().stream()
+                        .allMatch(reply -> reply.parentId().equals(parentComment.getId())),
+                "모든 자식 댓글의 부모 ID는 부모 댓글 ID와 일치해야 합니다.");
     }
 }
