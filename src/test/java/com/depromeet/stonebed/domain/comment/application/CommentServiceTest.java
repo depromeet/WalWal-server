@@ -361,5 +361,18 @@ class CommentServiceTest extends FixtureMonkeySetUp {
                 parentResponse.replyComments().stream()
                         .allMatch(reply -> reply.parentId().equals(parentComment.getId())),
                 "모든 자식 댓글의 부모 ID는 부모 댓글 ID와 일치해야 합니다.");
+        // 자식 댓글 내용 검증
+        assertTrue(
+                parentResponse.replyComments().stream()
+                        .allMatch(reply -> reply.content().startsWith(childContentPrefix)),
+                "모든 자식 댓글의 내용은 '자식 댓글 내용'으로 시작해야 합니다.");
+        // assertEquals로 자식 댓글 내용 검증
+
+        for (int i = 0; i < CHILD_COMMENT_COUNT; i++) {
+            assertEquals(
+                    childContentPrefix + (i + 1),
+                    parentResponse.replyComments().get(i).content(),
+                    "자식 댓글 내용이 일치해야 합니다.");
+        }
     }
 }
