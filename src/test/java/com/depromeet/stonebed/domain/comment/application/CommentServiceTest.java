@@ -8,6 +8,8 @@ import com.depromeet.stonebed.domain.comment.dao.CommentRepository;
 import com.depromeet.stonebed.domain.comment.domain.Comment;
 import com.depromeet.stonebed.domain.comment.dto.request.CommentCreateRequest;
 import com.depromeet.stonebed.domain.comment.dto.response.CommentCreateResponse;
+import com.depromeet.stonebed.domain.comment.dto.response.CommentFindOneResponse;
+import com.depromeet.stonebed.domain.comment.dto.response.CommentFindResponse;
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
@@ -16,6 +18,7 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,8 +47,9 @@ class CommentServiceTest extends FixtureMonkeySetUp {
 
     private static final int CHILD_COMMENT_COUNT = 5; // 자식 댓글 생성 횟수
 
+    // 생성
     @Test
-    void 부모_댓글_생성_성공() {
+    void 부모_댓글_생성합니다() {
         // given
         Long recordId = 1L;
         String content = "너무 이쁘자나~";
@@ -68,7 +72,7 @@ class CommentServiceTest extends FixtureMonkeySetUp {
     }
 
     @Test
-    void 자식_댓글_생성_성공() {
+    void 자식_댓글_생성합니다() {
         // given
         String content = "너무 이쁘자나~";
         Member member = fixtureMonkey.giveMeOne(Member.class);
@@ -103,7 +107,7 @@ class CommentServiceTest extends FixtureMonkeySetUp {
     }
 
     @Test
-    void 부모_댓글에_여러_자식_댓글_생성_성공() {
+    void 부모_댓글에_여러_자식_댓글을_생성합니다() {
         // given
         String content = "부모 댓글 내용";
         Member member = fixtureMonkey.giveMeOne(Member.class);
@@ -196,5 +200,90 @@ class CommentServiceTest extends FixtureMonkeySetUp {
                 .set("content", content)
                 .set("parent", parent)
                 .sample();
+    }
+
+    // 조회
+    @Test
+    void 부모_댓글을_조회합니다() {
+        // given
+        Long recordId = 1L;
+        String content = "너무 이쁘자나~";
+
+        Member member = fixtureMonkey.giveMeOne(Member.class);
+        MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
+        CommentCreateRequest request = CommentCreateRequest.of(content, recordId, null);
+        Comment comment = createMockComment(member, missionRecord, content); // 부모 댓글 생성
+
+        mockCommonDependencies(member, missionRecord, recordId, comment); // 공통 모의 설정
+
+        // when: 부모 댓글 생성
+        CommentCreateResponse response = commentService.createComment(request);
+
+        // 부모 댓글 조회
+        when(commentRepository.findById(response.commentId())).thenReturn(Optional.of(comment));
+
+        // 부모 댓글을 포함한 댓글 리스트 생성
+        Comment parentComment = commentRepository.findById(response.commentId()).orElse(null);
+        List<Comment> comments = List.of(Objects.requireNonNull(parentComment));
+
+        // 부모 댓글을 CommentFindOneResponse로 변환
+        List<CommentFindOneResponse> commentResponses =
+                comments.stream()
+                        .map(
+                                comment1 ->
+                                        CommentFindOneResponse.of(
+                                                comment1.getParent() != null
+                                                        ? comment1.getParent().getId()
+                                                        : null,
+                                                comment1.getId(),
+                                                comment1.getContent(),
+                                                comment1.getWriter().getId(),
+                                                comment1.getWriter().getProfile().getNickname(),
+                                                comment1.getWriter()
+                                                        .getProfile()
+                                                        .getProfileImageUrl(),
+                                                comment1.getCreatedAt().toString(),
+                                                comment1.getReplyComments().stream()
+                                                        .map(
+                                                                reply ->
+                                                                        CommentFindOneResponse.of(
+                                                                                reply.getParent()
+                                                                                                != null
+                                                                                        ? reply.getParent()
+                                                                                                .getId()
+                                                                                        : null,
+                                                                                reply.getId(),
+                                                                                reply.getContent(),
+                                                                                reply.getWriter()
+                                                                                        .getId(),
+                                                                                reply.getWriter()
+                                                                                        .getProfile()
+                                                                                        .getNickname(),
+                                                                                reply.getWriter()
+                                                                                        .getProfile()
+                                                                                        .getProfileImageUrl(),
+                                                                                reply.getCreatedAt()
+                                                                                        .toString(),
+                                                                                List.of()))
+                                                        .collect(Collectors.toList())))
+                        .toList();
+
+        // 모의 객체 설정
+        when(missionRecordRepository.findById(recordId)).thenReturn(Optional.of(missionRecord));
+        when(commentRepository.findAllCommentsByMissionRecord(missionRecord)).thenReturn(comments);
+
+        // when: 댓글 조회
+        CommentFindResponse result = commentService.findCommentsByRecordId(recordId);
+
+        // then: 검증
+        assertNotNull(result);
+        assertEquals(commentResponses.size(), result.comments().size()); // 댓글 개수 비교
+        assertEquals(
+                commentResponses.get(0).commentId(),
+                result.comments().get(0).commentId()); // 첫 번째 댓글 ID 비교
+
+        assertEquals(commentResponses.get(0).content(), content); // 첫 번째 댓글 내용 비교
+        assertEquals(result.comments().get(0).content(), content);
+        assertEquals(commentResponses.get(0).content(), result.comments().get(0).content());
     }
 }
