@@ -86,6 +86,7 @@ public class FeedService {
         return FeedContentGetResponse.from(feedOne);
     }
 
+    @Transactional(readOnly = true)
     public FeedGetResponseV2 findFeedV2(FeedGetRequest request) {
         List<FindFeedDto> feeds = getFeeds(request.cursor(), request.memberId(), request.limit());
 

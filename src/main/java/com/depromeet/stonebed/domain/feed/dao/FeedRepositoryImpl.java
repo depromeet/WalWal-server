@@ -1,5 +1,6 @@
 package com.depromeet.stonebed.domain.feed.dao;
 
+import static com.depromeet.stonebed.domain.comment.domain.QComment.*;
 import static com.depromeet.stonebed.domain.member.domain.QMember.*;
 import static com.depromeet.stonebed.domain.mission.domain.QMission.*;
 import static com.depromeet.stonebed.domain.missionHistory.domain.QMissionHistory.*;
@@ -61,7 +62,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                         mission,
                         missionRecord,
                         member,
-                        Expressions.asNumber(missionRecord.comments.size()).as("totalCommentCount"),
+                        comment.id.count().as("commentCount"),
                         Expressions.asNumber(missionRecordBoost.count.sumLong().coalesce(0L))
                                 .as("totalBoostCount")));
     }
@@ -75,7 +76,9 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .leftJoin(missionHistory)
                 .on(missionRecord.missionHistory.eq(missionHistory))
                 .leftJoin(mission)
-                .on(missionHistory.mission.eq(mission));
+                .on(missionHistory.mission.eq(mission))
+                .leftJoin(comment)
+                .on(comment.recordId.eq(missionRecord.id)); // Join Comment entity
     }
 
     private BooleanExpression ltMissionRecordId(Long missionRecordId) {

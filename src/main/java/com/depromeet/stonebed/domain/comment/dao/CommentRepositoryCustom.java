@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface CommentRepositoryCustom {
     List<Comment> findAllCommentsByMissionRecord(MissionRecord missionRecord);
+
+    void updateEmptyMemberAllByMember(Long memberId);
 }

@@ -3,6 +3,7 @@ package com.depromeet.stonebed.domain.comment.dao;
 import static com.depromeet.stonebed.domain.comment.domain.QComment.comment;
 
 import com.depromeet.stonebed.domain.comment.domain.Comment;
+import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -21,7 +22,16 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .fetchJoin()
                 .leftJoin(comment.replyComments)
                 .fetchJoin()
-                .where(comment.missionRecord.eq(missionRecord))
+                .where(comment.recordId.eq(missionRecord.getId()))
                 .fetch();
+    }
+
+    @Override
+    public void updateEmptyMemberAllByMember(Long memberId) {
+        queryFactory
+                .update(comment)
+                .set(comment.writer, (Member) null)
+                .where(comment.writer.id.eq(memberId))
+                .execute();
     }
 }

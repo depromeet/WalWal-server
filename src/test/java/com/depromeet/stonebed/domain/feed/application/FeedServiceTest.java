@@ -28,7 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 class FeedServiceTest extends FixtureMonkeySetUp {
     int DEFAULT_LIMIT = 5;
     Long DEFAULT_TOTAL_BOOST_COUNT = 100L;
-    Integer DEFAULT_TOTAL_COMMENT_COUNT = 13;
+    Long DEFAULT_TOTAL_COMMENT_COUNT = 13L;
     String DEFAULT_CURSOR = "5";
     String INVALID_CURSOR = "2024-08-01";
 

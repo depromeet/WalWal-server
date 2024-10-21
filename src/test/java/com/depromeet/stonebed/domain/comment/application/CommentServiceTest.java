@@ -2,7 +2,6 @@ package com.depromeet.stonebed.domain.comment.application;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.transaction.annotation.Isolation.*;
 
 import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.comment.dao.CommentRepository;

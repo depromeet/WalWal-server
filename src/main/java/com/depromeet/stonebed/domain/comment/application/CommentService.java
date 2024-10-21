@@ -64,11 +64,12 @@ public class CommentService {
         final Comment comment =
                 request.parentId() != null
                         ? Comment.createComment(
-                                missionRecord,
+                                missionRecord.getId(),
                                 member,
                                 request.content(),
                                 findCommentById(request.parentId()))
-                        : Comment.createComment(missionRecord, member, request.content(), null);
+                        : Comment.createComment(
+                                missionRecord.getId(), member, request.content(), null);
         return commentRepository.save(comment);
     }
 
@@ -200,6 +201,7 @@ public class CommentService {
 
     private CommentFindOneResponse convertToCommentFindOneResponse(
             Comment comment, Map<Long, List<Comment>> commentsByParentId) {
+
         List<CommentFindOneResponse> replyCommentsResponses =
                 commentsByParentId.getOrDefault(comment.getId(), List.of()).stream()
                         .map(
@@ -208,13 +210,24 @@ public class CommentService {
                                                 childComment, commentsByParentId))
                         .collect(Collectors.toList());
 
+        // 작성자가 null인지 확인
+        Long writerId = comment.getWriter() != null ? comment.getWriter().getId() : null;
+        String writerNickname =
+                comment.getWriter() != null
+                        ? comment.getWriter().getProfile().getNickname()
+                        : "탈퇴한 회원";
+        String writerProfileImageUrl =
+                comment.getWriter() != null
+                        ? comment.getWriter().getProfile().getProfileImageUrl()
+                        : null;
+
         return CommentFindOneResponse.of(
                 comment.getParent() != null ? comment.getParent().getId() : null,
                 comment.getId(),
                 comment.getContent(),
-                comment.getWriter().getId(),
-                comment.getWriter().getProfile().getNickname(),
-                comment.getWriter().getProfile().getProfileImageUrl(),
+                writerId,
+                writerNickname,
+                writerProfileImageUrl,
                 comment.getCreatedAt().toString(),
                 replyCommentsResponses);
     }
