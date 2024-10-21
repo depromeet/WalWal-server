@@ -215,7 +215,7 @@ public class CommentService {
         String writerNickname =
                 comment.getWriter() != null
                         ? comment.getWriter().getProfile().getNickname()
-                        : "탈퇴한 회원입니다.";
+                        : "탈퇴한 회원";
         String writerProfileImageUrl =
                 comment.getWriter() != null
                         ? comment.getWriter().getProfile().getProfileImageUrl()
