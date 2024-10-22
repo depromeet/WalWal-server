@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "신고 요청 정보")
-public record ReportRequest(
+public record ReportCreateRequest(
         @Schema(description = "신고할 대상 기록의 ID", example = "123", required = true) @NotNull
                 Long recordId,
         @Schema(description = "신고 사유", example = "사기 또는 사칭", required = true) @NotNull

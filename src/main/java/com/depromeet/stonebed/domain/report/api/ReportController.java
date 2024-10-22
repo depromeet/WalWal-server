@@ -1,7 +1,7 @@
 package com.depromeet.stonebed.domain.report.api;
 
 import com.depromeet.stonebed.domain.report.application.ReportService;
-import com.depromeet.stonebed.domain.report.dto.request.ReportRequest;
+import com.depromeet.stonebed.domain.report.dto.request.ReportCreateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
     private final ReportService reportService;
 
-    @Operation(summary = "신고하기", description = "특정 피드를 신고한다.")
-    @PostMapping
-    public ResponseEntity<Void> reportFeed(@RequestBody ReportRequest reportRequest) {
-        reportService.reportFeed(reportRequest);
+    @Operation(summary = "피드 신고하기", description = "특정 피드를 신고한다.")
+    @PostMapping("/feed")
+    public ResponseEntity<Void> reportFeed(@RequestBody ReportCreateRequest reportCreateRequest) {
+        reportService.reportFeed(reportCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

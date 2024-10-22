@@ -182,7 +182,6 @@ public class AuthService {
     }
 
     private void withdrawMemberRelationByMemberId(List<Long> recordIds, Long memberId) {
-        reportRepository.deleteAllByMember(memberId);
         commentRepository.updateEmptyMemberAllByMember(memberId);
         missionRecordBoostRepository.deleteAllByRecordIds(recordIds);
         missionRecordRepository.deleteAllByMember(memberId);

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
     @Modifying
-    @Query("DELETE FROM Report r WHERE r.member.id = :memberId")
+    @Query("DELETE FROM Report r WHERE r.member.id in (:memberId)")
     void deleteAllByMember(Long memberId);
 }
