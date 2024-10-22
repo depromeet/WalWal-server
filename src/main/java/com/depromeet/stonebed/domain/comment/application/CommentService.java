@@ -212,18 +212,19 @@ public class CommentService {
                         .collect(Collectors.toList());
 
         // 작성자가 null인지 확인
-        Long writerId =
-                comment.getWriter().getStatus() != MemberStatus.DELETED
-                        ? comment.getWriter().getId()
-                        : null;
-        String writerNickname =
-                comment.getWriter().getStatus() != MemberStatus.DELETED
-                        ? comment.getWriter().getProfile().getNickname()
-                        : "탈퇴한 회원";
-        String writerProfileImageUrl =
-                comment.getWriter().getStatus() != MemberStatus.DELETED
-                        ? comment.getWriter().getProfile().getProfileImageUrl()
-                        : "INACTIVE_" + comment.getWriter().getRaisePet().getValue();
+        Long writerId = null;
+        String writerNickname = "탈퇴한 회원";
+        String writerProfileImageUrl = null;
+
+        if (comment.getWriter() != null) {
+            if (comment.getWriter().getStatus() != MemberStatus.DELETED) {
+                writerId = comment.getWriter().getId();
+                writerNickname = comment.getWriter().getProfile().getNickname();
+                writerProfileImageUrl = comment.getWriter().getProfile().getProfileImageUrl();
+            } else {
+                writerProfileImageUrl = "INACTIVE_" + comment.getWriter().getRaisePet().getValue();
+            }
+        }
 
         return CommentFindOneResponse.of(
                 comment.getParent() != null ? comment.getParent().getId() : null,

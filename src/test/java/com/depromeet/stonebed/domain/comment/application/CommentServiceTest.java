@@ -13,6 +13,7 @@ import com.depromeet.stonebed.domain.comment.dto.response.CommentFindResponse;
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -296,7 +297,11 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         String childContentPrefix = "자식 댓글 내용 ";
 
         // 부모 댓글 생성
-        Member member = fixtureMonkey.giveMeOne(Member.class);
+        Member member =
+                fixtureMonkey
+                        .giveMeBuilder(Member.class)
+                        .set("status", MemberStatus.NORMAL)
+                        .sample();
         MissionRecord missionRecord = fixtureMonkey.giveMeOne(MissionRecord.class);
         Comment parentComment = createMockParentComment(member, missionRecord, parentContent);
 
@@ -327,6 +332,7 @@ class CommentServiceTest extends FixtureMonkeySetUp {
         assertEquals(1, result.comments().size(), "부모 댓글은 하나만 있어야 합니다.");
 
         CommentFindOneResponse parentResponse = result.comments().get(0);
+
         assertEquals(parentComment.getId(), parentResponse.commentId(), "부모 댓글 ID가 일치해야 합니다.");
         assertEquals(parentComment.getContent(), parentResponse.content(), "부모 댓글 내용이 일치해야 합니다.");
         assertEquals(
