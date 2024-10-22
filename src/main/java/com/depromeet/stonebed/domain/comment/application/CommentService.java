@@ -11,6 +11,7 @@ import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.Member;
+import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.global.common.constants.FcmNotificationConstants;
@@ -211,15 +212,18 @@ public class CommentService {
                         .collect(Collectors.toList());
 
         // 작성자가 null인지 확인
-        Long writerId = comment.getWriter() != null ? comment.getWriter().getId() : null;
+        Long writerId =
+                comment.getWriter().getStatus() != MemberStatus.DELETED
+                        ? comment.getWriter().getId()
+                        : null;
         String writerNickname =
-                comment.getWriter() != null
+                comment.getWriter().getStatus() != MemberStatus.DELETED
                         ? comment.getWriter().getProfile().getNickname()
                         : "탈퇴한 회원";
         String writerProfileImageUrl =
-                comment.getWriter() != null
+                comment.getWriter().getStatus() != MemberStatus.DELETED
                         ? comment.getWriter().getProfile().getProfileImageUrl()
-                        : null;
+                        : "INACTIVE_" + comment.getWriter().getRaisePet().getValue();
 
         return CommentFindOneResponse.of(
                 comment.getParent() != null ? comment.getParent().getId() : null,

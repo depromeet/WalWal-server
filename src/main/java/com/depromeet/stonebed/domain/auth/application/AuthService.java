@@ -180,7 +180,6 @@ public class AuthService {
     }
 
     private void withdrawMemberRelationByMemberId(List<Long> recordIds, Long memberId) {
-        commentRepository.updateEmptyMemberAllByMember(memberId);
         missionRecordBoostRepository.deleteAllByRecordIds(recordIds);
         missionRecordRepository.deleteAllByMember(memberId);
         fcmNotificationRepository.deleteAllByMember(memberId);

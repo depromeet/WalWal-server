@@ -13,6 +13,7 @@ import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordStatus;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -62,7 +63,10 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                         mission,
                         missionRecord,
                         member,
-                        comment.id.count().as("commentCount"),
+                        // 서브쿼리를 통해 댓글 개수 계산
+                        JPAExpressions.select(comment.id.count())
+                                .from(comment)
+                                .where(comment.recordId.eq(missionRecord.id)),
                         Expressions.asNumber(missionRecordBoost.count.sumLong().coalesce(0L))
                                 .as("totalBoostCount")));
     }
@@ -76,9 +80,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .leftJoin(missionHistory)
                 .on(missionRecord.missionHistory.eq(missionHistory))
                 .leftJoin(mission)
-                .on(missionHistory.mission.eq(mission))
-                .leftJoin(comment)
-                .on(comment.recordId.eq(missionRecord.id)); // Join Comment entity
+                .on(missionHistory.mission.eq(mission));
     }
 
     private BooleanExpression ltMissionRecordId(Long missionRecordId) {
