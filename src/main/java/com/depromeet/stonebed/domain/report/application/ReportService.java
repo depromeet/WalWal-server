@@ -6,7 +6,8 @@ import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
 import com.depromeet.stonebed.domain.report.dao.ReportRepository;
 import com.depromeet.stonebed.domain.report.domain.Report;
-import com.depromeet.stonebed.domain.report.dto.request.ReportRequest;
+import com.depromeet.stonebed.domain.report.domain.ReportDomain;
+import com.depromeet.stonebed.domain.report.dto.request.ReportCreateRequest;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -26,30 +27,35 @@ public class ReportService {
     private final MemberUtil memberUtil;
     private final DiscordNotificationService discordNotificationService;
 
-    public void reportFeed(ReportRequest reportRequest) {
+    public void reportFeed(ReportCreateRequest reportCreateRequest) {
         final Member reporter = memberUtil.getCurrentMember();
 
         MissionRecord missionRecord =
                 missionRecordRepository
-                        .findById(reportRequest.recordId())
+                        .findById(reportCreateRequest.recordId())
                         .orElseThrow(() -> new CustomException(ErrorCode.MISSION_RECORD_NOT_FOUND));
 
         Member reportedMember = missionRecord.getMember();
 
         Report report =
                 Report.createReport(
-                        missionRecord, reporter, reportRequest.reason(), reportRequest.details());
+                        missionRecord.getId(),
+                        reporter,
+                        ReportDomain.MISSION_RECORD,
+                        reportCreateRequest.reason(),
+                        reportCreateRequest.details());
 
         reportRepository.save(report);
 
-        sendReportNotificationToDiscord(reporter, reportedMember, missionRecord, reportRequest);
+        sendReportNotificationToDiscord(
+                reporter, reportedMember, missionRecord, reportCreateRequest);
     }
 
     private void sendReportNotificationToDiscord(
             Member reporter,
             Member reportedMember,
             MissionRecord missionRecord,
-            ReportRequest reportRequest) {
+            ReportCreateRequest reportCreateRequest) {
         String reportTime = java.time.LocalDateTime.now().format(DATE_TIME_FORMATTER);
 
         String message =
@@ -68,8 +74,8 @@ public class ReportService {
                                 + "**게시글 내용**: %s",
                         reporter.getProfile().getNickname(),
                         reportTime,
-                        reportRequest.reason(),
-                        reportRequest.details(),
+                        reportCreateRequest.reason(),
+                        reportCreateRequest.details(),
                         reportedMember.getProfile().getNickname(),
                         missionRecord.getId(),
                         missionRecord.getImageUrl() != null

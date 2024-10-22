@@ -20,7 +20,6 @@ import com.depromeet.stonebed.domain.member.dto.request.CreateMemberRequest;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordBoostRepository;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
-import com.depromeet.stonebed.domain.report.dao.ReportRepository;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.security.JwtTokenProvider;
@@ -43,7 +42,6 @@ public class AuthService {
     private final MissionRecordBoostRepository missionRecordBoostRepository;
     private final FcmTokenRepository fcmTokenRepository;
     private final CommentRepository commentRepository;
-    private final ReportRepository reportRepository;
 
     private final AppleClient appleClient;
     private final KakaoClient kakaoClient;
@@ -182,7 +180,6 @@ public class AuthService {
     }
 
     private void withdrawMemberRelationByMemberId(List<Long> recordIds, Long memberId) {
-        reportRepository.deleteAllByMember(memberId);
         commentRepository.updateEmptyMemberAllByMember(memberId);
         missionRecordBoostRepository.deleteAllByRecordIds(recordIds);
         missionRecordRepository.deleteAllByMember(memberId);
