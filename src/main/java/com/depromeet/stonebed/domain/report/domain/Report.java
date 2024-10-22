@@ -29,8 +29,8 @@ public class Report extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    @JoinColumn(name = "reporter_id", nullable = false)
+    private Member reporter;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "report_domain", nullable = false)
@@ -45,12 +45,12 @@ public class Report extends BaseTimeEntity {
     @Builder(access = AccessLevel.PRIVATE)
     private Report(
             Long targetId,
-            Member member,
+            Member reporter,
             ReportDomain reportDomain,
             String reason,
             String details) {
         this.targetId = targetId;
-        this.member = member;
+        this.reporter = reporter;
         this.reportDomain = reportDomain;
         this.reason = reason;
         this.details = details;
@@ -58,13 +58,13 @@ public class Report extends BaseTimeEntity {
 
     public static Report createReport(
             Long targetId,
-            Member member,
+            Member reporter,
             ReportDomain reportDomain,
             String reportReason,
             String details) {
         return Report.builder()
                 .targetId(targetId)
-                .member(member)
+                .reporter(reporter)
                 .reportDomain(reportDomain)
                 .reason(reportReason)
                 .details(details)
