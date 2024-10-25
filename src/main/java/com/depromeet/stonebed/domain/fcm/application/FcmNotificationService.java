@@ -1,5 +1,7 @@
 package com.depromeet.stonebed.domain.fcm.application;
 
+import static com.depromeet.stonebed.global.common.constants.NotificationConstants.*;
+
 import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
 import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.fcm.domain.FcmMessage;
@@ -19,7 +21,6 @@ import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +29,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.parsers.ReturnTypeParser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -47,28 +49,22 @@ public class FcmNotificationService {
     private final MemberRepository memberRepository;
     private final MemberUtil memberUtil;
 
-    private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
-    private static final long FIRST_BOOST_THRESHOLD = 1;
-    private static final long POPULAR_THRESHOLD = 1000;
-    private static final long SUPER_POPULAR_THRESHOLD = 5000;
-    private final ReturnTypeParser genericReturnTypeParser;
-
     public void saveNotification(
             FcmNotificationType type,
             String title,
             String message,
             Long targetId,
             Long memberId,
-            Boolean isRead) {
+            Boolean isRead,
+            String deepLink) {
         Member member =
                 memberRepository
                         .findById(memberId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         FcmNotification notification =
-                FcmNotification.create(type, title, message, member, targetId, isRead);
+                FcmNotification.createNotification(
+                        type, title, message, member, targetId, isRead, deepLink);
         notificationRepository.save(notification);
     }
 
@@ -76,7 +72,7 @@ public class FcmNotificationService {
     public FcmNotificationResponse getNotificationsForCurrentMember(String cursor, int limit) {
         Member member = memberUtil.getCurrentMember();
 
-        Pageable pageable = createPageable(limit);
+        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<FcmNotification> notifications = getNotifications(cursor, member.getId(), pageable);
         List<FcmNotificationDto> notificationData = convertToNotificationDto(notifications);
         String nextCursor = getNextCursor(notifications);
@@ -84,18 +80,8 @@ public class FcmNotificationService {
         return FcmNotificationResponse.from(notificationData, nextCursor);
     }
 
-    private Pageable createPageable(int limit) {
-        return PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-    }
-
     private List<FcmNotificationDto> convertToNotificationDto(List<FcmNotification> notifications) {
-        List<Long> targetIds =
-                notifications.stream()
-                        .filter(
-                                notification ->
-                                        notification.getType() == FcmNotificationType.BOOSTER)
-                        .map(FcmNotification::getTargetId)
-                        .toList();
+        List<Long> targetIds = notifications.stream().map(FcmNotification::getTargetId).toList();
 
         Map<Long, MissionRecord> missionRecordMap =
                 missionRecordRepository.findByIdIn(targetIds).stream()
@@ -204,11 +190,6 @@ public class FcmNotificationService {
         return getTokenForMember(member).filter(token -> !token.isEmpty());
     }
 
-    private String generateDeepLink(MissionRecord missionRecord, long boostCount) {
-        return FcmNotification.generateDeepLink(
-                FcmNotificationType.BOOSTER, missionRecord.getId(), boostCount);
-    }
-
     private void createAndSendFcmMessage(
             String title, String message, String token, String deepLink) {
         FcmMessage fcmMessage = FcmMessage.of(title, message, token, deepLink);
@@ -222,7 +203,9 @@ public class FcmNotificationService {
         String token = validateTokenForMember(missionRecord.getMember()).orElse(null);
         if (token == null) return;
 
-        String deepLink = generateDeepLink(missionRecord, boostCount);
+        String deepLink =
+                FcmNotification.generateDeepLink(
+                        FcmNotificationType.BOOSTER, missionRecord.getId(), boostCount);
         createAndSendFcmMessage(
                 notificationConstants.getTitle(),
                 notificationConstants.getMessage(),
@@ -235,7 +218,8 @@ public class FcmNotificationService {
                 notificationConstants.getMessage(),
                 missionRecord.getId(),
                 missionRecord.getMember().getId(),
-                false);
+                false,
+                deepLink);
     }
 
     public void markNotificationAsRead(Long notificationId) {
@@ -250,7 +234,12 @@ public class FcmNotificationService {
     }
 
     private List<FcmNotification> buildNotificationList(
-            String title, String message, List<String> tokens) {
+            String title,
+            String message,
+            List<String> tokens,
+            Long targetId,
+            FcmNotificationType notificationType,
+            String deepLink) {
         List<FcmNotification> notifications = new ArrayList<>();
 
         for (String token : tokens) {
@@ -262,34 +251,49 @@ public class FcmNotificationService {
                                     () -> new CustomException(ErrorCode.FAILED_TO_FIND_FCM_TOKEN));
 
             FcmNotification newNotification =
-                    FcmNotification.create(
-                            FcmNotificationType.MISSION, title, message, member, null, false);
+                    FcmNotification.createNotification(
+                            notificationType, title, message, member, targetId, false, deepLink);
             notifications.add(newNotification);
         }
 
         return notifications;
     }
 
-    public void sendAndNotifications(String title, String message, List<String> tokens) {
-        List<List<String>> batches = createBatches(tokens, 10);
+    public void sendAndNotifications(
+            String title,
+            String message,
+            List<String> tokens,
+            Long sourceId,
+            Long targetId,
+            FcmNotificationType notificationType) {
+        List<List<String>> batches = createBatches(tokens);
 
-        String deepLink = FcmNotification.generateDeepLink(FcmNotificationType.MISSION, null, null);
+        String deepLink = FcmNotification.generateDeepLink(notificationType, targetId, null);
+
+        if (notificationType == FcmNotificationType.COMMENT
+                || notificationType == FcmNotificationType.RE_COMMENT) {
+            deepLink = FcmNotification.generateCommentDeepLink(sourceId, targetId);
+        }
 
         for (List<String> batch : batches) {
             sqsMessageService.sendBatchMessages(batch, title, message, deepLink);
         }
 
-        List<FcmNotification> notifications = buildNotificationList(title, message, tokens);
+        List<FcmNotification> notifications =
+                buildNotificationList(title, message, tokens, targetId, notificationType, deepLink);
         notificationRepository.saveAll(notifications);
     }
 
-    private List<List<String>> createBatches(List<String> tokens, int batchSize) {
-        return IntStream.range(0, (tokens.size() + batchSize - 1) / batchSize)
+    private List<List<String>> createBatches(List<String> tokens) {
+        return IntStream.range(
+                        0,
+                        (tokens.size() + SQS_BATCH_SIZE - 1)
+                                / SQS_BATCH_SIZE) // ceil(tokens.size() / SQS_BATCH_SIZE
                 .mapToObj(
                         i ->
                                 tokens.subList(
-                                        i * batchSize,
-                                        Math.min(tokens.size(), (i + 1) * batchSize)))
+                                        i * SQS_BATCH_SIZE,
+                                        Math.min(tokens.size(), (i + 1) * SQS_BATCH_SIZE)))
                 .collect(Collectors.toList());
     }
 

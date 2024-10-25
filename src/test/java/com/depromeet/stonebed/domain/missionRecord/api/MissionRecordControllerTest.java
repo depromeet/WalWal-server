@@ -31,7 +31,6 @@ public class MissionRecordControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private MissionRecordService missionRecordService;
-
     private final Gson gson = new Gson();
 
     @Test

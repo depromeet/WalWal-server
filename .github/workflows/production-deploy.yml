@@ -1,0 +1,44 @@
+name: Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'version'
+        required: true
+
+env:
+  DOCKERHUB_IMAGE_NAME: walwal-server
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment: PROD
+    steps:
+      - name: Deploy to EC2 Server
+        uses: appleboy/ssh-action@master
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: IMAGE_FULL_URL # docker-compose.yaml 에서 사용할 환경 변수
+          script: |
+            aws s3 cp ${{ env.S3_COPY_PATH }} docker-compose.yaml
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            docker pull ${{ env.IMAGE_FULL_URL }}
+            docker compose up -d
+            docker image prune -a -f
+
+      ## Slack
+      - name: Slack Alarm
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: GitHub-Actions CI/CD
+          fields: repo,message,commit,author,ref,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.

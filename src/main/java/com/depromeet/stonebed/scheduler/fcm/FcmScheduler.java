@@ -2,6 +2,7 @@ package com.depromeet.stonebed.scheduler.fcm;
 
 import com.depromeet.stonebed.domain.fcm.application.FcmNotificationService;
 import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
+import com.depromeet.stonebed.domain.fcm.domain.FcmNotificationType;
 import com.depromeet.stonebed.domain.fcm.domain.FcmToken;
 import com.depromeet.stonebed.domain.member.domain.MemberStatus;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
@@ -41,7 +42,8 @@ public class FcmScheduler {
         String message = notificationConstants.getMessage();
         List<String> tokens = fcmNotificationService.getAllTokens();
 
-        fcmNotificationService.sendAndNotifications(title, message, tokens);
+        fcmNotificationService.sendAndNotifications(
+                title, message, tokens, null, null, FcmNotificationType.MISSION);
 
         log.info("모든 사용자에게 정규 알림 전송 및 저장 완료");
     }
@@ -54,7 +56,8 @@ public class FcmScheduler {
         String message = notificationConstants.getMessage();
 
         List<String> tokens = getIncompleteMissionTokens();
-        fcmNotificationService.sendAndNotifications(title, message, tokens);
+        fcmNotificationService.sendAndNotifications(
+                title, message, tokens, null, null, FcmNotificationType.MISSION);
 
         log.info("미완료 미션 사용자에게 리마인더 전송 및 저장 완료. 총 토큰 수: {}", tokens.size());
     }
@@ -73,6 +76,7 @@ public class FcmScheduler {
 
         return fcmTokenRepository.findAllByMemberStatus(MemberStatus.NORMAL).stream()
                 .filter(fcmToken -> !completedMemberIds.contains(fcmToken.getMember().getId()))
+                .filter(fcmToken -> fcmToken.getToken() != null)
                 .map(FcmToken::getToken)
                 .collect(Collectors.toList());
     }

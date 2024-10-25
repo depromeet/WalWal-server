@@ -8,7 +8,7 @@ import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.feed.dao.FeedRepository;
 import com.depromeet.stonebed.domain.feed.dto.FindFeedDto;
 import com.depromeet.stonebed.domain.feed.dto.request.FeedGetRequest;
-import com.depromeet.stonebed.domain.feed.dto.response.FeedGetResponse;
+import com.depromeet.stonebed.domain.feed.dto.response.v1.FeedGetResponse;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.mission.domain.Mission;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
@@ -28,6 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 class FeedServiceTest extends FixtureMonkeySetUp {
     int DEFAULT_LIMIT = 5;
     Long DEFAULT_TOTAL_BOOST_COUNT = 100L;
+    Long DEFAULT_TOTAL_COMMENT_COUNT = 13L;
     String DEFAULT_CURSOR = "5";
     String INVALID_CURSOR = "2024-08-01";
 
@@ -46,6 +47,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
+                            DEFAULT_TOTAL_COMMENT_COUNT,
                             DEFAULT_TOTAL_BOOST_COUNT));
         }
 
@@ -57,7 +59,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
 
         // When
         FeedGetResponse feedGetResponse =
-                feedService.getFeed(new FeedGetRequest(null, null, DEFAULT_LIMIT));
+                feedService.findFeed(new FeedGetRequest(null, null, DEFAULT_LIMIT));
 
         // Then
         assertThat(feedGetResponse.list().size()).isEqualTo(5);
@@ -75,6 +77,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
+                            DEFAULT_TOTAL_COMMENT_COUNT,
                             DEFAULT_TOTAL_BOOST_COUNT));
         }
 
@@ -87,6 +90,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                         fixtureMonkey.giveMeOne(Mission.class),
                         fixtureMonkey.giveMeOne(MissionRecord.class),
                         fixtureMonkey.giveMeOne(Member.class),
+                        DEFAULT_TOTAL_COMMENT_COUNT,
                         DEFAULT_TOTAL_BOOST_COUNT);
 
         when(feedRepository.getNextFeedContent(
@@ -95,7 +99,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
 
         // When
         FeedGetResponse feedGetResponse =
-                feedService.getFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
+                feedService.findFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
 
         // Then
         assertThat(feedGetResponse.list().size()).isEqualTo(5);
@@ -114,6 +118,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                             fixtureMonkey.giveMeOne(Mission.class),
                             fixtureMonkey.giveMeOne(MissionRecord.class),
                             fixtureMonkey.giveMeOne(Member.class),
+                            DEFAULT_TOTAL_COMMENT_COUNT,
                             DEFAULT_TOTAL_BOOST_COUNT));
         }
 
@@ -126,7 +131,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
 
         // When
         FeedGetResponse feedGetResponse =
-                feedService.getFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
+                feedService.findFeed(new FeedGetRequest(DEFAULT_CURSOR, null, DEFAULT_LIMIT));
 
         // Then
         assertThat(feedGetResponse.list().size()).isEqualTo(3);
@@ -140,7 +145,7 @@ class FeedServiceTest extends FixtureMonkeySetUp {
                 assertThrows(
                         CustomException.class,
                         () ->
-                                feedService.getFeed(
+                                feedService.findFeed(
                                         new FeedGetRequest(INVALID_CURSOR, null, DEFAULT_LIMIT)));
 
         // Then: 에러코드 검증

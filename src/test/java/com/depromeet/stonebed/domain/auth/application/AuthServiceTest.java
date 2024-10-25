@@ -7,7 +7,9 @@ import com.depromeet.stonebed.FixtureMonkeySetUp;
 import com.depromeet.stonebed.domain.auth.domain.OAuthProvider;
 import com.depromeet.stonebed.domain.auth.dto.response.AuthTokenResponse;
 import com.depromeet.stonebed.domain.auth.dto.response.TokenPairResponse;
+import com.depromeet.stonebed.domain.comment.dao.CommentRepository;
 import com.depromeet.stonebed.domain.fcm.dao.FcmNotificationRepository;
+import com.depromeet.stonebed.domain.fcm.dao.FcmTokenRepository;
 import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.member.domain.MemberRole;
@@ -38,6 +40,8 @@ class AuthServiceTest extends FixtureMonkeySetUp {
     @Mock private FcmNotificationRepository fcmNotificationRepository;
     @Mock private MissionRecordRepository missionRecordRepository;
     @Mock private MissionRecordBoostRepository missionRecordBoostRepository;
+    @Mock private FcmTokenRepository fcmTokenRepository;
+    @Mock private CommentRepository commentRepository;
 
     @Mock private MemberUtil memberUtil;
 

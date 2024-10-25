@@ -1,10 +1,13 @@
 package com.depromeet.stonebed.domain.missionRecord.domain;
 
+import com.depromeet.stonebed.domain.comment.domain.Comment;
 import com.depromeet.stonebed.domain.common.BaseTimeEntity;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionHistory.domain.MissionHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +32,9 @@ public class MissionRecord extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     @Schema(description = "미션 이미지 URL", example = "./missionRecord.jpg")
     @Column(name = "image_url")
