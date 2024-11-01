@@ -12,11 +12,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface FcmNotificationRepository extends JpaRepository<FcmNotification, Long> {
+public interface FcmNotificationRepository
+        extends JpaRepository<FcmNotification, Long>, FcmNotificationRepositoryCustom {
     List<FcmNotification> findByMemberId(Long memberId, Pageable pageable);
-
-    List<FcmNotification> findByMemberIdAndCreatedAtLessThanEqual(
-            Long memberId, LocalDateTime cursorDate, Pageable pageable);
 
     Optional<FcmNotification> findByIdAndMember(Long id, Member member);
 
