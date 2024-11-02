@@ -101,12 +101,10 @@ public class FcmNotificationService {
 
     private List<FcmNotification> getNotifications(
             String cursor, Long memberId, Pageable pageable) {
-        if (cursor == null) {
-            return notificationRepository.findByMemberId(memberId, pageable);
-        }
-
         try {
-            LocalDateTime cursorDate = LocalDateTime.parse(cursor, DATE_FORMATTER);
+            LocalDateTime cursorDate = null;
+            if (cursor != null) cursorDate = LocalDateTime.parse(cursor, DATE_FORMATTER);
+
             return notificationRepository.findMissionRecordNotificationByMemberPaging(
                     memberId, cursorDate, pageable);
         } catch (DateTimeParseException e) {
@@ -115,9 +113,7 @@ public class FcmNotificationService {
     }
 
     private String getNextCursor(List<FcmNotification> notifications) {
-        if (notifications.isEmpty()) {
-            return null;
-        }
+        if (notifications.isEmpty()) return null;
 
         FcmNotification lastNotification = notifications.get(notifications.size() - 1);
 
