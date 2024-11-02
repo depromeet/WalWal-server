@@ -12,6 +12,7 @@ import com.depromeet.stonebed.domain.member.dao.MemberRepository;
 import com.depromeet.stonebed.domain.member.domain.Member;
 import com.depromeet.stonebed.domain.missionRecord.dao.MissionRecordRepository;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecord;
+import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
 import com.depromeet.stonebed.global.error.ErrorCode;
 import com.depromeet.stonebed.global.error.exception.CustomException;
 import com.depromeet.stonebed.global.util.MemberUtil;
@@ -69,13 +70,22 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
                 PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt")); // 첫 번째 페이지, 10개씩
         List<FcmNotification> notifications = List.of(fcmNotification);
 
-        when(notificationRepository.findByMemberId(eq(member.getId()), eq(pageable)))
+        when(notificationRepository.findMissionRecordNotificationByMemberPaging(
+                        member.getId(), null, pageable))
                 .thenReturn(notifications);
 
         if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
             List<MissionRecord> missionRecords =
-                    List.of(fixtureMonkey.giveMeOne(MissionRecord.class));
-            when(missionRecordRepository.findByIdIn(anyList())).thenReturn(missionRecords);
+                    List.of(
+                            fixtureMonkey
+                                    .giveMeBuilder(MissionRecord.class)
+                                    .set("member", member)
+                                    .set("display", MissionRecordDisplay.PUBLIC)
+                                    .sample());
+
+            List<Long> targetIds =
+                    notifications.stream().map(FcmNotification::getTargetId).toList();
+            when(missionRecordRepository.findByIdIn(targetIds)).thenReturn(missionRecords);
         }
 
         // when
@@ -84,7 +94,6 @@ public class FcmNotificationServiceTest extends FixtureMonkeySetUp {
 
         // then
         assertFalse(responses.list().isEmpty());
-        verify(notificationRepository, times(1)).findByMemberId(eq(member.getId()), eq(pageable));
 
         if (fcmNotification.getType() == FcmNotificationType.BOOSTER) {
             verify(missionRecordRepository, times(1)).findByIdIn(anyList());
