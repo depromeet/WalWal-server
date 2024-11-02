@@ -5,6 +5,7 @@ import static com.depromeet.stonebed.domain.missionRecord.domain.QMissionRecord.
 
 import com.depromeet.stonebed.domain.fcm.domain.FcmNotification;
 import com.depromeet.stonebed.domain.missionRecord.domain.MissionRecordDisplay;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,16 +24,21 @@ public class FcmNotificationRepositoryImpl implements FcmNotificationRepositoryC
                 .from(fcmNotification)
                 .innerJoin(fcmNotification.member)
                 .on(fcmNotification.member.id.eq(memberId))
-                .innerJoin(missionRecord)
+                .leftJoin(missionRecord)
                 .on(fcmNotification.targetId.eq(missionRecord.id))
                 .where(
-                        fcmNotification
-                                .createdAt
-                                .loe(cursorDate)
-                                .and(missionRecord.display.eq(MissionRecordDisplay.PUBLIC)))
+                        loeCursorDate(cursorDate),
+                        missionRecord
+                                .display
+                                .eq(MissionRecordDisplay.PUBLIC)
+                                .or(fcmNotification.targetId.isNull()))
                 .orderBy(fcmNotification.createdAt.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
+    }
+
+    private BooleanExpression loeCursorDate(LocalDateTime cursorDate) {
+        return cursorDate != null ? fcmNotification.createdAt.loe(cursorDate) : null;
     }
 }
